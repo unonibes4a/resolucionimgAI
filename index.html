@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cargador de Imágenes con Canvas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        canvas {
+            width: 512px;
+            height: 512px;
+        }
+        button {
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ajustar  img para utilizar en trllis Inteligencias artificial </h1>
+        
+        <div class="controls">
+            <input type="file" id="imageInput" accept="image/*">
+            <label for="body">Color de fondo:</label>
+            <input type="color" id="body" name="body" value="#ffffff">
+            <button id="downloadBtn">Descargar Imagen</button>
+        </div>
+        
+        <canvas id="imageCanvas"></canvas>
+    </div>
+
+    <script>
+        class ImageCanvasProcessor {
+            constructor() {
+                this.canvas = document.getElementById('imageCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.imageInput = document.getElementById('imageInput');
+                this.bgColorInput = document.getElementById('body');
+                this.downloadBtn = document.getElementById('downloadBtn');
+                
+                this.currentImage = null;
+                this.currentScale = 1;
+                this.currentX = 0;
+                this.currentY = 0;
+                this.temcanvas2 = null;
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupCanvas();
+                this.setupEventListeners();
+            }
+            
+            setupCanvas() {
+                this.canvas.width = 1024;
+                this.canvas.height = 512;
+                this.clearCanvas();
+            }
+            
+            clearCanvas() {
+                this.ctx.fillStyle = this.bgColorInput.value;
+                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+            }
+            
+            setupEventListeners() {
+                this.imageInput.addEventListener('change', (e) => this.handleImageUpload(e));
+                this.bgColorInput.addEventListener('input', () => this.handleBgColorChange());
+                this.downloadBtn.addEventListener('click', () => this.handleDownload());
+            }
+            
+            handleImageUpload(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = (event) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            this.currentImage = img;
+                            this.processImage(img);
+                        };
+                        img.src = event.target.result;
+                    };
+                    
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            }
+            
+            handleBgColorChange() {
+                if (this.currentImage) {
+                    this.processImage(this.currentImage);
+                } else {
+                    this.clearCanvas();
+                }
+            }
+            
+            handleDownload() {
+                if (!this.currentImage) {
+                    alert('Primero carga una imagen');
+                    return;
+                }
+                
+                const currentWidth = this.canvas.width;
+                const defaultResolution = currentWidth > 512 ? '1024' : '512';
+                
+                const newResolution = prompt(
+                    `Ingrese la resolución para descargar (ancho en píxeles)\nResolución actual: ${currentWidth}`,
+                    defaultResolution
+                );
+                
+                if (newResolution === null) return;
+                
+                const resolution = parseInt(newResolution);
+                if (isNaN(resolution) || resolution <= 0) {
+                    alert('Por favor ingrese un número válido mayor que 0');
+                    return;
+                }
+                
+                this.downloadImage(resolution);
+            }
+            
+            processImage(img) {
+                let imgWidth = img.width;
+                let imgHeight = img.height;
+                let calMax = Math.max(imgWidth, imgHeight);
+                let canvasSize = calMax + calMax * parseFloat(prompt("margin % 0.05 a 0.8", 0.15));
+                
+                if (canvasSize > 3500) {
+                    this.temcanvas2 = document.createElement("canvas");
+                    let ctx2tem = this.temcanvas2.getContext("2d");
+                    let vl = 0.7;
+                    this.temcanvas2.width = imgWidth * vl;
+                    this.temcanvas2.height = imgHeight * vl;
+
+                    ctx2tem.drawImage(img, 0, 0, this.temcanvas2.width, this.temcanvas2.height);
+
+                    img = this.temcanvas2;
+                    imgWidth = img.width;
+                    imgHeight = img.height;
+                    calMax = Math.max(imgWidth, imgHeight);
+                    canvasSize = calMax + calMax * parseFloat(prompt("margin % 0.05 a 0.8", 0.15));
+                }
+
+                this.canvas.width = canvasSize;
+                this.canvas.height = canvasSize;
+                
+                this.clearCanvas();
+                
+                this.currentScale = Math.min(
+                    (this.canvas.width * 0.85) / imgWidth, 
+                    (this.canvas.height * 0.85) / imgHeight
+                );
+                
+                const scaledWidth = imgWidth * this.currentScale;
+                const scaledHeight = imgHeight * this.currentScale;
+                
+                this.currentX = (this.canvas.width - scaledWidth) / 2;
+                this.currentY = (this.canvas.height - scaledHeight) / 2;
+                
+                this.ctx.drawImage(img, this.currentX, this.currentY, scaledWidth, scaledHeight);
+            }
+            
+            downloadImage(newWidth) {
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+            
+                
+                tempCanvas.width = newWidth;
+                tempCanvas.height = tempCanvas.width;
+           
+                
+                tempCtx.drawImage(
+                    this.canvas, 
+                    0, 
+                    0, 
+                    newWidth, 
+                    newWidth
+                );
+                
+                const link = document.createElement('a');
+                link.download =prompt("nombre  img :","imgToAI").toString()+ '.png';
+                link.href = tempCanvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new ImageCanvasProcessor();
+        });
+    </script>
+</body>
+</html>
