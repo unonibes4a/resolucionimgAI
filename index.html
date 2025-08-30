@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargador de Imágenes con Canvas</title>
+    <title>Cargador de Imágenes con Canvas - Transparencia</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -37,19 +37,32 @@
             font-size: 18px;
             margin: 10px 0;
             position: relative;
-            background-color: #f9f9f9;
+            background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+                        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+                        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
             transition: all 0.3s ease;
         }
         .drop-zone.dragover {
             border-color: #4CAF50;
-            background-color: #e8f5e8;
             color: #4CAF50;
+        }
+        .canvas-container {
+            position: relative;
+            display: none;
         }
         canvas {
             width: 512px;
             height: 512px;
             border: 1px solid #ddd;
-            display: none;
+            background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
+                        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
+                        linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+                        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
         }
         button {
             padding: 8px 16px;
@@ -62,6 +75,10 @@
         }
         button:hover {
             background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
         }
         .instructions {
             background-color: #f0f8ff;
@@ -78,11 +95,28 @@
             text-align: left;
             margin: 0;
         }
+        .transparency-options {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>ajustar img para utilizar en trllis Inteligencias artificial</h1>
+        <h1>Ajustar Imagen para IA - Con Transparencia</h1>
         
         <div class="instructions">
             <h3>Métodos para cargar imagen:</h3>
@@ -91,20 +125,35 @@
                 <li>Arrastrar y soltar imagen en la zona de carga</li>
                 <li>Copiar imagen (Ctrl+C) y pegar aquí (Ctrl+V)</li>
             </ul>
+            <p><strong>Nota:</strong> Las imágenes PNG mantendrán su transparencia. El patrón de cuadros indica áreas transparentes.</p>
         </div>
         
         <div class="controls">
             <input type="file" id="imageInput" accept="image/*">
-            <label for="body">Color de fondo:</label>
-            <input type="color" id="body" name="body" value="#ffffff">
-            <button id="downloadBtn">Descargar Imagen</button>
+            
+            <div class="transparency-options">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="keepTransparency" checked>
+                    <label for="keepTransparency">Mantener transparencia</label>
+                </div>
+                
+                <div class="option-group">
+                    <label for="bgColor">Color de fondo:</label>
+                    <input type="color" id="bgColor" name="bgColor" value="#ffffff" disabled>
+                </div>
+            </div>
+            
+            <button id="downloadBtn" disabled>Descargar Imagen</button>
+            <button id="resetBtn" disabled>Nueva Imagen</button>
         </div>
         
         <div id="dropZone" class="drop-zone">
             <div>Arrastra una imagen aquí, pégala con Ctrl+V o usa el botón de arriba</div>
         </div>
         
-        <canvas id="imageCanvas"></canvas>
+        <div class="canvas-container">
+            <canvas id="imageCanvas"></canvas>
+        </div>
     </div>
 
     <script>
@@ -113,15 +162,18 @@
                 this.canvas = document.getElementById('imageCanvas');
                 this.ctx = this.canvas.getContext('2d');
                 this.imageInput = document.getElementById('imageInput');
-                this.bgColorInput = document.getElementById('body');
+                this.bgColorInput = document.getElementById('bgColor');
+                this.transparencyCheckbox = document.getElementById('keepTransparency');
                 this.downloadBtn = document.getElementById('downloadBtn');
+                this.resetBtn = document.getElementById('resetBtn');
                 this.dropZone = document.getElementById('dropZone');
+                this.canvasContainer = document.querySelector('.canvas-container');
                 
                 this.currentImage = null;
                 this.currentScale = 1;
                 this.currentX = 0;
                 this.currentY = 0;
-                this.temcanvas2 = null;
+                this.tempCanvas = null;
                 
                 this.init();
             }
@@ -138,14 +190,22 @@
             }
             
             clearCanvas() {
-                this.ctx.fillStyle = this.bgColorInput.value;
-                this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                if (this.transparencyCheckbox.checked) {
+                    // Limpiar completamente para mantener transparencia
+                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                } else {
+                    // Usar color de fondo
+                    this.ctx.fillStyle = this.bgColorInput.value;
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                }
             }
             
             setupEventListeners() {
                 this.imageInput.addEventListener('change', (e) => this.handleImageUpload(e));
                 this.bgColorInput.addEventListener('input', () => this.handleBgColorChange());
+                this.transparencyCheckbox.addEventListener('change', () => this.handleTransparencyToggle());
                 this.downloadBtn.addEventListener('click', () => this.handleDownload());
+                this.resetBtn.addEventListener('click', () => this.handleReset());
                 
                 // Drag and Drop
                 this.dropZone.addEventListener('dragover', (e) => this.handleDragOver(e));
@@ -160,6 +220,15 @@
                     document.body.focus();
                 });
                 document.body.setAttribute('tabindex', '0');
+            }
+            
+            handleTransparencyToggle() {
+                this.bgColorInput.disabled = this.transparencyCheckbox.checked;
+                if (this.currentImage) {
+                    this.processImage(this.currentImage);
+                } else {
+                    this.clearCanvas();
+                }
             }
             
             handleDragOver(e) {
@@ -210,6 +279,8 @@
                         this.currentImage = img;
                         this.processImage(img);
                         this.showCanvas();
+                        this.downloadBtn.disabled = false;
+                        this.resetBtn.disabled = false;
                     };
                     img.src = event.target.result;
                 };
@@ -219,7 +290,12 @@
             
             showCanvas() {
                 this.dropZone.style.display = 'none';
-                this.canvas.style.display = 'block';
+                this.canvasContainer.style.display = 'block';
+            }
+            
+            hideCanvas() {
+                this.dropZone.style.display = 'flex';
+                this.canvasContainer.style.display = 'none';
             }
             
             handleBgColorChange() {
@@ -228,6 +304,15 @@
                 } else {
                     this.clearCanvas();
                 }
+            }
+            
+            handleReset() {
+                this.currentImage = null;
+                this.hideCanvas();
+                this.imageInput.value = '';
+                this.downloadBtn.disabled = true;
+                this.resetBtn.disabled = true;
+                this.setupCanvas();
             }
             
             handleDownload() {
@@ -259,29 +344,41 @@
                 let imgWidth = img.width;
                 let imgHeight = img.height;
                 let calMax = Math.max(imgWidth, imgHeight);
-                let canvasSize = calMax + calMax * parseFloat(prompt("margin % 0.05 a 0.8", 0.15));
+                let marginPercent = parseFloat(prompt("Margen % (0.05 a 0.8)", "0.15"));
                 
+                // Validar margen
+                if (isNaN(marginPercent) || marginPercent < 0 || marginPercent > 1) {
+                    marginPercent = 0.15;
+                }
+                
+                let canvasSize = calMax + calMax * marginPercent;
+                
+                // Reducir imagen si es muy grande
                 if (canvasSize > 3500) {
-                    this.temcanvas2 = document.createElement("canvas");
-                    let ctx2tem = this.temcanvas2.getContext("2d");
-                    let vl = 0.7;
-                    this.temcanvas2.width = imgWidth * vl;
-                    this.temcanvas2.height = imgHeight * vl;
+                    this.tempCanvas = document.createElement("canvas");
+                    let tempCtx = this.tempCanvas.getContext("2d");
+                    let reductionFactor = 0.7;
+                    this.tempCanvas.width = imgWidth * reductionFactor;
+                    this.tempCanvas.height = imgHeight * reductionFactor;
 
-                    ctx2tem.drawImage(img, 0, 0, this.temcanvas2.width, this.temcanvas2.height);
+                    // Mantener transparencia en canvas temporal
+                    tempCtx.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
+                    tempCtx.drawImage(img, 0, 0, this.tempCanvas.width, this.tempCanvas.height);
 
-                    img = this.temcanvas2;
+                    img = this.tempCanvas;
                     imgWidth = img.width;
                     imgHeight = img.height;
                     calMax = Math.max(imgWidth, imgHeight);
-                    canvasSize = calMax + calMax * parseFloat(prompt("margin % 0.05 a 0.8", 0.15));
+                    canvasSize = calMax + calMax * marginPercent;
                 }
 
                 this.canvas.width = canvasSize;
                 this.canvas.height = canvasSize;
                 
+                // Limpiar canvas según configuración de transparencia
                 this.clearCanvas();
                 
+                // Calcular escala y posición
                 this.currentScale = Math.min(
                     (this.canvas.width * 0.85) / imgWidth, 
                     (this.canvas.height * 0.85) / imgHeight
@@ -293,6 +390,7 @@
                 this.currentX = (this.canvas.width - scaledWidth) / 2;
                 this.currentY = (this.canvas.height - scaledHeight) / 2;
                 
+                // Dibujar imagen preservando transparencia
                 this.ctx.drawImage(img, this.currentX, this.currentY, scaledWidth, scaledHeight);
             }
             
@@ -301,8 +399,15 @@
                 const tempCtx = tempCanvas.getContext('2d');
             
                 tempCanvas.width = newWidth;
-                tempCanvas.height = tempCanvas.width;
-           
+                tempCanvas.height = newWidth;
+                
+                // Si no mantener transparencia, llenar con color de fondo
+                if (!this.transparencyCheckbox.checked) {
+                    tempCtx.fillStyle = this.bgColorInput.value;
+                    tempCtx.fillRect(0, 0, newWidth, newWidth);
+                }
+                
+                // Dibujar el canvas actual redimensionado
                 tempCtx.drawImage(
                     this.canvas, 
                     0, 
@@ -311,8 +416,10 @@
                     newWidth
                 );
                 
+                // Descargar como PNG para preservar transparencia
                 const link = document.createElement('a');
-                link.download = prompt("nombre img:", "imgToAI").toString() + '.png';
+                const fileName = prompt("Nombre de la imagen:", "imgToAI_transparent") || "imgToAI_transparent";
+                link.download = fileName + '.png';
                 link.href = tempCanvas.toDataURL('image/png');
                 document.body.appendChild(link);
                 link.click();
