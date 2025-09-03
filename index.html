@@ -25,6 +25,38 @@
             flex-wrap: wrap;
             justify-content: center;
         }
+        .filter-controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+            background: #333;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        .filter-group label {
+            font-size: 12px;
+            color: #ccc;
+        }
+        input[type="range"] {
+            width: 80px;
+        }
+        input[type="number"] {
+            width: 60px;
+            padding: 4px;
+            border: 1px solid #555;
+            background: #444;
+            color: #fff;
+            border-radius: 3px;
+        }
         .drop-zone {
             width: 512px;
             height: 512px;
@@ -146,6 +178,33 @@
             <button id="downloadBtn" disabled>Descargar Imagen</button>
             <button id="resetBtn" disabled>Nueva Imagen</button>
         </div>
+
+        <div class="filter-controls">
+            <div class="filter-group">
+                <label for="hueSlider">Hue</label>
+                <input type="range" id="hueSlider" min="0" max="360" value="0">
+                <input type="number" id="hueInput" min="0" max="360" value="0">
+            </div>
+            <div class="filter-group">
+                <label for="saturationSlider">Saturación</label>
+                <input type="range" id="saturationSlider" min="0" max="200" value="100">
+                <input type="number" id="saturationInput" min="0" max="200" value="100">
+            </div>
+            <div class="filter-group">
+                <label for="contrastSlider">Contraste</label>
+                <input type="range" id="contrastSlider" min="0" max="200" value="100">
+                <input type="number" id="contrastInput" min="0" max="200" value="100">
+            </div>
+            <div class="filter-group">
+                <label for="brightnessSlider">Brillo</label>
+                <input type="range" id="brightnessSlider" min="0" max="200" value="100">
+                <input type="number" id="brightnessInput" min="0" max="200" value="100">
+            </div>
+            <div class="checkbox-container">
+                <input type="checkbox" id="enableFilters">
+                <label for="enableFilters">Aplicar filtros</label>
+            </div>
+        </div>
         
         <div id="dropZone" class="drop-zone">
             <div>Arrastra una imagen aquí, pégala con Ctrl+V o usa el botón de arriba</div>
@@ -169,11 +228,22 @@
                 this.dropZone = document.getElementById('dropZone');
                 this.canvasContainer = document.querySelector('.canvas-container');
                 
+                this.hueSlider = document.getElementById('hueSlider');
+                this.hueInput = document.getElementById('hueInput');
+                this.saturationSlider = document.getElementById('saturationSlider');
+                this.saturationInput = document.getElementById('saturationInput');
+                this.contrastSlider = document.getElementById('contrastSlider');
+                this.contrastInput = document.getElementById('contrastInput');
+                this.brightnessSlider = document.getElementById('brightnessSlider');
+                this.brightnessInput = document.getElementById('brightnessInput');
+                this.enableFilters = document.getElementById('enableFilters');
+                
                 this.currentImage = null;
                 this.currentScale = 1;
                 this.currentX = 0;
                 this.currentY = 0;
                 this.tempCanvas = null;
+                this.originalImageData = null;
                 
                 this.init();
             }
@@ -191,10 +261,8 @@
             
             clearCanvas() {
                 if (this.transparencyCheckbox.checked) {
-                    // Limpiar completamente para mantener transparencia
                     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 } else {
-                    // Usar color de fondo
                     this.ctx.fillStyle = this.bgColorInput.value;
                     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
                 }
@@ -207,15 +275,22 @@
                 this.downloadBtn.addEventListener('click', () => this.handleDownload());
                 this.resetBtn.addEventListener('click', () => this.handleReset());
                 
-                // Drag and Drop
+                this.hueSlider.addEventListener('input', () => this.syncSliderInput('hue'));
+                this.hueInput.addEventListener('input', () => this.syncInputSlider('hue'));
+                this.saturationSlider.addEventListener('input', () => this.syncSliderInput('saturation'));
+                this.saturationInput.addEventListener('input', () => this.syncInputSlider('saturation'));
+                this.contrastSlider.addEventListener('input', () => this.syncSliderInput('contrast'));
+                this.contrastInput.addEventListener('input', () => this.syncInputSlider('contrast'));
+                this.brightnessSlider.addEventListener('input', () => this.syncSliderInput('brightness'));
+                this.brightnessInput.addEventListener('input', () => this.syncInputSlider('brightness'));
+                this.enableFilters.addEventListener('change', () => this.applyFilters());
+                
                 this.dropZone.addEventListener('dragover', (e) => this.handleDragOver(e));
                 this.dropZone.addEventListener('dragleave', (e) => this.handleDragLeave(e));
                 this.dropZone.addEventListener('drop', (e) => this.handleDrop(e));
                 
-                // Paste
                 document.addEventListener('paste', (e) => this.handlePaste(e));
                 
-                // Focus for paste
                 document.addEventListener('click', () => {
                     document.body.focus();
                 });
@@ -308,11 +383,214 @@
             
             handleReset() {
                 this.currentImage = null;
+                this.originalImageData = null;
                 this.hideCanvas();
                 this.imageInput.value = '';
                 this.downloadBtn.disabled = true;
                 this.resetBtn.disabled = true;
+                this.resetFilters();
                 this.setupCanvas();
+            }
+            
+            resetFilters() {
+                this.hueSlider.value = 0;
+                this.hueInput.value = 0;
+                this.saturationSlider.value = 100;
+                this.saturationInput.value = 100;
+                this.contrastSlider.value = 100;
+                this.contrastInput.value = 100;
+                this.brightnessSlider.value = 100;
+                this.brightnessInput.value = 100;
+                this.enableFilters.checked = false;
+            }
+            
+            processImage(img) {
+                let imgWidth = img.width;
+                let imgHeight = img.height;
+                let calMax = Math.max(imgWidth, imgHeight);
+                let marginPercent = parseFloat(prompt("Margen % (0.05 a 0.8)", "0.15"));
+                
+                if (isNaN(marginPercent) || marginPercent < 0 || marginPercent > 1) {
+                    marginPercent = 0.15;
+                }
+                
+                let canvasSize = calMax + calMax * marginPercent;
+                
+                if (canvasSize > 3500) {
+                    this.tempCanvas = document.createElement("canvas");
+                    let tempCtx = this.tempCanvas.getContext("2d");
+                    let reductionFactor = 0.7;
+                    this.tempCanvas.width = imgWidth * reductionFactor;
+                    this.tempCanvas.height = imgHeight * reductionFactor;
+
+                    tempCtx.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
+                    tempCtx.drawImage(img, 0, 0, this.tempCanvas.width, this.tempCanvas.height);
+
+                    img = this.tempCanvas;
+                    imgWidth = img.width;
+                    imgHeight = img.height;
+                    calMax = Math.max(imgWidth, imgHeight);
+                    canvasSize = calMax + calMax * marginPercent;
+                }
+
+                this.canvas.width = canvasSize;
+                this.canvas.height = canvasSize;
+                
+                this.clearCanvas();
+                
+                this.currentScale = Math.min(
+                    (this.canvas.width * 0.85) / imgWidth, 
+                    (this.canvas.height * 0.85) / imgHeight
+                );
+                
+                const scaledWidth = imgWidth * this.currentScale;
+                const scaledHeight = imgHeight * this.currentScale;
+                
+                this.currentX = (this.canvas.width - scaledWidth) / 2;
+                this.currentY = (this.canvas.height - scaledHeight) / 2;
+                
+                this.ctx.drawImage(img, this.currentX, this.currentY, scaledWidth, scaledHeight);
+                
+                this.originalImageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+            }
+            
+            syncSliderInput(type) {
+                const slider = document.getElementById(type + 'Slider');
+                const input = document.getElementById(type + 'Input');
+                input.value = slider.value;
+                this.applyFilters();
+            }
+            
+            syncInputSlider(type) {
+                const slider = document.getElementById(type + 'Slider');
+                const input = document.getElementById(type + 'Input');
+                slider.value = input.value;
+                this.applyFilters();
+            }
+            
+            applyFilters() {
+                if (!this.originalImageData || !this.enableFilters.checked) {
+                    if (this.originalImageData) {
+                        this.ctx.putImageData(this.originalImageData, 0, 0);
+                    }
+                    return;
+                }
+                
+                const imageData = new ImageData(
+                    new Uint8ClampedArray(this.originalImageData.data),
+                    this.originalImageData.width,
+                    this.originalImageData.height
+                );
+                
+                this.applyImageFilters(imageData);
+                this.ctx.putImageData(imageData, 0, 0);
+            }
+            
+            applyImageFilters(imageData) {
+                const data = imageData.data;
+                const hue = parseFloat(this.hueInput.value);
+                const saturation = parseFloat(this.saturationInput.value) / 100;
+                const contrast = parseFloat(this.contrastInput.value) / 100;
+                const brightness = parseFloat(this.brightnessInput.value) / 100;
+                
+                for (let i = 0; i < data.length; i += 4) {
+                    let r = data[i] / 255;
+                    let g = data[i + 1] / 255;
+                    let b = data[i + 2] / 255;
+                    
+                    r = Math.pow(r, 1 / brightness);
+                    g = Math.pow(g, 1 / brightness);
+                    b = Math.pow(b, 1 / brightness);
+                    
+                    r = ((r - 0.5) * contrast) + 0.5;
+                    g = ((g - 0.5) * contrast) + 0.5;
+                    b = ((b - 0.5) * contrast) + 0.5;
+                    
+                    const hsl = this.rgbToHsl(r, g, b);
+                    hsl[0] = (hsl[0] + hue / 360) % 1;
+                    hsl[1] = Math.min(1, hsl[1] * saturation);
+                    
+                    const rgb = this.hslToRgb(hsl[0], hsl[1], hsl[2]);
+                    
+                    data[i] = Math.max(0, Math.min(255, rgb[0] * 255));
+                    data[i + 1] = Math.max(0, Math.min(255, rgb[1] * 255));
+                    data[i + 2] = Math.max(0, Math.min(255, rgb[2] * 255));
+                }
+            }
+            
+            rgbToHsl(r, g, b) {
+                const max = Math.max(r, g, b);
+                const min = Math.min(r, g, b);
+                let h, s, l = (max + min) / 2;
+                
+                if (max === min) {
+                    h = s = 0;
+                } else {
+                    const d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                        case g: h = (b - r) / d + 2; break;
+                        case b: h = (r - g) / d + 4; break;
+                    }
+                    h /= 6;
+                }
+                
+                return [h, s, l];
+            }
+            
+            hslToRgb(h, s, l) {
+                let r, g, b;
+                
+                if (s === 0) {
+                    r = g = b = l;
+                } else {
+                    const hue2rgb = (p, q, t) => {
+                        if (t < 0) t += 1;
+                        if (t > 1) t -= 1;
+                        if (t < 1/6) return p + (q - p) * 6 * t;
+                        if (t < 1/2) return q;
+                        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                        return p;
+                    };
+                    
+                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                    const p = 2 * l - q;
+                    r = hue2rgb(p, q, h + 1/3);
+                    g = hue2rgb(p, q, h);
+                    b = hue2rgb(p, q, h - 1/3);
+                }
+                
+                return [r, g, b];
+            }
+            
+            downloadImage(newWidth) {
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+            
+                tempCanvas.width = newWidth;
+                tempCanvas.height = newWidth;
+                
+                if (!this.transparencyCheckbox.checked) {
+                    tempCtx.fillStyle = this.bgColorInput.value;
+                    tempCtx.fillRect(0, 0, newWidth, newWidth);
+                }
+                
+                tempCtx.drawImage(
+                    this.canvas, 
+                    0, 
+                    0, 
+                    newWidth, 
+                    newWidth
+                );
+                
+                const link = document.createElement('a');
+                const fileName = prompt("Nombre de la imagen:", "imgToAI_transparent") || "imgToAI_transparent";
+                link.download = fileName + '.png';
+                link.href = tempCanvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             }
             
             handleDownload() {
@@ -338,92 +616,6 @@
                 }
                 
                 this.downloadImage(resolution);
-            }
-            
-            processImage(img) {
-                let imgWidth = img.width;
-                let imgHeight = img.height;
-                let calMax = Math.max(imgWidth, imgHeight);
-                let marginPercent = parseFloat(prompt("Margen % (0.05 a 0.8)", "0.15"));
-                
-                // Validar margen
-                if (isNaN(marginPercent) || marginPercent < 0 || marginPercent > 1) {
-                    marginPercent = 0.15;
-                }
-                
-                let canvasSize = calMax + calMax * marginPercent;
-                
-                // Reducir imagen si es muy grande
-                if (canvasSize > 3500) {
-                    this.tempCanvas = document.createElement("canvas");
-                    let tempCtx = this.tempCanvas.getContext("2d");
-                    let reductionFactor = 0.7;
-                    this.tempCanvas.width = imgWidth * reductionFactor;
-                    this.tempCanvas.height = imgHeight * reductionFactor;
-
-                    // Mantener transparencia en canvas temporal
-                    tempCtx.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
-                    tempCtx.drawImage(img, 0, 0, this.tempCanvas.width, this.tempCanvas.height);
-
-                    img = this.tempCanvas;
-                    imgWidth = img.width;
-                    imgHeight = img.height;
-                    calMax = Math.max(imgWidth, imgHeight);
-                    canvasSize = calMax + calMax * marginPercent;
-                }
-
-                this.canvas.width = canvasSize;
-                this.canvas.height = canvasSize;
-                
-                // Limpiar canvas según configuración de transparencia
-                this.clearCanvas();
-                
-                // Calcular escala y posición
-                this.currentScale = Math.min(
-                    (this.canvas.width * 0.85) / imgWidth, 
-                    (this.canvas.height * 0.85) / imgHeight
-                );
-                
-                const scaledWidth = imgWidth * this.currentScale;
-                const scaledHeight = imgHeight * this.currentScale;
-                
-                this.currentX = (this.canvas.width - scaledWidth) / 2;
-                this.currentY = (this.canvas.height - scaledHeight) / 2;
-                
-                // Dibujar imagen preservando transparencia
-                this.ctx.drawImage(img, this.currentX, this.currentY, scaledWidth, scaledHeight);
-            }
-            
-            downloadImage(newWidth) {
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-            
-                tempCanvas.width = newWidth;
-                tempCanvas.height = newWidth;
-                
-                // Si no mantener transparencia, llenar con color de fondo
-                if (!this.transparencyCheckbox.checked) {
-                    tempCtx.fillStyle = this.bgColorInput.value;
-                    tempCtx.fillRect(0, 0, newWidth, newWidth);
-                }
-                
-                // Dibujar el canvas actual redimensionado
-                tempCtx.drawImage(
-                    this.canvas, 
-                    0, 
-                    0, 
-                    newWidth, 
-                    newWidth
-                );
-                
-                // Descargar como PNG para preservar transparencia
-                const link = document.createElement('a');
-                const fileName = prompt("Nombre de la imagen:", "imgToAI_transparent") || "imgToAI_transparent";
-                link.download = fileName + '.png';
-                link.href = tempCanvas.toDataURL('image/png');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
             }
         }
 
