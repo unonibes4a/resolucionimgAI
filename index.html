@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -293,6 +292,9 @@
                 this.brightnessInput.addEventListener('input', () => this.syncInputSlider('brightness'));
                 this.enableFilters.addEventListener('change', () => this.applyFilters());
                 
+                document.getElementById('idcontraste').addEventListener('change', () => this.applyFilters());
+                document.getElementById('idalgoritmosimple').addEventListener('change', () => this.applyFilters());
+
                 this.dropZone.addEventListener('dragover', (e) => this.handleDragOver(e));
                 this.dropZone.addEventListener('dragleave', (e) => this.handleDragLeave(e));
                 this.dropZone.addEventListener('drop', (e) => this.handleDrop(e));
@@ -358,12 +360,24 @@
                 
                 reader.onload = (event) => {
                     const img = new Image();
+
                     img.onload = () => {
+                        if(confirm("imagen como es")){
+                            this.currentImage = img;
+                            this.drawcomes(img);
+                            this.showCanvas();
+                        this.downloadBtn.disabled = false;
+                        this.resetBtn.disabled = false;
+
+                        }
+                        else{
                         this.currentImage = img;
                         this.processImage(img);
                         this.showCanvas();
                         this.downloadBtn.disabled = false;
                         this.resetBtn.disabled = false;
+                        }
+                        
                     };
                     img.src = event.target.result;
                 };
@@ -410,6 +424,19 @@
                 this.brightnessSlider.value = 100;
                 this.brightnessInput.value = 100;
                 this.enableFilters.checked = false;
+                document.getElementById('idcontraste').checked = false;
+                document.getElementById('idalgoritmosimple').checked = false;
+            }
+            drawcomes(img){
+               let c= this.canvas  ;
+                
+                this.clearCanvas();
+                c.width=img.width;
+                c.height=img.height;
+                let ctx=c.getContext("2d");
+                ctx.drawImage(img,0,0,c.width,c.height);
+                this.originalImageData = ctx.getImageData(0, 0, c.width, c.height);
+
             }
             
             processImage(img) {
@@ -477,10 +504,7 @@
             }
             
             applyFilters() {
-                if (!this.originalImageData || !this.enableFilters.checked) {
-                    if (this.originalImageData) {
-                        this.ctx.putImageData(this.originalImageData, 0, 0);
-                    }
+                if (!this.originalImageData) {
                     return;
                 }
                 
@@ -490,7 +514,13 @@
                     this.originalImageData.height
                 );
                 
-                this.applyImageFilters(imageData);
+                if (this.enableFilters.checked || document.getElementById('idcontraste').checked || document.getElementById('idalgoritmosimple').checked) {
+                    this.applyImageFilters(imageData);
+                } else {
+                    this.ctx.putImageData(this.originalImageData, 0, 0);
+                    return;
+                }
+                
                 this.ctx.putImageData(imageData, 0, 0);
             }
             
@@ -500,46 +530,40 @@
                 const saturation = parseFloat(this.saturationInput.value) / 100;
                 const contrast = parseFloat(this.contrastInput.value) / 100;
                 const brightness = parseFloat(this.brightnessInput.value) / 100;
-                let rgba={
-                    r:0,g:0,b:0,a:1
-                }
             
                 
                 for (let i = 0; i < data.length; i += 4) {
                     let r = data[i] / 255;
                     let g = data[i + 1] / 255;
                     let b = data[i + 2] / 255;
-                    let maxpx=Math.max(r,g,b);
-                     if(document.getElementById("idalgoritmosimple").checked){
- 
-                    let expo= maxpx+brightness;
-                    if(expo<0.9){
-                    expo=0.9;
+                    
+                    if(document.getElementById("idalgoritmosimple").checked){
+                        let maxpx = Math.max(r, g, b);
+                        let expo = maxpx + brightness;
+                        if(expo < 0.9){
+                            expo = 0.9;
+                        }
+                        expo = 2 - (1.0 - maxpx);
+                        r = Math.pow(r, expo);
+                        g = Math.pow(g, expo);
+                        b = Math.pow(b, expo);
+                        maxpx = Math.max(r, g, b);
+                        let v1 = maxpx * -0.2;
+                        r = r + r * v1;
+                        g = g + g * v1;
+                        b = b + b * v1;
                     }
-               expo=2-(1.0-maxpx);
-                    r = Math.pow(r, expo);
-                    g = Math.pow(g, expo);
-                    b = Math.pow(b, expo);
-                    maxpx=Math.max(r,g,b);
-                    let v1=maxpx*-0.2;
-                    r=r+r*v1;
-                    g=g+g*v1;
-                    b=b+b*v1;
-                     }
-                     
+                    
                     r = Math.pow(r, 1 / brightness);
                     g = Math.pow(g, 1 / brightness);
                     b = Math.pow(b, 1 / brightness);
-
-                   /*    */
                      
                     if(document.getElementById("idcontraste").checked){
-r = ((r - 0.5) * contrast) + 0.5;
-                    g = ((g - 0.5) * contrast) + 0.5;
-                    b = ((b - 0.5) * contrast) + 0.5;
+                        r = ((r - 0.5) * contrast) + 0.5;
+                        g = ((g - 0.5) * contrast) + 0.5;
+                        b = ((b - 0.5) * contrast) + 0.5;
                     }
                     
-                   
                     const hsl = this.rgbToHsl(r, g, b);
                     hsl[0] = (hsl[0] + hue / 360) % 1;
                     hsl[1] = Math.min(1, hsl[1] * saturation);
@@ -549,9 +573,6 @@ r = ((r - 0.5) * contrast) + 0.5;
                     data[i] = Math.max(0, Math.min(255, rgb[0] * 255));
                     data[i + 1] = Math.max(0, Math.min(255, rgb[1] * 255));
                     data[i + 2] = Math.max(0, Math.min(255, rgb[2] * 255));  
-                  /*    data[i] =  r*255;
-                    data[i + 1] =g*255;
-                    data[i + 2]=b*255; */
                 }
             }
             
