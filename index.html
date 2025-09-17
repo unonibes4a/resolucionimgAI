@@ -7,8 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
+
+    <style> 
+           body {
             font-family: 'Roboto', sans-serif;
             background-color: #222;
             color: #fff;
@@ -149,7 +150,7 @@
         }
 
         button {
-            background-color: #272727;
+            background-color: #414141; /* Updated to #414141 */
             color: #fff;
             border: none;
             border-radius: 20px;
@@ -163,55 +164,62 @@
         }
 
         button:hover {
-            background-color: #d6d6d6;
+            background-color: #5a5a5a; /* A lighter shade for hover */
             transform: translateY(-1px);
-                 color: #000000;
         }
 
         button:disabled {
-            background-color: #666;
+            background-color: #414141;
             cursor: not-allowed;
             transform: none;
         }
 
         button.quality-btn {
-            background-color: #353535;
+            background-color: #414141; /* Updated to #414141 */
         }
 
         button.quality-btn:hover {
-            background-color: #7e7e7e;
+            background-color: #5a5a5a; /* A lighter shade for hover */
         }
 
         button.remove-bg-btn {
-            background-color: #4b4b4b;
+            background-color: #414141; /* Updated to #414141 */
         }
 
         button.remove-bg-btn:hover {
-            background-color: #757575;
+            background-color: #5a5a5a; /* A lighter shade for hover */
         }
 
         button.fill-black-btn {
-            background-color: #1a1a1a;
+            background-color: #414141; /* Updated to #414141 */
         }
 
         button.fill-black-btn:hover {
-            background-color: #404040;
+            background-color: #5a5a5a; /* A lighter shade for hover */
         }
 
         button.copy-btn {
-           background-color: #353535;
+            background-color: #414141; /* Updated to #414141 */
         }
 
         button.copy-btn:hover {
-            background-color: #818181;
+            background-color: #5a5a5a; /* A lighter shade for hover */
         }
 
         button.paste-btn {
-                 background-color: #353535;
+            background-color: #414141; /* Updated to #414141 */
         }
 
         button.paste-btn:hover {
-                 background-color: #353535;
+            background-color: #5a5a5a; /* A lighter shade for hover */
+        }
+
+        button.center-btn {
+            background-color: #414141; /* Updated to #414141 */
+        }
+
+        button.center-btn:hover {
+            background-color: #5a5a5a; /* A lighter shade for hover */
         }
 
         .main-content {
@@ -309,6 +317,7 @@
         <button id="fillBlackBtn" class="fill-black-btn">Fill Negro</button>
         <button id="copyBtn" class="copy-btn">Copiar Imagen</button>
         <button id="pasteBtn" class="paste-btn">Pegar Imagen</button>
+        <button id="centerImageBtn" class="center-btn">Centrar Imagen</button>
         <div class="loading" id="loadingBg">Procesando...</div>
 
         <div class="section-divider"></div>
@@ -396,6 +405,7 @@
         const fillBlackBtn = document.getElementById('fillBlackBtn');
         const copyBtn = document.getElementById('copyBtn');
         const pasteBtn = document.getElementById('pasteBtn');
+        const centerImageBtn = document.getElementById('centerImageBtn');
         const loadingBg = document.getElementById('loadingBg');
         const biasSlider = document.getElementById('biasSlider');
         const strengthSlider = document.getElementById('strengthSlider');
@@ -697,6 +707,64 @@
                 e.preventDefault();
                 pasteBtn.click();
             }
+        });
+
+        centerImageBtn.addEventListener('click', () => {
+            if (!originalImage) {
+                alert('Primero carga una imagen.');
+                return;
+            }
+
+            const resolution = parseInt(prompt('Ingresa la resolución de salida:', '2048'));
+            
+            if (isNaN(resolution) || resolution <= 0) {
+                alert('Por favor, ingresa una resolución válida.');
+                return;
+            }
+
+            const margin = parseInt(prompt('Ingresa el margen de centrado (en píxeles):', '7'));
+            
+            if (isNaN(margin) || margin < 0) {
+                alert('Por favor, ingresa un margen válido.');
+                return;
+            }
+
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+
+            tempCanvas.width = resolution;
+            tempCanvas.height = resolution;
+
+            tempCtx.fillStyle = '#000000';
+            tempCtx.fillRect(0, 0, resolution, resolution);
+
+            const currentImageData = canvas;
+            const currentWidth = currentImageData.width;
+            const currentHeight = currentImageData.height;
+
+            const maxDimension = resolution - (margin * 2);
+            
+            let scaledWidth, scaledHeight;
+            if (currentWidth > currentHeight) {
+                scaledWidth = maxDimension;
+                scaledHeight = (currentHeight * maxDimension) / currentWidth;
+            } else {
+                scaledHeight = maxDimension;
+                scaledWidth = (currentWidth * maxDimension) / currentHeight;
+            }
+
+            const x = (resolution - scaledWidth) / 2;
+            const y = (resolution - scaledHeight) / 2;
+
+            tempCtx.drawImage(currentImageData, x, y, scaledWidth, scaledHeight);
+
+            canvas.width = resolution;
+            canvas.height = resolution;
+            ctx.clearRect(0, 0, resolution, resolution);
+            ctx.drawImage(tempCanvas, 0, 0);
+
+            newWidthInput.value = resolution;
+            newHeightInput.value = resolution;
         });
 
         async function processRemoveBackground(imageInput) {
