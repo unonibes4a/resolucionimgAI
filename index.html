@@ -163,8 +163,9 @@
         }
 
         button:hover {
-            background-color: #0097a7;
+            background-color: #d6d6d6;
             transform: translateY(-1px);
+                 color: #000000;
         }
 
         button:disabled {
@@ -187,6 +188,30 @@
 
         button.remove-bg-btn:hover {
             background-color: #757575;
+        }
+
+        button.fill-black-btn {
+            background-color: #1a1a1a;
+        }
+
+        button.fill-black-btn:hover {
+            background-color: #404040;
+        }
+
+        button.copy-btn {
+           background-color: #353535;
+        }
+
+        button.copy-btn:hover {
+            background-color: #818181;
+        }
+
+        button.paste-btn {
+                 background-color: #353535;
+        }
+
+        button.paste-btn:hover {
+                 background-color: #353535;
         }
 
         .main-content {
@@ -281,6 +306,9 @@
 
         <button id="enhanceBtn" class="quality-btn">Mejorar Imagen</button>
         <button id="removeBgBtn" class="remove-bg-btn">Remover Fondo</button>
+        <button id="fillBlackBtn" class="fill-black-btn">Fill Negro</button>
+        <button id="copyBtn" class="copy-btn">Copiar Imagen</button>
+        <button id="pasteBtn" class="paste-btn">Pegar Imagen</button>
         <div class="loading" id="loadingBg">Procesando...</div>
 
         <div class="section-divider"></div>
@@ -365,6 +393,9 @@
         const resetFiltersBtn = document.getElementById('resetFiltersBtn');
         const enhanceBtn = document.getElementById('enhanceBtn');
         const removeBgBtn = document.getElementById('removeBgBtn');
+        const fillBlackBtn = document.getElementById('fillBlackBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const pasteBtn = document.getElementById('pasteBtn');
         const loadingBg = document.getElementById('loadingBg');
         const biasSlider = document.getElementById('biasSlider');
         const strengthSlider = document.getElementById('strengthSlider');
@@ -587,6 +618,84 @@
                     loadingBg.textContent = 'Procesando...';
                     removeBgBtn.disabled = false;
                 }, 2000);
+            }
+        });
+
+        fillBlackBtn.addEventListener('click', () => {
+            if (!originalImage) {
+                alert('Primero carga una imagen.');
+                return;
+            }
+
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+
+            tempCtx.fillStyle = '#000000';
+            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+            tempCtx.drawImage(canvas, 0, 0);
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(tempCanvas, 0, 0);
+        });
+
+        copyBtn.addEventListener('click', async () => {
+            if (!originalImage) {
+                alert('No hay imagen para copiar.');
+                return;
+            }
+
+            try {
+                canvas.toBlob(async (blob) => {
+                    if (blob) {
+                        await navigator.clipboard.write([
+                            new ClipboardItem({
+                                [blob.type]: blob
+                            })
+                        ]);
+                        alert('Imagen copiada al portapapeles');
+                    }
+                }, 'image/png');
+            } catch (error) {
+                alert('Error al copiar la imagen: ' + error.message);
+            }
+        });
+
+        pasteBtn.addEventListener('click', async () => {
+            try {
+                const clipboardItems = await navigator.clipboard.read();
+                
+                for (const clipboardItem of clipboardItems) {
+                    for (const type of clipboardItem.types) {
+                        if (type.startsWith('image/')) {
+                            const blob = await clipboardItem.getType(type);
+                            const url = URL.createObjectURL(blob);
+                            currentFile = blob;
+                            loadImage(url);
+                            return;
+                        }
+                    }
+                }
+                
+                alert('No se encontró ninguna imagen en el portapapeles');
+                
+            } catch (error) {
+                alert('Error al pegar imagen: ' + error.message);
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'c') {
+                e.preventDefault();
+                copyBtn.click();
+            }
+            
+            if (e.ctrlKey && e.key === 'v') {
+                e.preventDefault();
+                pasteBtn.click();
             }
         });
 
