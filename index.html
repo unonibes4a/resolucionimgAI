@@ -3,682 +3,779 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cargador de Imágenes con Canvas - Transparencia</title>
+    <title>Editor de Imágenes Avanzado</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
+            font-family: 'Roboto', sans-serif;
+            background-color: #222;
+            color: #fff;
+            display: flex;
+            min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            background-color: #333;
             padding: 20px;
+            width: 280px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+
+        .sidebar h2 {
+            color: #272727;
+            margin-bottom: 20px;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .sidebar-group {
+            margin-bottom: 20px;
+            width: 100%;
             text-align: center;
         }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
+
+        .sidebar-group label {
+            font-size: 14px;
+            color: #bbb;
+            margin-bottom: 8px;
+            display: block;
         }
-        .controls {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .filter-controls {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            flex-wrap: wrap;
-            justify-content: center;
-            background: #333;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-        }
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-        .filter-group label {
-            font-size: 12px;
-            color: #ccc;
-        }
-        input[type="range"] {
-            width: 80px;
-        }
+
         input[type="number"] {
-            width: 60px;
-            padding: 4px;
+            background-color: #444;
             border: 1px solid #555;
-            background: #444;
+            border-radius: 20px;
             color: #fff;
-            border-radius: 3px;
+            padding: 8px 12px;
+            font-size: 14px;
+            width: calc(100% - 30px);
+            max-width: 120px;
+            text-align: center;
+            transition: border-color 0.3s ease;
+            box-sizing: border-box;
         }
-        .drop-zone {
-            width: 512px;
-            height: 512px;
-            border: 3px dashed #ccc;
-            border-radius: 8px;
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #272727;
+        }
+
+        .checkbox-group {
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #666;
-            font-size: 18px;
             margin: 10px 0;
-            position: relative;
-            background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
-                        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
-                        linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
-                        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            transition: all 0.3s ease;
         }
-        .drop-zone.dragover {
-            border-color: #4CAF50;
-            color: #4CAF50;
-        }
-        .canvas-container {
-            position: relative;
-            display: none;
-        }
-        canvas {
-            width: 512px;
-            height: 512px;
-            border: 1px solid #ddd;
-            background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
-                        linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
-                        linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
-                        linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-        }
-        button {
-            padding: 8px 16px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
+
+        .checkbox-group input[type="checkbox"] {
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid #272727;
             border-radius: 4px;
+            background-color: #444;
+            margin-right: 8px;
             cursor: pointer;
-            font-size: 16px;
+            position: relative;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
-        button:hover {
-            background-color: #45a049;
+
+        .checkbox-group input[type="checkbox"]:checked {
+            background-color: #272727;
+            border-color: #272727;
         }
-        button:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
+
+        .checkbox-group input[type="checkbox"]:checked::after {
+            content: '✓';
+            color: #fff;
+            font-size: 12px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
-        .instructions {
-            background-color: #f0f8ff;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            max-width: 600px;
-        }
-        .instructions h3 {
-            margin-top: 0;
-            color: #333;
-        }
-        .instructions ul {
-            text-align: left;
+
+        .checkbox-group label {
             margin: 0;
+            font-size: 14px;
+            color: #fff;
+            cursor: pointer;
         }
-        .transparency-options {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: calc(100% - 30px);
+            max-width: 120px;
+            height: 6px;
+            background: #555;
+            border-radius: 5px;
+            outline: none;
+            opacity: 0.7;
+            transition: opacity .2s;
         }
-        .option-group {
+
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #272727;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #272727;
+            cursor: pointer;
+        }
+
+        button {
+            background-color: #272727;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin: 5px 0;
+            width: calc(100% - 20px);
+            max-width: 180px;
+        }
+
+        button:hover {
+            background-color: #0097a7;
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            background-color: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        button.quality-btn {
+            background-color: #353535;
+        }
+
+        button.quality-btn:hover {
+            background-color: #7e7e7e;
+        }
+
+        button.remove-bg-btn {
+            background-color: #4b4b4b;
+        }
+
+        button.remove-bg-btn:hover {
+            background-color: #757575;
+        }
+
+        .main-content {
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 5px;
+            justify-content: center;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: auto;
         }
-        .checkbox-container {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+
+        .main-content h1 {
+            color: #272727;
+            margin-bottom: 25px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .drop-area {
+            border: 2px dashed #272727;
+            border-radius: 10px;
+            padding: 40px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 18px;
+            color: #272727;
+            background-color: #3a3a3a;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            width: 90%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+
+        .drop-area.highlight {
+            background-color: #4a4a4a;
+            border-color: #272727;
+        }
+
+        canvas {
+            border: 2px dashed #555;
+            background-color: #444;
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-divider {
+            width: 100%;
+            height: 1px;
+            background-color: #555;
+            margin: 15px 0;
+        }
+
+        .loading {
+            display: none;
+            color: #0097a7;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        canvas{
+     width: 500px;  
+  height: 500px;  
+  object-fit: cover;  
+  border: 1px solid rgb(255, 255, 255);  
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Ajustar Imagen para IA - Con Transparencia</h1>
+    <div class="sidebar">
+        <h2>Controles</h2>
         
-        <div class="instructions">
-            <h3>Métodos para cargar imagen:</h3>
-            <ul>
-                <li>Seleccionar archivo con el botón "Elegir archivo"</li>
-                <li>Arrastrar y soltar imagen en la zona de carga</li>
-                <li>Copiar imagen (Ctrl+C) y pegar aquí (Ctrl+V)</li>
-            </ul>
-            <p><strong>Nota:</strong> Las imágenes PNG mantendrán su transparencia. El patrón de cuadros indica áreas transparentes.</p>
+        <div class="sidebar-group">
+            <label for="newWidth">Ancho:</label>
+            <input type="number" id="newWidth" value="500">
         </div>
-        
-        <div class="controls">
-            <input type="file" id="imageInput" accept="image/*">
-            
-            <div class="transparency-options">
-                <div class="checkbox-container">
-                    <input type="checkbox" id="keepTransparency" checked>
-                    <label for="keepTransparency">Mantener transparencia</label>
-                </div>
-                
-                <div class="option-group">
-                    <label for="bgColor">Color de fondo:</label>
-                    <input type="color" id="bgColor" name="bgColor" value="#ffffff" disabled>
-                </div>
-            </div>
-            
-            <button id="downloadBtn" disabled>Descargar Imagen</button>
-            <button id="resetBtn" disabled>Nueva Imagen</button>
+        <div class="sidebar-group">
+            <label for="newHeight">Altura:</label>
+            <input type="number" id="newHeight" value="300">
+        </div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="maintainAspectRatio" checked>
+            <label for="maintainAspectRatio">Mantener Aspecto</label>
+        </div>
+        <button id="resizeBtn">Redimensionar</button>
+
+        <div class="section-divider"></div>
+
+        <button id="enhanceBtn" class="quality-btn">Mejorar Imagen</button>
+        <button id="removeBgBtn" class="remove-bg-btn">Remover Fondo</button>
+        <div class="loading" id="loadingBg">Procesando...</div>
+
+        <div class="section-divider"></div>
+
+        <div class="sidebar-group">
+            <label for="saturationSlider">Saturación: <span id="saturationValue">100</span></label>
+            <input type="range" id="saturationSlider" min="0" max="200" value="100">
+        </div>
+        <div class="sidebar-group">
+            <label for="brightnessSlider">Brillo: <span id="brightnessValue">100</span></label>
+            <input type="range" id="brightnessSlider" min="0" max="200" value="100">
+        </div>
+        <div class="sidebar-group">
+            <label for="hueSlider">Hue: <span id="hueValue">0</span></label>
+            <input type="range" id="hueSlider" min="0" max="360" value="0">
+        </div>
+        <div class="sidebar-group">
+            <label for="contrastSlider">Contraste: <span id="contrastValue">100</span></label>
+            <input type="range" id="contrastSlider" min="0" max="200" value="100">
+        </div>
+        <div class="sidebar-group">
+            <label for="blurSlider">Blur: <span id="blurValue">0</span></label>
+            <input type="range" id="blurSlider" min="0" max="20" value="0">
         </div>
 
-        <div class="filter-controls">
-            <div class="filter-group">
-                <label for="hueSlider">Hue</label>
-                <input type="range" id="hueSlider" min="0" max="360" value="0">
-                <input type="number" id="hueInput" min="0" max="360" value="0">
-            </div>
-            <div class="filter-group">
-                <label for="saturationSlider">Saturación</label>
-                <input type="range" id="saturationSlider" min="0" max="200" value="100">
-                <input type="number" id="saturationInput" min="0" max="200" value="100">
-            </div>
-            <div class="filter-group"> <div class="checkbox-container">
-                <input type="checkbox" id="idcontraste">
-                <label for="enableFilters">Aplicar contraste</label>
-            </div>
-                <label for="contrastSlider">Contraste</label>
-                <input type="range" id="contrastSlider" min="0" max="200" value="100">
-                <input type="number" id="contrastInput" min="0" max="200" value="100">
-            </div>
-            <div class="filter-group">
-                <label for="brightnessSlider">Brillo</label>
-                <input type="range" id="brightnessSlider" min="0" max="200" value="100">
-                <input type="number" id="brightnessInput" min="0" max="200" value="100">
-            </div>
-            <div class="checkbox-container">
-                 <div class="checkbox-container">
-                <input type="checkbox" id="idalgoritmosimple">
-                <label for="enableFilters">alfortimosimple</label>
-            </div>
-                <input type="checkbox" id="enableFilters">
-                <label for="enableFilters">Aplicar filtros</label>
-            </div>
-        </div>  
-        
-        <div id="dropZone" class="drop-zone">
-            <div>Arrastra una imagen aquí, pégala con Ctrl+V o usa el botón de arriba</div>
+        <div class="section-divider"></div>
+
+        <div class="sidebar-group">
+            <label for="biasSlider">Bias: <span id="biasValue">10</span></label>
+            <input type="range" id="biasSlider" min="1" max="100" value="10">
         </div>
-        
-        <div class="canvas-container">
-            <canvas id="imageCanvas"></canvas>
+        <div class="sidebar-group">
+            <label for="strengthSlider">Fuerza: <span id="strengthValue">50</span></label>
+            <input type="range" id="strengthSlider" min="0" max="100" value="50">
         </div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="invertCheckbox">
+            <label for="invertCheckbox">Invertir</label>
+        </div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="redChannelCheckbox" checked>
+            <label for="redChannelCheckbox">R</label>
+        </div>
+        <div class="checkbox-group">
+            <input type="checkbox" id="greenChannelCheckbox" checked>
+            <label for="greenChannelCheckbox">G</label>
+        </div>
+        <button id="createNormalMapBtn">Crear Normal Map</button>
+
+        <div class="section-divider"></div>
+
+        <button id="applyFiltersBtn">Aplicar Filtros</button>
+        <button id="resetFiltersBtn">Resetear Filtros</button>
+        <button id="downloadBtn">Descargar Imagen</button>
     </div>
 
-    <script>
-        class ImageCanvasProcessor {
-            constructor() {
-                this.canvas = document.getElementById('imageCanvas');
-                this.ctx = this.canvas.getContext('2d');
-                this.imageInput = document.getElementById('imageInput');
-                this.bgColorInput = document.getElementById('bgColor');
-                this.transparencyCheckbox = document.getElementById('keepTransparency');
-                this.downloadBtn = document.getElementById('downloadBtn');
-                this.resetBtn = document.getElementById('resetBtn');
-                this.dropZone = document.getElementById('dropZone');
-                this.canvasContainer = document.querySelector('.canvas-container');
-                
-                this.hueSlider = document.getElementById('hueSlider');
-                this.hueInput = document.getElementById('hueInput');
-                this.saturationSlider = document.getElementById('saturationSlider');
-                this.saturationInput = document.getElementById('saturationInput');
-                this.contrastSlider = document.getElementById('contrastSlider');
-                this.contrastInput = document.getElementById('contrastInput');
-                this.brightnessSlider = document.getElementById('brightnessSlider');
-                this.brightnessInput = document.getElementById('brightnessInput');
-                this.enableFilters = document.getElementById('enableFilters');
-                
-                this.currentImage = null;
-                this.currentScale = 1;
-                this.currentX = 0;
-                this.currentY = 0;
-                this.tempCanvas = null;
-                this.originalImageData = null;
-                
-                this.init();
-            }
-            
-            init() {
-                this.setupCanvas();
-                this.setupEventListeners();
-            }
-            
-            setupCanvas() {
-                this.canvas.width = 1024;
-                this.canvas.height = 512;
-                this.clearCanvas();
-            }
-            
-            clearCanvas() {
-                if (this.transparencyCheckbox.checked) {
-                    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                } else {
-                    this.ctx.fillStyle = this.bgColorInput.value;
-                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-                }
-            }
-            
-            setupEventListeners() {
-                this.imageInput.addEventListener('change', (e) => this.handleImageUpload(e));
-                this.bgColorInput.addEventListener('input', () => this.handleBgColorChange());
-                this.transparencyCheckbox.addEventListener('change', () => this.handleTransparencyToggle());
-                this.downloadBtn.addEventListener('click', () => this.handleDownload());
-                this.resetBtn.addEventListener('click', () => this.handleReset());
-                
-                this.hueSlider.addEventListener('input', () => this.syncSliderInput('hue'));
-                this.hueInput.addEventListener('input', () => this.syncInputSlider('hue'));
-                this.saturationSlider.addEventListener('input', () => this.syncSliderInput('saturation'));
-                this.saturationInput.addEventListener('input', () => this.syncInputSlider('saturation'));
-                this.contrastSlider.addEventListener('input', () => this.syncSliderInput('contrast'));
-                this.contrastInput.addEventListener('input', () => this.syncInputSlider('contrast'));
-                this.brightnessSlider.addEventListener('input', () => this.syncSliderInput('brightness'));
-                this.brightnessInput.addEventListener('input', () => this.syncInputSlider('brightness'));
-                this.enableFilters.addEventListener('change', () => this.applyFilters());
-                
-                document.getElementById('idcontraste').addEventListener('change', () => this.applyFilters());
-                document.getElementById('idalgoritmosimple').addEventListener('change', () => this.applyFilters());
+    <div class="main-content">
+        <h1>Editor de Imágenes Avanzado</h1>
+        <div class="drop-area" id="dropArea">
+            Arrastra y suelta una imagen aquí, o pega desde el portapapeles.
+        </div>
+        <canvas id="myCanvas"></canvas>
+    </div>
 
-                this.dropZone.addEventListener('dragover', (e) => this.handleDragOver(e));
-                this.dropZone.addEventListener('dragleave', (e) => this.handleDragLeave(e));
-                this.dropZone.addEventListener('drop', (e) => this.handleDrop(e));
-                
-                document.addEventListener('paste', (e) => this.handlePaste(e));
-                
-                document.addEventListener('click', () => {
-                    document.body.focus();
-                });
-                document.body.setAttribute('tabindex', '0');
-            }
-            
-            handleTransparencyToggle() {
-                this.bgColorInput.disabled = this.transparencyCheckbox.checked;
-                if (this.currentImage) {
-                    this.processImage(this.currentImage);
-                } else {
-                    this.clearCanvas();
-                }
-            }
-            
-            handleDragOver(e) {
-                e.preventDefault();
-                this.dropZone.classList.add('dragover');
-            }
-            
-            handleDragLeave(e) {
-                e.preventDefault();
-                this.dropZone.classList.remove('dragover');
-            }
-            
-            handleDrop(e) {
-                e.preventDefault();
-                this.dropZone.classList.remove('dragover');
-                
-                const files = e.dataTransfer.files;
-                if (files.length > 0 && files[0].type.startsWith('image/')) {
-                    this.processFile(files[0]);
-                }
-            }
-            
-            handlePaste(e) {
-                e.preventDefault();
-                
-                const items = e.clipboardData.items;
-                for (let item of items) {
-                    if (item.type.startsWith('image/')) {
-                        const file = item.getAsFile();
-                        this.processFile(file);
-                        break;
-                    }
-                }
-            }
-            
-            handleImageUpload(e) {
-                if (e.target.files && e.target.files[0]) {
-                    this.processFile(e.target.files[0]);
-                }
-            }
-            
-            processFile(file) {
+    <script type="module">
+        import { removeBackground } from 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.6.0/+esm';
+
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const newWidthInput = document.getElementById('newWidth');
+        const newHeightInput = document.getElementById('newHeight');
+        const maintainAspectRatioCheckbox = document.getElementById('maintainAspectRatio');
+        const resizeBtn = document.getElementById('resizeBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const dropArea = document.getElementById('dropArea');
+        const saturationSlider = document.getElementById('saturationSlider');
+        const brightnessSlider = document.getElementById('brightnessSlider');
+        const hueSlider = document.getElementById('hueSlider');
+        const contrastSlider = document.getElementById('contrastSlider');
+        const blurSlider = document.getElementById('blurSlider');
+        const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+        const enhanceBtn = document.getElementById('enhanceBtn');
+        const removeBgBtn = document.getElementById('removeBgBtn');
+        const loadingBg = document.getElementById('loadingBg');
+        const biasSlider = document.getElementById('biasSlider');
+        const strengthSlider = document.getElementById('strengthSlider');
+        const invertCheckbox = document.getElementById('invertCheckbox');
+        const redChannelCheckbox = document.getElementById('redChannelCheckbox');
+        const greenChannelCheckbox = document.getElementById('greenChannelCheckbox');
+        const createNormalMapBtn = document.getElementById('createNormalMapBtn');
+
+        let originalImage = null;
+        let originalImageData = null;
+        let currentFile = null;
+        let originalAspectRatio = 1;
+        let currentSaturation = 100;
+        let currentBrightness = 100;
+        let currentHue = 0;
+        let currentContrast = 100;
+        let currentBlur = 0;
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            const file = files[0];
+            if (file.type.startsWith('image/')) {
+                currentFile = file;
                 const reader = new FileReader();
-                
-                reader.onload = (event) => {
-                    const img = new Image();
-
-                    img.onload = () => {
-                        if(confirm("imagen como es")){
-                            this.currentImage = img;
-                            this.drawcomes(img);
-                            this.showCanvas();
-                        this.downloadBtn.disabled = false;
-                        this.resetBtn.disabled = false;
-
-                        }
-                        else{
-                        this.currentImage = img;
-                        this.processImage(img);
-                        this.showCanvas();
-                        this.downloadBtn.disabled = false;
-                        this.resetBtn.disabled = false;
-                        }
-                        
-                    };
-                    img.src = event.target.result;
+                reader.onload = function(event) {
+                    loadImage(event.target.result);
                 };
-                
                 reader.readAsDataURL(file);
-            }
-            
-            showCanvas() {
-                this.dropZone.style.display = 'none';
-                this.canvasContainer.style.display = 'block';
-            }
-            
-            hideCanvas() {
-                this.dropZone.style.display = 'flex';
-                this.canvasContainer.style.display = 'none';
-            }
-            
-            handleBgColorChange() {
-                if (this.currentImage) {
-                    this.processImage(this.currentImage);
-                } else {
-                    this.clearCanvas();
-                }
-            }
-            
-            handleReset() {
-                this.currentImage = null;
-                this.originalImageData = null;
-                this.hideCanvas();
-                this.imageInput.value = '';
-                this.downloadBtn.disabled = true;
-                this.resetBtn.disabled = true;
-                this.resetFilters();
-                this.setupCanvas();
-            }
-            
-            resetFilters() {
-                this.hueSlider.value = 0;
-                this.hueInput.value = 0;
-                this.saturationSlider.value = 100;
-                this.saturationInput.value = 100;
-                this.contrastSlider.value = 100;
-                this.contrastInput.value = 100;
-                this.brightnessSlider.value = 100;
-                this.brightnessInput.value = 100;
-                this.enableFilters.checked = false;
-                document.getElementById('idcontraste').checked = false;
-                document.getElementById('idalgoritmosimple').checked = false;
-            }
-            drawcomes(img){
-               let c= this.canvas  ;
-                
-                this.clearCanvas();
-                c.width=img.width;
-                c.height=img.height;
-                let ctx=c.getContext("2d");
-                ctx.drawImage(img,0,0,c.width,c.height);
-                this.originalImageData = ctx.getImageData(0, 0, c.width, c.height);
-
-            }
-            
-            processImage(img) {
-                let imgWidth = img.width;
-                let imgHeight = img.height;
-                let calMax = Math.max(imgWidth, imgHeight);
-                let marginPercent = parseFloat(prompt("Margen % (0.05 a 0.8)", "0.15"));
-                
-                if (isNaN(marginPercent) || marginPercent < 0 || marginPercent > 1) {
-                    marginPercent = 0.15;
-                }
-                
-                let canvasSize = calMax + calMax * marginPercent;
-                
-                if (canvasSize > 3500) {
-                    this.tempCanvas = document.createElement("canvas");
-                    let tempCtx = this.tempCanvas.getContext("2d");
-                    let reductionFactor = 0.7;
-                    this.tempCanvas.width = imgWidth * reductionFactor;
-                    this.tempCanvas.height = imgHeight * reductionFactor;
-
-                    tempCtx.clearRect(0, 0, this.tempCanvas.width, this.tempCanvas.height);
-                    tempCtx.drawImage(img, 0, 0, this.tempCanvas.width, this.tempCanvas.height);
-
-                    img = this.tempCanvas;
-                    imgWidth = img.width;
-                    imgHeight = img.height;
-                    calMax = Math.max(imgWidth, imgHeight);
-                    canvasSize = calMax + calMax * marginPercent;
-                }
-
-                this.canvas.width = canvasSize;
-                this.canvas.height = canvasSize;
-                
-                this.clearCanvas();
-                
-                this.currentScale = Math.min(
-                    (this.canvas.width * 0.85) / imgWidth, 
-                    (this.canvas.height * 0.85) / imgHeight
-                );
-                
-                const scaledWidth = imgWidth * this.currentScale;
-                const scaledHeight = imgHeight * this.currentScale;
-                
-                this.currentX = (this.canvas.width - scaledWidth) / 2;
-                this.currentY = (this.canvas.height - scaledHeight) / 2;
-                
-                this.ctx.drawImage(img, this.currentX, this.currentY, scaledWidth, scaledHeight);
-                
-                this.originalImageData = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
-            }
-            
-            syncSliderInput(type) {
-                const slider = document.getElementById(type + 'Slider');
-                const input = document.getElementById(type + 'Input');
-                input.value = slider.value;
-                this.applyFilters();
-            }
-            
-            syncInputSlider(type) {
-                const slider = document.getElementById(type + 'Slider');
-                const input = document.getElementById(type + 'Input');
-                slider.value = input.value;
-                this.applyFilters();
-            }
-            
-            applyFilters() {
-                if (!this.originalImageData) {
-                    return;
-                }
-                
-                const imageData = new ImageData(
-                    new Uint8ClampedArray(this.originalImageData.data),
-                    this.originalImageData.width,
-                    this.originalImageData.height
-                );
-                
-                if (this.enableFilters.checked || document.getElementById('idcontraste').checked || document.getElementById('idalgoritmosimple').checked) {
-                    this.applyImageFilters(imageData);
-                } else {
-                    this.ctx.putImageData(this.originalImageData, 0, 0);
-                    return;
-                }
-                
-                this.ctx.putImageData(imageData, 0, 0);
-            }
-            
-            applyImageFilters(imageData) {
-                const data = imageData.data;
-                const hue = parseFloat(this.hueInput.value);
-                const saturation = parseFloat(this.saturationInput.value) / 100;
-                const contrast = parseFloat(this.contrastInput.value) / 100;
-                const brightness = parseFloat(this.brightnessInput.value) / 100;
-            
-                
-                for (let i = 0; i < data.length; i += 4) {
-                    let r = data[i] / 255;
-                    let g = data[i + 1] / 255;
-                    let b = data[i + 2] / 255;
-                    
-                    if(document.getElementById("idalgoritmosimple").checked){
-                        let maxpx = Math.max(r, g, b);
-                        let expo = maxpx + brightness;
-                        if(expo < 0.9){
-                            expo = 0.9;
-                        }
-                        expo = 2 - (1.0 - maxpx);
-                        r = Math.pow(r, expo);
-                        g = Math.pow(g, expo);
-                        b = Math.pow(b, expo);
-                        maxpx = Math.max(r, g, b);
-                        let v1 = maxpx * -0.2;
-                        r = r + r * v1;
-                        g = g + g * v1;
-                        b = b + b * v1;
-                    }
-                    
-                    r = Math.pow(r, 1 / brightness);
-                    g = Math.pow(g, 1 / brightness);
-                    b = Math.pow(b, 1 / brightness);
-                     
-                    if(document.getElementById("idcontraste").checked){
-                        r = ((r - 0.5) * contrast) + 0.5;
-                        g = ((g - 0.5) * contrast) + 0.5;
-                        b = ((b - 0.5) * contrast) + 0.5;
-                    }
-                    
-                    const hsl = this.rgbToHsl(r, g, b);
-                    hsl[0] = (hsl[0] + hue / 360) % 1;
-                    hsl[1] = Math.min(1, hsl[1] * saturation);
-                    
-                    const rgb = this.hslToRgb(hsl[0], hsl[1], hsl[2]);
-                  
-                    data[i] = Math.max(0, Math.min(255, rgb[0] * 255));
-                    data[i + 1] = Math.max(0, Math.min(255, rgb[1] * 255));
-                    data[i + 2] = Math.max(0, Math.min(255, rgb[2] * 255));  
-                }
-            }
-            
-            rgbToHsl(r, g, b) {
-                const max = Math.max(r, g, b);
-                const min = Math.min(r, g, b);
-                let h, s, l = (max + min) / 2;
-                
-                if (max === min) {
-                    h = s = 0;
-                } else {
-                    const d = max - min;
-                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-                    switch (max) {
-                        case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-                        case g: h = (b - r) / d + 2; break;
-                        case b: h = (r - g) / d + 4; break;
-                    }
-                    h /= 6;
-                }
-                
-                return [h, s, l];
-            }
-            
-            hslToRgb(h, s, l) {
-                let r, g, b;
-                
-                if (s === 0) {
-                    r = g = b = l;
-                } else {
-                    const hue2rgb = (p, q, t) => {
-                        if (t < 0) t += 1;
-                        if (t > 1) t -= 1;
-                        if (t < 1/6) return p + (q - p) * 6 * t;
-                        if (t < 1/2) return q;
-                        if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
-                        return p;
-                    };
-                    
-                    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-                    const p = 2 * l - q;
-                    r = hue2rgb(p, q, h + 1/3);
-                    g = hue2rgb(p, q, h);
-                    b = hue2rgb(p, q, h - 1/3);
-                }
-                
-                return [r, g, b];
-            }
-            
-            downloadImage(newWidth) {
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-            
-                tempCanvas.width = newWidth;
-                tempCanvas.height = newWidth;
-                
-                if (!this.transparencyCheckbox.checked) {
-                    tempCtx.fillStyle = this.bgColorInput.value;
-                    tempCtx.fillRect(0, 0, newWidth, newWidth);
-                }
-                
-                tempCtx.drawImage(
-                    this.canvas, 
-                    0, 
-                    0, 
-                    newWidth, 
-                    newWidth
-                );
-                
-                const link = document.createElement('a');
-                const fileName = prompt("Nombre de la imagen:", "imgToAI_transparent") || "imgToAI_transparent";
-                link.download = fileName + '.png';
-                link.href = tempCanvas.toDataURL('image/png');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }
-            
-            handleDownload() {
-                if (!this.currentImage) {
-                    alert('Primero carga una imagen');
-                    return;
-                }
-                
-                const currentWidth = this.canvas.width;
-                const defaultResolution = currentWidth > 512 ? '1024' : '512';
-                
-                const newResolution = prompt(
-                    `Ingrese la resolución para descargar (ancho en píxeles)\nResolución actual: ${currentWidth}`,
-                    defaultResolution
-                );
-                
-                if (newResolution === null) return;
-                
-                const resolution = parseInt(newResolution);
-                if (isNaN(resolution) || resolution <= 0) {
-                    alert('Por favor ingrese un número válido mayor que 0');
-                    return;
-                }
-                
-                this.downloadImage(resolution);
+            } else {
+                alert('Por favor, suelta un archivo de imagen válido.');
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
-            new ImageCanvasProcessor();
+        document.addEventListener('paste', (e) => {
+            const items = e.clipboardData.items;
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.startsWith('image/')) {
+                    const blob = items[i].getAsFile();
+                    currentFile = blob;
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        loadImage(event.target.result);
+                    };
+                    reader.readAsDataURL(blob);
+                    return;
+                }
+            }
+            const text = e.clipboardData.getData('text/plain');
+            if (text && (text.startsWith('http://') || text.startsWith('https://')) && /\.(jpeg|jpg|gif|png|webp|bmp)$/i.test(text)) {
+                loadImage(text);
+            }
+        });
+
+        function loadImage(src) {
+            const img = new Image();
+            img.onload = () => {
+                originalImage = img;
+                originalAspectRatio = img.width / img.height;
+
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+
+                originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+                newWidthInput.value = img.width;
+                newHeightInput.value = img.height;
+
+                resetFilters();
+            };
+            img.onerror = () => {
+                alert('No se pudo cargar la imagen. Asegúrate de que la URL sea válida o que la imagen sea accesible.');
+            };
+            img.src = src;
+        }
+
+        newWidthInput.addEventListener('input', () => {
+            if (maintainAspectRatioCheckbox.checked && originalImage) {
+                const newWidth = parseInt(newWidthInput.value);
+                if (!isNaN(newWidth) && newWidth > 0) {
+                    newHeightInput.value = Math.round(newWidth / originalAspectRatio);
+                }
+            }
+        });
+
+        newHeightInput.addEventListener('input', () => {
+            if (maintainAspectRatioCheckbox.checked && originalImage) {
+                const newHeight = parseInt(newHeightInput.value);
+                if (!isNaN(newHeight) && newHeight > 0) {
+                    newWidthInput.value = Math.round(newHeight * originalAspectRatio);
+                }
+            }
+        });
+
+        resizeBtn.addEventListener('click', () => {
+            if (!originalImage) {
+                alert('Primero carga una imagen.');
+                return;
+            }
+
+            let newWidth = parseInt(newWidthInput.value);
+            let newHeight = parseInt(newHeightInput.value);
+
+            if (isNaN(newWidth) || isNaN(newHeight) || newWidth <= 0 || newHeight <= 0) {
+                alert('Por favor, introduce dimensiones válidas (números mayores que 0).');
+                return;
+            }
+
+            if (maintainAspectRatioCheckbox.checked) {
+                if (newWidthInput.value !== originalImage.width.toString() || newHeightInput.value === originalImage.height.toString()) {
+                     newHeight = Math.round(newWidth / originalAspectRatio);
+                     newHeightInput.value = newHeight;
+                } else {
+                     newWidth = Math.round(newHeight * originalAspectRatio);
+                     newWidthInput.value = newWidth;
+                }
+            }
+
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+
+            applyFiltersToCanvas();
+        });
+
+        enhanceBtn.addEventListener('click', () => {
+            if (!originalImage) {
+                alert('Primero carga una imagen.');
+                return;
+            }
+            
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            const scale = 2;
+            tempCanvas.width = canvas.width * scale;
+            tempCanvas.height = canvas.height * scale;
+            
+            tempCtx.imageSmoothingEnabled = true;
+            tempCtx.imageSmoothingQuality = 'high';
+            
+            tempCtx.filter = 'contrast(110%) brightness(105%) saturate(110%)';
+            tempCtx.drawImage(originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
+            
+            canvas.width = tempCanvas.width;
+            canvas.height = tempCanvas.height;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(tempCanvas, 0, 0);
+            
+            newWidthInput.value = canvas.width;
+            newHeightInput.value = canvas.height;
+        });
+
+        removeBgBtn.addEventListener('click', async () => {
+            if (!originalImage && !currentFile) {
+                alert('Primero carga una imagen.');
+                return;
+            }
+            
+            loadingBg.style.display = 'block';
+            loadingBg.textContent = 'Procesando...';
+            removeBgBtn.disabled = true;
+            
+            try {
+                let inputImage;
+                
+                if (currentFile) {
+                    inputImage = currentFile;
+                } else {
+                    canvas.toBlob(async (blob) => {
+                        if (!blob) {
+                            throw new Error('No se pudo convertir canvas a blob');
+                        }
+                        await processRemoveBackground(blob);
+                    }, 'image/png');
+                    return;
+                }
+                
+                await processRemoveBackground(inputImage);
+                
+            } catch (error) {
+                loadingBg.textContent = 'Error al remover el fondo';
+                alert('Error al remover el fondo. Intenta con otra imagen.');
+            } finally {
+                setTimeout(() => {
+                    loadingBg.style.display = 'none';
+                    loadingBg.textContent = 'Procesando...';
+                    removeBgBtn.disabled = false;
+                }, 2000);
+            }
+        });
+
+        async function processRemoveBackground(imageInput) {
+            try {
+                const blob = await removeBackground(imageInput, {
+                    progress: (key, current, total) => {
+                        const percentage = Math.round((current / total) * 100);
+                        loadingBg.textContent = `Descargando ${key}: ${percentage}%`;
+                    }
+                });
+                
+                const url = URL.createObjectURL(blob);
+                loadImage(url);
+                loadingBg.textContent = 'Fondo removido exitosamente';
+                
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        createNormalMapBtn.addEventListener('click', () => {
+            if (!originalImageData) {
+                alert('Primero carga una imagen.');
+                return;
+            }
+            ctx.putImageData(originalImageData, 0, 0);
+            createNormalMap();
+        });
+
+        function createNormalMap() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const newData = new Uint8ClampedArray(data.length);
+            
+            const bias = parseFloat(biasSlider.value) / 100.0;
+            const strength = parseFloat(strengthSlider.value) / 10.0;
+            const invertR = invertCheckbox.checked ? -1.0 : 1.0;
+            const invertG = invertCheckbox.checked ? -1.0 : 1.0;
+            const useRed = redChannelCheckbox.checked;
+            const useGreen = greenChannelCheckbox.checked;
+            
+            for (let y = 0; y < canvas.height; y++) {
+                for (let x = 0; x < canvas.width; x++) {
+                    const index = (y * canvas.width + x) * 4;
+                    
+                    const d0 = getRedValue(data, x, y, canvas.width, canvas.height) / 255.0;
+                    const d1 = getRedValue(data, x + 1, y, canvas.width, canvas.height) / 255.0;
+                    const d2 = getRedValue(data, x - 1, y, canvas.width, canvas.height) / 255.0;
+                    const d3 = getRedValue(data, x, y + 1, canvas.width, canvas.height) / 255.0;
+                    const d4 = getRedValue(data, x, y - 1, canvas.width, canvas.height) / 255.0;
+                    
+                    let dx = (d2 - d1) * strength;
+                    let dy = (d4 - d3) * strength;
+                    
+                    dx *= invertR;
+                    dy *= invertG;
+                    
+                    const dz = 1.0 / Math.max(bias, 0.01);
+                    
+                    const length = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    const normX = dx / length;
+                    const normY = dy / length;
+                    const normZ = dz / length;
+                    
+                    if (useRed) {
+                        newData[index] = Math.floor(Math.max(0, Math.min(255, (normX * 0.5 + 0.5) * 255)));
+                    } else {
+                        newData[index] = data[index];
+                    }
+                    
+                    if (useGreen) {
+                        newData[index + 1] = Math.floor(Math.max(0, Math.min(255, (normY * 0.5 + 0.5) * 255)));
+                    } else {
+                        newData[index + 1] = data[index + 1];
+                    }
+                    
+                    newData[index + 2] = Math.floor(Math.max(0, Math.min(255, (normZ * 0.5 + 0.5) * 255)));
+                    newData[index + 3] = 255;
+                }
+            }
+            
+            const newImageData = new ImageData(newData, canvas.width, canvas.height);
+            ctx.putImageData(newImageData, 0, 0);
+        }
+
+        function getRedValue(data, x, y, width, height) {
+            if (x < 0 || x >= width || y < 0 || y >= height) {
+                return 0;
+            }
+            const index = (y * width + x) * 4;
+            return data[index];
+        }
+
+        applyFiltersBtn.addEventListener('click', applyFiltersToCanvas);
+        resetFiltersBtn.addEventListener('click', resetFilters);
+
+        function applyFiltersToCanvas() {
+            if (!originalImage) {
+                alert('Primero carga una imagen.');
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const filterString = `saturate(${currentSaturation}%) brightness(${currentBrightness}%) hue-rotate(${currentHue}deg) contrast(${currentContrast}%) blur(${currentBlur}px)`;
+            ctx.filter = filterString;
+            ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
+            ctx.filter = 'none';
+        }
+
+        function resetFilters() {
+            currentSaturation = 100;
+            currentBrightness = 100;
+            currentHue = 0;
+            currentContrast = 100;
+            currentBlur = 0;
+            
+            saturationSlider.value = 100;
+            brightnessSlider.value = 100;
+            hueSlider.value = 0;
+            contrastSlider.value = 100;
+            blurSlider.value = 0;
+            biasSlider.value = 10;
+            strengthSlider.value = 50;
+            
+            document.getElementById('saturationValue').textContent = '100';
+            document.getElementById('brightnessValue').textContent = '100';
+            document.getElementById('hueValue').textContent = '0';
+            document.getElementById('contrastValue').textContent = '100';
+            document.getElementById('blurValue').textContent = '0';
+            document.getElementById('biasValue').textContent = '10';
+            document.getElementById('strengthValue').textContent = '50';
+            
+            invertCheckbox.checked = false;
+            redChannelCheckbox.checked = true;
+            greenChannelCheckbox.checked = true;
+            
+            if (originalImageData) {
+                ctx.putImageData(originalImageData, 0, 0);
+            } else {
+                applyFiltersToCanvas();
+            }
+        }
+
+        saturationSlider.addEventListener('input', (e) => {
+            currentSaturation = parseInt(e.target.value);
+            document.getElementById('saturationValue').textContent = currentSaturation;
+        });
+
+        brightnessSlider.addEventListener('input', (e) => {
+            currentBrightness = parseInt(e.target.value);
+            document.getElementById('brightnessValue').textContent = currentBrightness;
+        });
+
+        hueSlider.addEventListener('input', (e) => {
+            currentHue = parseInt(e.target.value);
+            document.getElementById('hueValue').textContent = currentHue;
+        });
+
+        contrastSlider.addEventListener('input', (e) => {
+            currentContrast = parseInt(e.target.value);
+            document.getElementById('contrastValue').textContent = currentContrast;
+        });
+
+        blurSlider.addEventListener('input', (e) => {
+            currentBlur = parseInt(e.target.value);
+            document.getElementById('blurValue').textContent = currentBlur;
+        });
+
+        biasSlider.addEventListener('input', (e) => {
+            document.getElementById('biasValue').textContent = e.target.value;
+        });
+
+        strengthSlider.addEventListener('input', (e) => {
+            document.getElementById('strengthValue').textContent = e.target.value;
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            if (!originalImage) {
+                alert('No hay imagen para descargar.');
+                return;
+            }
+            const dataURL = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = dataURL;
+            a.download = 'imagen_editada.png';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         });
     </script>
 </body>
