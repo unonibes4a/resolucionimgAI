@@ -723,7 +723,7 @@
                 return;
             }
 
-            const margin = parseInt(prompt('Ingresa el margen de centrado (en píxeles):', '7'));
+            const margin = parseInt(prompt('Ingresa el margen de centrado (en píxeles):', '45'));
             
             if (isNaN(margin) || margin < 0) {
                 alert('Por favor, ingresa un margen válido.');
@@ -736,11 +736,11 @@
             tempCanvas.width = resolution;
             tempCanvas.height = resolution;
              
-            if(confirm("background black")){
-               tempCtx.fillStyle = '#000000';
+            if(confirm("background white")){
+               tempCtx.fillStyle = '#ffffff';
             }
             else{
-                tempCtx.fillStyle = '#ffffff';
+                tempCtx.fillStyle = '#000000';
             }
              
             tempCtx.fillRect(0, 0, resolution, resolution);
@@ -772,6 +772,15 @@
 
             newWidthInput.value = resolution;
             newHeightInput.value = resolution;
+
+
+            setTimeout(() => {
+                if(confirm("lineal saturacion")){
+                  pasocolorsaturacionideal(canvas);
+                }
+                 
+                
+            }, 2000);
         });
 
         async function processRemoveBackground(imageInput) {
@@ -800,6 +809,205 @@
             ctx.putImageData(originalImageData, 0, 0);
             createNormalMap();
         });
+
+        
+      var saturationGio = (tex_color, ec5) => {
+        // Función auxiliar para mantener los valores de color entre 0.0 y 1.0
+        function valorLim(x) {
+          if (x > 1.0) return 1.0;
+          if (x < 0.0) return 0.0;
+          return x;
+        }
+
+        const maxx = Math.max(tex_color.r, tex_color.g, tex_color.b);
+        const adjust = ec5;
+
+        // Se interpola cada canal hacia el valor máximo (maxx)
+        if (tex_color.r !== maxx) {
+          tex_color.r += (maxx - tex_color.r) * adjust;
+        }
+        if (tex_color.g !== maxx) {
+          tex_color.g += (maxx - tex_color.g) * adjust;
+        }
+        if (tex_color.b !== maxx) {
+          tex_color.b += (maxx - tex_color.b) * adjust;
+        }
+
+        // Se asegura que los valores no se salgan del rango [0, 1]
+        tex_color.r = valorLim(tex_color.r);
+        tex_color.g = valorLim(tex_color.g);
+        tex_color.b = valorLim(tex_color.b);
+
+        return tex_color;
+      }
+
+    var  mixerHtmlPasaColor = (
+        rgbax,
+        rgba2 = { r: 0.5, g: 0.45, b: 0.36 }, porcent, bool = false
+      ) => {
+
+        var maxx0 = Math.max(rgbax.r, rgbax.g, rgbax.b);
+
+        var clmd = 1.0 - porcent;
+        rgbax.r = rgbax.r * clmd + rgba2.r * porcent;
+        rgbax.g = rgbax.g * clmd + rgba2.g * porcent;
+        rgbax.b = rgbax.b * clmd + rgba2.b * porcent;
+
+        if (bool) {
+          let max2 = Math.max(rgbax.r, rgbax.g, rgbax.b);
+          this.operacionMatematica(rgbax, maxx0 / (max2 + 0.00001), "*");
+        }
+
+
+        return rgbax;
+      };
+    var  colorDivide = (color1) => {
+        var maxx0 = Math.max(color1.r, color1.g, color1.b) + 0.00001;
+        var minx = Math.min(color1.r, color1.g, color1.b);
+
+        return minx / (maxx0+0.0000001);
+      }
+    var  maximopixel = (rgba) => {
+        return Math.max(rgba.r, rgba.g, rgba.b);
+      }
+    var  minmopixel = (rgba) => {
+        return Math.min(rgba.r, rgba.g, rgba.b);
+      }
+     var  simpleLinealFuncion = (x1, y1, x2, y2, val) => {
+        let m = 0;
+        let b = 0;
+
+        let dx = x2 - x1;
+        dx = dx + 0.00001;
+        let dy = y2 - y1;
+        m = dy / dx;
+        b = y2 - m * x2;
+        let e = null;
+        e = m * val + b;
+        return e;
+      }
+     var pasocolorsaturacionideal=(canvas)=>{
+        let imagendata=canvas.getContext("2d").getImageData(0,0,canvas.width,canvas.height);
+       imagendata= colorsaturacionideal(imagendata);
+        canvas.getContext("2d").putImageData(imagendata,0,0);
+
+      }
+
+    var colorsaturacionideal = (imageData) => {
+
+
+        let data = imageData.data;
+
+        var rgba = {
+          r: 0,
+          g: 0,
+          b: 0,
+        };
+
+        var rgba2 = {
+          r: 0,
+          g: 0,
+          b: 0,
+        };
+
+        var vacontar = 0;
+
+        var maxipx = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          rgba.r = data[i] / 255;
+          rgba.g = data[i + 1] / 255;
+          rgba.b = data[i + 2] / 255;
+          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+          if (maxpx > 0.1 && maxpx < 0.9) {
+            rgba2.r = rgba2.r + rgba.r;
+            rgba2.g = rgba2.g + rgba.g;
+            rgba2.b = rgba2.b + rgba.b;
+            vacontar++;
+          }
+
+          maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
+
+        }
+     
+        for (let i = 0; i < data.length; i += 4) {
+          rgba.r = data[i] / 255;
+          rgba.g = data[i + 1] / 255;
+          rgba.b = data[i + 2] / 255;
+
+ 
+          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+          operacionMatematica(rgba,simpleLinealFuncion(1,0.7,0.0,0.0,maxpx),"*");
+          maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+          let dv=colorDivide(rgba);
+          rgba=saturationGio(rgba,0.28-dv);
+
+          
+      
+        
+          data[i] =rgba.r * 255;
+          data[i + 1] =rgba.g* 255;
+          data[i + 2] = rgba.b * 255;
+        }
+
+        return imageData;
+      }
+     var operacionMatematica = (rgba, val, operacion) => {
+        function value1o0(v) {
+          if (v < 0) {
+            v = 0;
+          }
+          if (v > 1) {
+            v = 1;
+          }
+          return v;
+        }
+        if ("multiplicar" == operacion || operacion == "*") {
+          rgba.r *= val;
+          rgba.r = value1o0(rgba.r);
+          rgba.g *= val;
+          rgba.g = value1o0(rgba.g);
+          rgba.b *= val;
+          rgba.b = value1o0(rgba.b);
+          return rgba;
+        }
+        if (operacion == "+") {
+          rgba.r += val;
+          rgba.r = value1o0(rgba.r);
+          rgba.g += val;
+          rgba.g = value1o0(rgba.g);
+          rgba.b += val;
+          rgba.b = value1o0(rgba.b);
+          return rgba;
+        }
+        if ("potencia" == operacion || operacion == "pow") {
+          rgba.r = Math.pow(rgba.r, val);
+          rgba.r = value1o0(rgba.r);
+          rgba.g = Math.pow(rgba.g, val);
+          rgba.g = value1o0(rgba.g);
+          rgba.b = Math.pow(rgba.b, val);
+          rgba.b = value1o0(rgba.b);
+          return rgba;
+        }
+        if ("asigna" == operacion || operacion == "=") {
+          rgba.r = val.r;
+          rgba.r = value1o0(rgba.r);
+          rgba.g = val.g;
+          rgba.g = value1o0(rgba.g);
+          rgba.b = val.b;
+          rgba.b = value1o0(rgba.b);
+          return rgba;
+        }
+        if (operacion == "srgba") {
+          rgba.r += rgba.r;
+          rgba.r = value1o0(rgba.r);
+          rgba.g += rgba.g;
+          rgba.g = value1o0(rgba.g);
+          rgba.b += rgba.b;
+          rgba.b = value1o0(rgba.b);
+          return rgba;
+        }
+        return rgba;
+      }
 
         function createNormalMap() {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
