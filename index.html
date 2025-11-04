@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -734,8 +735,14 @@
 
             tempCanvas.width = resolution;
             tempCanvas.height = resolution;
-
-            tempCtx.fillStyle = '#000000';
+             
+            if(confirm("background black")){
+               tempCtx.fillStyle = '#000000';
+            }
+            else{
+                tempCtx.fillStyle = '#ffffff';
+            }
+             
             tempCtx.fillRect(0, 0, resolution, resolution);
 
             const currentImageData = canvas;
