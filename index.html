@@ -936,7 +936,7 @@
 
  
           let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-          operacionMatematica(rgba,simpleLinealFuncion(1,0.7,0.0,0.0,maxpx),"*");
+          operacionMatematica(rgba,simpleLinealFuncion(1,0.7,0.0,1.25,maxpx),"*");
           maxpx = Math.max(rgba.r, rgba.g, rgba.b);
           let dv=colorDivide(rgba);
           rgba=saturationGio(rgba,0.28-dv);
