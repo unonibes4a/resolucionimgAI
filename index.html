@@ -848,7 +848,7 @@ pasocolorhumyuan(canvas);
 
     var  mixerHtmlPasaColor = (
         rgbax,
-        rgba2 = { r: 0.5, g: 0.45, b: 0.36 }, porcent, bool = false
+        rgba2 = { r: 0.5, g: 0.45, b: 0.36 }, porcent, bool = true
       ) => {
 
         var maxx0 = Math.max(rgbax.r, rgbax.g, rgbax.b);
@@ -860,7 +860,7 @@ pasocolorhumyuan(canvas);
 
         if (bool) {
           let max2 = Math.max(rgbax.r, rgbax.g, rgbax.b);
-          this.operacionMatematica(rgbax, maxx0 / (max2 + 0.00001), "*");
+           operacionMatematica(rgbax, maxx0 / (max2 + 0.00001), "*");
         }
 
 
@@ -929,6 +929,88 @@ pasocolorhumyuan(canvas);
           rgba.g = data[i + 1] / 255;
           rgba.b = data[i + 2] / 255;
           let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+          if (maxpx > 0.3 && maxpx < 0.7) {
+            rgba2.r = rgba2.r + rgba.r;
+            rgba2.g = rgba2.g + rgba.g;
+            rgba2.b = rgba2.b + rgba.b;
+            vacontar++;
+          }
+
+          maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
+
+        }
+        rgba2.r=rgba2.r/vacontar;
+        rgba2.g=rgba2.g/vacontar;
+        rgba2.b=rgba2.b/vacontar;
+     
+        for (let i = 0; i < data.length; i += 4) {
+          rgba.r = data[i] / 255;
+          rgba.g = data[i + 1] / 255;
+          rgba.b = data[i + 2] / 255;
+
+ 
+          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+           operacionMatematica(rgba,(1- limit(maxpx*2))*0.1 ,"+");
+           operacionMatematica(rgba,(simpleLinealFuncion(1,0.5,0,1.2,maxpx)) ,"*");
+           maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+         
+         // operacionMatematica(rgba,(simpleLinealFuncion(1,0.63,0,0.3,maxpx))/(maxpx+0.00001),"*");
+          maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+          let dv=colorDivide(rgba);
+         
+           dv=colorDivide(rgba);
+        /*   rgba=saturationGio(rgba,0.3-dv);
+
+          
+       */
+      rgba=mixerHtmlPasaColor(rgba,rgba2,limit(simpleLinealFuncion(1,1,0.4,0,dv)),true);
+        
+          data[i] =rgba.r * 255;
+          data[i + 1] =rgba.g* 255;
+          data[i + 2] = rgba.b * 255;
+        }
+
+        return imageData;
+      }
+     var limit=(num,min=0.0,max=1.0)=>{
+        if(num>max){
+            num=max;
+
+        }
+        if(num<min){
+            num=min;
+
+        }
+        
+        return num;
+
+      }
+
+      var colorinihunyuan2 = (imageData) => {
+
+
+        let data = imageData.data;
+
+        var rgba = {
+          r: 0,
+          g: 0,
+          b: 0,
+        };
+
+        var rgba2 = {
+          r: 0,
+          g: 0,
+          b: 0,
+        };
+
+        var vacontar = 0;
+
+        var maxipx = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          rgba.r = data[i] / 255;
+          rgba.g = data[i + 1] / 255;
+          rgba.b = data[i + 2] / 255;
+          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
           if (maxpx > 0.1 && maxpx < 0.9) {
             rgba2.r = rgba2.r + rgba.r;
             rgba2.g = rgba2.g + rgba.g;
@@ -947,7 +1029,7 @@ pasocolorhumyuan(canvas);
 
  
           let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-          operacionMatematica(rgba,(simpleLinealFuncion(1,0.63,0,0.2,maxpx))/(maxpx+0.00001),"*");
+          operacionMatematica(rgba,(simpleLinealFuncion(1,0.63,0,0.3,maxpx))/(maxpx+0.00001),"*");
           maxpx = Math.max(rgba.r, rgba.g, rgba.b);
           let dv=colorDivide(rgba);
           rgba=saturationGio(rgba,dv*-0.5);
