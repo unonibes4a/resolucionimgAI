@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -368,7 +369,7 @@
             <label for="greenChannelCheckbox">G</label>
         </div>
         <button id="createNormalMapBtn">Crear Normal Map</button>
-
+<button id="idpasocolor3dmesh">imgTo3dmeshCreator</button>
         <div class="section-divider"></div>
 
         <button id="applyFiltersBtn">Aplicar Filtros</button>
@@ -415,6 +416,8 @@
         const redChannelCheckbox = document.getElementById('redChannelCheckbox');
         const greenChannelCheckbox = document.getElementById('greenChannelCheckbox');
         const createNormalMapBtn = document.getElementById('createNormalMapBtn');
+        const idpasocolor3dmesh = document.getElementById('idpasocolor3dmesh');
+         
 
         let originalImage = null;
         let originalImageData = null;
@@ -806,6 +809,11 @@ pasocolorhumyuan(canvas);
             }
         }
 
+        idpasocolor3dmesh.addEventListener('click', () => {
+         
+            pasocolor3dmesh();
+        });
+
         createNormalMapBtn.addEventListener('click', () => {
             if (!originalImageData) {
                 alert('Primero carga una imagen.');
@@ -891,13 +899,20 @@ pasocolorhumyuan(canvas);
         e = m * val + b;
         return e;
       }
-     var pasocolorsaturacionideal=(canvas)=>{
+
+       var pasocolor3dmesh=(canvas=document.getElementById("myCanvas"))=>{
+        let imagendata=canvas.getContext("2d").getImageData(0,0,canvas.width,canvas.height);
+       imagendata= colorpasocolor3dmesh(imagendata);
+        canvas.getContext("2d").putImageData(imagendata,0,0);
+
+      }
+     var pasocolorsaturacionideal=(canvas=document.getElementById("myCanvas"))=>{
         let imagendata=canvas.getContext("2d").getImageData(0,0,canvas.width,canvas.height);
        imagendata= colorsaturacionideal(imagendata);
         canvas.getContext("2d").putImageData(imagendata,0,0);
 
       }
-       var pasocolorhumyuan=(canvas=canvas)=>{
+       var pasocolorhumyuan=(canvas=document.getElementById("myCanvas"))=>{
         let imagendata=canvas.getContext("2d").getImageData(0,0,canvas.width,canvas.height);
        imagendata= colorinihunyuan(imagendata);
         canvas.getContext("2d").putImageData(imagendata,0,0);
@@ -1049,6 +1064,75 @@ pasocolorhumyuan(canvas);
            rgba=saturationGio(rgba,dv*-0.5);
            dv=colorDivide(rgba);
           rgba=saturationGio(rgba,0.3-dv);
+
+          
+      
+        
+          data[i] =rgba.r * 255;
+          data[i + 1] =rgba.g* 255;
+          data[i + 2] = rgba.b * 255;
+        }
+
+        return imageData;
+      }
+
+      var colorpasocolor3dmesh= (imageData) => {
+
+
+        let data = imageData.data;
+
+        var rgba = {
+          r: 0,
+          g: 0,
+          b: 0,
+        };
+
+        var rgba2 = {
+          r: 0,
+          g: 0,
+          b: 0,
+        };
+
+        var vacontar = 0;
+
+        var maxipx = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          rgba.r = data[i] / 255;
+          rgba.g = data[i + 1] / 255;
+          rgba.b = data[i + 2] / 255;
+          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+          if (maxpx > 0.1 && maxpx < 0.9) {
+            rgba2.r = rgba2.r + rgba.r;
+            rgba2.g = rgba2.g + rgba.g;
+            rgba2.b = rgba2.b + rgba.b;
+            vacontar++;
+          }
+
+          maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
+
+        }
+        let mul=confirm("sum");
+       let sat=confirm("saturado ");
+     
+        for (let i = 0; i < data.length; i += 4) {
+          rgba.r = data[i] / 255;
+          rgba.g = data[i + 1] / 255;
+          rgba.b = data[i + 2] / 255;
+
+ 
+          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+          if(mul){
+
+                 operacionMatematica(rgba,simpleLinealFuncion(1,-0.45,0.0,0.06,maxpx),"+");
+                
+        
+          }
+          else{
+             operacionMatematica(rgba,simpleLinealFuncion(1,0.45,0.0,1.06,maxpx),"*");
+          }
+        if(sat){          let dv=colorDivide(rgba);
+          rgba=saturationGio(rgba,0.5-dv); }
+    
 
           
       
