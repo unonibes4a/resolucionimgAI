@@ -1,7 +1,6 @@
-
-
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 
-    <style> 
-           body {
+    <style>
+        body {
             font-family: 'Roboto', sans-serif;
             background-color: #222;
             color: #fff;
@@ -152,7 +151,8 @@
         }
 
         button {
-            background-color: #414141; /* Updated to #414141 */
+            background-color: #414141;
+            /* Updated to #414141 */
             color: #fff;
             border: none;
             border-radius: 20px;
@@ -166,7 +166,8 @@
         }
 
         button:hover {
-            background-color: #5a5a5a; /* A lighter shade for hover */
+            background-color: #5a5a5a;
+            /* A lighter shade for hover */
             transform: translateY(-1px);
         }
 
@@ -177,51 +178,63 @@
         }
 
         button.quality-btn {
-            background-color: #414141; /* Updated to #414141 */
+            background-color: #414141;
+            /* Updated to #414141 */
         }
 
         button.quality-btn:hover {
-            background-color: #5a5a5a; /* A lighter shade for hover */
+            background-color: #5a5a5a;
+            /* A lighter shade for hover */
         }
 
         button.remove-bg-btn {
-            background-color: #414141; /* Updated to #414141 */
+            background-color: #414141;
+            /* Updated to #414141 */
         }
 
         button.remove-bg-btn:hover {
-            background-color: #5a5a5a; /* A lighter shade for hover */
+            background-color: #5a5a5a;
+            /* A lighter shade for hover */
         }
 
         button.fill-black-btn {
-            background-color: #414141; /* Updated to #414141 */
+            background-color: #414141;
+            /* Updated to #414141 */
         }
 
         button.fill-black-btn:hover {
-            background-color: #5a5a5a; /* A lighter shade for hover */
+            background-color: #5a5a5a;
+            /* A lighter shade for hover */
         }
 
         button.copy-btn {
-            background-color: #414141; /* Updated to #414141 */
+            background-color: #414141;
+            /* Updated to #414141 */
         }
 
         button.copy-btn:hover {
-            background-color: #5a5a5a; /* A lighter shade for hover */
+            background-color: #5a5a5a;
+            /* A lighter shade for hover */
         }
 
         button.paste-btn {
-            background-color: #414141; /* Updated to #414141 */
+            background-color: #414141;
+            /* Updated to #414141 */
         }
 
         button.paste-btn:hover {
-            background-color: #5a5a5a; /* A lighter shade for hover */
+            background-color: #5a5a5a;
+            /* A lighter shade for hover */
         }
 
         button.center-btn {
-            background-color: #414141; /* Updated to #414141 */
+            background-color: #414141;
+            /* Updated to #414141 */
         }
 
         button.center-btn:hover {
-            background-color: #5a5a5a; /* A lighter shade for hover */
+            background-color: #5a5a5a;
+            /* A lighter shade for hover */
         }
 
         .main-content {
@@ -286,18 +299,20 @@
             font-size: 14px;
             margin: 10px 0;
         }
-        canvas{
-     width: 500px;  
-  height: 500px;  
-  object-fit: cover;  
-  border: 1px solid rgb(255, 255, 255);  
+
+        canvas {
+            width: 500px;
+            height: 500px;
+            object-fit: cover;
+            border: 1px solid rgb(255, 255, 255);
         }
     </style>
 </head>
+
 <body>
     <div class="sidebar">
         <h2>Controles</h2>
-        
+
         <div class="sidebar-group">
             <label for="newWidth">Ancho:</label>
             <input type="number" id="newWidth" value="500">
@@ -320,7 +335,7 @@
         <button id="copyBtn" class="copy-btn">Copiar Imagen</button>
         <button id="pasteBtn" class="paste-btn">Pegar Imagen</button>
         <button id="centerImageBtn" class="center-btn">Centrar Imagen</button>
-         <button id="paintbt" class="center-btn">to paint Hunyuan3d</button>
+        <button id="paintbt" class="center-btn">to paint Hunyuan3d</button>
         <div class="loading" id="loadingBg">Procesando...</div>
 
         <div class="section-divider"></div>
@@ -369,7 +384,9 @@
             <label for="greenChannelCheckbox">G</label>
         </div>
         <button id="createNormalMapBtn">Crear Normal Map</button>
-<button id="idpasocolor3dmesh">imgTo3dmeshCreator</button>
+        <button id="idpasocolor3dmesh">imgTo3dmeshCreator</button>
+         
+        <button id="idpasomeshpaintcolor27112025731">paint3d272025Ymesh3d</button>
         <div class="section-divider"></div>
 
         <button id="applyFiltersBtn">Aplicar Filtros</button>
@@ -417,7 +434,8 @@
         const greenChannelCheckbox = document.getElementById('greenChannelCheckbox');
         const createNormalMapBtn = document.getElementById('createNormalMapBtn');
         const idpasocolor3dmesh = document.getElementById('idpasocolor3dmesh');
-         
+        const idpasomeshpaintcolor27112025731= document.getElementById('idpasomeshpaintcolor27112025731');
+
 
         let originalImage = null;
         let originalImageData = null;
@@ -468,7 +486,7 @@
             if (file.type.startsWith('image/')) {
                 currentFile = file;
                 const reader = new FileReader();
-                reader.onload = function(event) {
+                reader.onload = function (event) {
                     loadImage(event.target.result);
                 };
                 reader.readAsDataURL(file);
@@ -484,7 +502,7 @@
                     const blob = items[i].getAsFile();
                     currentFile = blob;
                     const reader = new FileReader();
-                    reader.onload = function(event) {
+                    reader.onload = function (event) {
                         loadImage(event.target.result);
                     };
                     reader.readAsDataURL(blob);
@@ -555,11 +573,11 @@
 
             if (maintainAspectRatioCheckbox.checked) {
                 if (newWidthInput.value !== originalImage.width.toString() || newHeightInput.value === originalImage.height.toString()) {
-                     newHeight = Math.round(newWidth / originalAspectRatio);
-                     newHeightInput.value = newHeight;
+                    newHeight = Math.round(newWidth / originalAspectRatio);
+                    newHeightInput.value = newHeight;
                 } else {
-                     newWidth = Math.round(newHeight * originalAspectRatio);
-                     newWidthInput.value = newWidth;
+                    newWidth = Math.round(newHeight * originalAspectRatio);
+                    newWidthInput.value = newWidth;
                 }
             }
 
@@ -574,25 +592,25 @@
                 alert('Primero carga una imagen.');
                 return;
             }
-            
+
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
-            
+
             const scale = 2;
             tempCanvas.width = canvas.width * scale;
             tempCanvas.height = canvas.height * scale;
-            
+
             tempCtx.imageSmoothingEnabled = true;
             tempCtx.imageSmoothingQuality = 'high';
-            
+
             tempCtx.filter = 'contrast(110%) brightness(105%) saturate(110%)';
             tempCtx.drawImage(originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
-            
+
             canvas.width = tempCanvas.width;
             canvas.height = tempCanvas.height;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(tempCanvas, 0, 0);
-            
+
             newWidthInput.value = canvas.width;
             newHeightInput.value = canvas.height;
         });
@@ -602,14 +620,14 @@
                 alert('Primero carga una imagen.');
                 return;
             }
-            
+
             loadingBg.style.display = 'block';
             loadingBg.textContent = 'Procesando...';
             removeBgBtn.disabled = true;
-            
+
             try {
                 let inputImage;
-                
+
                 if (currentFile) {
                     inputImage = currentFile;
                 } else {
@@ -621,9 +639,9 @@
                     }, 'image/png');
                     return;
                 }
-                
+
                 await processRemoveBackground(inputImage);
-                
+
             } catch (error) {
                 loadingBg.textContent = 'Error al remover el fondo';
                 alert('Error al remover el fondo. Intenta con otra imagen.');
@@ -682,7 +700,7 @@
         pasteBtn.addEventListener('click', async () => {
             try {
                 const clipboardItems = await navigator.clipboard.read();
-                
+
                 for (const clipboardItem of clipboardItems) {
                     for (const type of clipboardItem.types) {
                         if (type.startsWith('image/')) {
@@ -694,9 +712,9 @@
                         }
                     }
                 }
-                
+
                 alert('No se encontró ninguna imagen en el portapapeles');
-                
+
             } catch (error) {
                 alert('Error al pegar imagen: ' + error.message);
             }
@@ -707,15 +725,15 @@
                 e.preventDefault();
                 copyBtn.click();
             }
-            
+
             if (e.ctrlKey && e.key === 'v') {
                 e.preventDefault();
                 pasteBtn.click();
             }
         });
 
-        document.getElementById("paintbt").onclick=(e)=>{
-pasocolorhumyuan(canvas);
+        document.getElementById("paintbt").onclick = (e) => {
+            pasocolorhumyuan(canvas);
         }
 
         centerImageBtn.addEventListener('click', () => {
@@ -725,14 +743,14 @@ pasocolorhumyuan(canvas);
             }
 
             const resolution = parseInt(prompt('Ingresa la resolución de salida:', '2048'));
-            
+
             if (isNaN(resolution) || resolution <= 0) {
                 alert('Por favor, ingresa una resolución válida.');
                 return;
             }
 
             const margin = parseInt(prompt('Ingresa el margen de centrado (en píxeles):', '45'));
-            
+
             if (isNaN(margin) || margin < 0) {
                 alert('Por favor, ingresa un margen válido.');
                 return;
@@ -743,14 +761,14 @@ pasocolorhumyuan(canvas);
 
             tempCanvas.width = resolution;
             tempCanvas.height = resolution;
-             
-            if(confirm("background white")){
-               tempCtx.fillStyle = '#ffffff';
+
+            if (confirm("background white")) {
+                tempCtx.fillStyle = '#ffffff';
             }
-            else{
+            else {
                 tempCtx.fillStyle = '#000000';
             }
-             
+
             tempCtx.fillRect(0, 0, resolution, resolution);
 
             const currentImageData = canvas;
@@ -758,7 +776,7 @@ pasocolorhumyuan(canvas);
             const currentHeight = currentImageData.height;
 
             const maxDimension = resolution - (margin * 2);
-            
+
             let scaledWidth, scaledHeight;
             if (currentWidth > currentHeight) {
                 scaledWidth = maxDimension;
@@ -783,11 +801,11 @@ pasocolorhumyuan(canvas);
 
 
             setTimeout(() => {
-                if(confirm("lineal saturacion")){
-                  pasocolorsaturacionideal(canvas);
+                if (confirm("lineal saturacion")) {
+                    pasocolorsaturacionideal(canvas);
                 }
-                 
-                
+
+
             }, 2000);
         });
 
@@ -799,20 +817,19 @@ pasocolorhumyuan(canvas);
                         loadingBg.textContent = `Descargando ${key}: ${percentage}%`;
                     }
                 });
-                
+
                 const url = URL.createObjectURL(blob);
                 loadImage(url);
                 loadingBg.textContent = 'Fondo removido exitosamente';
-                
+
             } catch (error) {
                 throw error;
             }
         }
 
-        idpasocolor3dmesh.addEventListener('click', () => {
+        idpasocolor3dmesh.addEventListener('click', () => {pasocolor3dmesh();});
+        idpasomeshpaintcolor27112025731.addEventListener('click', () => {pasomeshpaintcolor27112025731();});
          
-            pasocolor3dmesh();
-        });
 
         createNormalMapBtn.addEventListener('click', () => {
             if (!originalImageData) {
@@ -823,534 +840,620 @@ pasocolorhumyuan(canvas);
             createNormalMap();
         });
 
-        
-      var saturationGio = (tex_color, ec5) => {
-        // Función auxiliar para mantener los valores de color entre 0.0 y 1.0
-        function valorLim(x) {
-          if (x > 1.0) return 1.0;
-          if (x < 0.0) return 0.0;
-          return x;
-        }
 
-        const maxx = Math.max(tex_color.r, tex_color.g, tex_color.b);
-        const adjust = ec5;
-
-        // Se interpola cada canal hacia el valor máximo (maxx)
-        if (tex_color.r !== maxx) {
-          tex_color.r += (maxx - tex_color.r) * adjust;
-        }
-        if (tex_color.g !== maxx) {
-          tex_color.g += (maxx - tex_color.g) * adjust;
-        }
-        if (tex_color.b !== maxx) {
-          tex_color.b += (maxx - tex_color.b) * adjust;
-        }
-
-        // Se asegura que los valores no se salgan del rango [0, 1]
-        tex_color.r = valorLim(tex_color.r);
-        tex_color.g = valorLim(tex_color.g);
-        tex_color.b = valorLim(tex_color.b);
-
-        return tex_color;
-      }
-
-    var  mixerHtmlPasaColor = (
-        rgbax,
-        rgba2 = { r: 0.5, g: 0.45, b: 0.36 }, porcent, bool = true
-      ) => {
-
-        var maxx0 = Math.max(rgbax.r, rgbax.g, rgbax.b);
-
-        var clmd = 1.0 - porcent;
-        rgbax.r = rgbax.r * clmd + rgba2.r * porcent;
-        rgbax.g = rgbax.g * clmd + rgba2.g * porcent;
-        rgbax.b = rgbax.b * clmd + rgba2.b * porcent;
-
-        if (bool) {
-          let max2 = Math.max(rgbax.r, rgbax.g, rgbax.b);
-           operacionMatematica(rgbax, maxx0 / (max2 + 0.00001), "*");
-        }
-
-
-        return rgbax;
-      };
-    var  colorDivide = (color1) => {
-        var maxx0 = Math.max(color1.r, color1.g, color1.b) + 0.00001;
-        var minx = Math.min(color1.r, color1.g, color1.b);
-
-        return minx / (maxx0+0.0000001);
-      }
-    var  maximopixel = (rgba) => {
-        return Math.max(rgba.r, rgba.g, rgba.b);
-      }
-    var  minmopixel = (rgba) => {
-        return Math.min(rgba.r, rgba.g, rgba.b);
-      }
-     var  simpleLinealFuncion = (x1, y1, x2, y2, val) => {
-        let m = 0;
-        let b = 0;
-
-        let dx = x2 - x1;
-        dx = dx + 0.00001;
-        let dy = y2 - y1;
-        m = dy / dx;
-        b = y2 - m * x2;
-        let e = null;
-        e = m * val + b;
-        return e;
-      }
-
-       var pasocolor3dmesh=(canvas=document.getElementById("myCanvas"))=>{
-        let imagendata=canvas.getContext("2d").getImageData(0,0,canvas.width,canvas.height);
-       imagendata= colorpasocolor3dmesh(imagendata);
-        canvas.getContext("2d").putImageData(imagendata,0,0);
-
-      }
-     var pasocolorsaturacionideal=(canvas=document.getElementById("myCanvas"))=>{
-        let imagendata=canvas.getContext("2d").getImageData(0,0,canvas.width,canvas.height);
-       imagendata= colorsaturacionideal(imagendata);
-        canvas.getContext("2d").putImageData(imagendata,0,0);
-
-      }
-       var pasocolorhumyuan=(canvas=document.getElementById("myCanvas"))=>{
-        let imagendata=canvas.getContext("2d").getImageData(0,0,canvas.width,canvas.height);
-       imagendata= colorinihunyuan(imagendata);
-        canvas.getContext("2d").putImageData(imagendata,0,0);
-
-      }
-
-      var colorinihunyuan = (imageData) => {
-
-
-        let data = imageData.data;
-
-        var rgba = {
-          r: 0,
-          g: 0,
-          b: 0,
-        };
-
-        var rgba2 = {
-          r: 0,
-          g: 0,
-          b: 0,
-        };
-
-        var vacontar = 0;
-
-        var maxipx = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          rgba.r = data[i] / 255;
-          rgba.g = data[i + 1] / 255;
-          rgba.b = data[i + 2] / 255;
-          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-          if (maxpx > 0.3 && maxpx < 0.7) {
-            rgba2.r = rgba2.r + rgba.r;
-            rgba2.g = rgba2.g + rgba.g;
-            rgba2.b = rgba2.b + rgba.b;
-            vacontar++;
-          }
-
-          maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
-
-        }
-        rgba2.r=rgba2.r/vacontar;
-        rgba2.g=rgba2.g/vacontar;
-        rgba2.b=rgba2.b/vacontar;
-     
-        for (let i = 0; i < data.length; i += 4) {
-          rgba.r = data[i] / 255;
-          rgba.g = data[i + 1] / 255;
-          rgba.b = data[i + 2] / 255;
-
- 
-          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-           operacionMatematica(rgba,(1- limit(maxpx*2))*0.1 ,"+");
-           operacionMatematica(rgba,(simpleLinealFuncion(1,0.5,0,1.2,maxpx)) ,"*");
-           maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-         
-         // operacionMatematica(rgba,(simpleLinealFuncion(1,0.63,0,0.3,maxpx))/(maxpx+0.00001),"*");
-          maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-          let dv=colorDivide(rgba);
-         
-           dv=colorDivide(rgba);
-        /*   rgba=saturationGio(rgba,0.3-dv);
-
-          
-       */
-      rgba=mixerHtmlPasaColor(rgba,rgba2,limit(simpleLinealFuncion(1,1,0.4,0,dv)),true);
-        
-          data[i] =rgba.r * 255;
-          data[i + 1] =rgba.g* 255;
-          data[i + 2] = rgba.b * 255;
-        }
-
-        return imageData;
-      }
-     var limit=(num,min=0.0,max=1.0)=>{
-        if(num>max){
-            num=max;
-
-        }
-        if(num<min){
-            num=min;
-
-        }
-        
-        return num;
-
-      }
-
-      var colorinihunyuan2 = (imageData) => {
-
-
-        let data = imageData.data;
-
-        var rgba = {
-          r: 0,
-          g: 0,
-          b: 0,
-        };
-
-        var rgba2 = {
-          r: 0,
-          g: 0,
-          b: 0,
-        };
-
-        var vacontar = 0;
-
-        var maxipx = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          rgba.r = data[i] / 255;
-          rgba.g = data[i + 1] / 255;
-          rgba.b = data[i + 2] / 255;
-          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-          if (maxpx > 0.1 && maxpx < 0.9) {
-            rgba2.r = rgba2.r + rgba.r;
-            rgba2.g = rgba2.g + rgba.g;
-            rgba2.b = rgba2.b + rgba.b;
-            vacontar++;
-          }
-
-          maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
-
-        }
-     
-        for (let i = 0; i < data.length; i += 4) {
-          rgba.r = data[i] / 255;
-          rgba.g = data[i + 1] / 255;
-          rgba.b = data[i + 2] / 255;
-
- 
-          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-          operacionMatematica(rgba,(simpleLinealFuncion(1,0.63,0,0.3,maxpx))/(maxpx+0.00001),"*");
-          maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-          let dv=colorDivide(rgba);
-          rgba=saturationGio(rgba,dv*-0.5);
-          dv=colorDivide(rgba);
-          rgba=saturationGio(rgba,dv*-0.5);
-          dv=colorDivide(rgba);
-          rgba=saturationGio(rgba,dv*-0.5);
-           dv=colorDivide(rgba);
-           rgba=saturationGio(rgba,dv*-0.5);
-            dv=colorDivide(rgba);
-           rgba=saturationGio(rgba,dv*-0.5);
-            dv=colorDivide(rgba);
-           rgba=saturationGio(rgba,dv*-0.5);
-            dv=colorDivide(rgba);
-           rgba=saturationGio(rgba,dv*-0.5);
-            dv=colorDivide(rgba);
-           rgba=saturationGio(rgba,dv*-0.5);
-           dv=colorDivide(rgba);
-          rgba=saturationGio(rgba,0.3-dv);
-
-          
-      
-        
-          data[i] =rgba.r * 255;
-          data[i + 1] =rgba.g* 255;
-          data[i + 2] = rgba.b * 255;
-        }
-
-        return imageData;
-      }
-
-      var colorpasocolor3dmesh= (imageData) => {
-
-
-        let data = imageData.data;
-
-        var rgba = {
-          r: 0,
-          g: 0,
-          b: 0,
-        };
-
-        var rgba2 = {
-          r: 0,
-          g: 0,
-          b: 0,
-        };
-
-        var rgba3 = {
-          r: 0,
-          g: 0,
-          b: 0,
-        };
-
-        var vacontar = 0;
-        var vacontar3=0;
-
-        var maxipx = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          rgba.r = data[i] / 255;
-          rgba.g = data[i + 1] / 255;
-          rgba.b = data[i + 2] / 255;
-          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-
-          let dv=colorDivide(rgba);
-          if (maxpx > 0.1 && maxpx < 0.9) {
-            rgba2.r = rgba2.r + rgba.r;
-            rgba2.g = rgba2.g + rgba.g;
-            rgba2.b = rgba2.b + rgba.b;
-            vacontar++;
-          }
-            if (dv > 0.9 && maxpx > 0.2 && maxpx < 0.7) {
-            rgba3.r = rgba3.r + rgba.r;
-            rgba3.g = rgba3.g + rgba.g;
-            rgba3.b = rgba3.b + rgba.b;
-            vacontar3++;
-          }
-
-          maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
-
-        }
-        vacontar3=vacontar3+0.000001;
-        vacontar=vacontar+0.000001;
-
-           rgba2.r=rgba2.r/vacontar;
-        rgba2.g=rgba2.g/vacontar;
-        rgba2.b=rgba2.b/vacontar;
-
-        rgba3.r=rgba3.r/vacontar3;
-        rgba3.g=rgba3.g/vacontar3;
-        rgba3.b=rgba3.b/vacontar3;
-
-
-
-
-        let mul=confirm("sum");
-       let sat=confirm("saturado ");
-     
-        for (let i = 0; i < data.length; i += 4) {
-          rgba.r = data[i] / 255;
-          rgba.g = data[i + 1] / 255;
-          rgba.b = data[i + 2] / 255;
-
- 
-          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-          if(mul){
-
-                 operacionMatematica(rgba,simpleLinealFuncion(1,-0.45,0.0,0.06,maxpx),"+");
-                
-        
-          }
-          else{
-            
-             operacionMatematica(rgba,simpleLinealFuncion(1,-0.4,0.0,0.14,maxpx),"+");
-  let dv=colorDivide(rgba);
-            if(dv<0.9){ mixerHtmlPasaColor(rgba,rgba3,dv*dv*dv*dv,false);}
-            else{
-                mixerHtmlPasaColor(rgba,rgba2,dv*dv*dv*dv,false);
+        var saturationGio = (tex_color, ec5) => {
+            // Función auxiliar para mantener los valores de color entre 0.0 y 1.0
+            function valorLim(x) {
+                if (x > 1.0) return 1.0;
+                if (x < 0.0) return 0.0;
+                return x;
             }
+
+            const maxx = Math.max(tex_color.r, tex_color.g, tex_color.b);
+            const adjust = ec5;
+
+            // Se interpola cada canal hacia el valor máximo (maxx)
+            if (tex_color.r !== maxx) {
+                tex_color.r += (maxx - tex_color.r) * adjust;
+            }
+            if (tex_color.g !== maxx) {
+                tex_color.g += (maxx - tex_color.g) * adjust;
+            }
+            if (tex_color.b !== maxx) {
+                tex_color.b += (maxx - tex_color.b) * adjust;
+            }
+
+            // Se asegura que los valores no se salgan del rango [0, 1]
+            tex_color.r = valorLim(tex_color.r);
+            tex_color.g = valorLim(tex_color.g);
+            tex_color.b = valorLim(tex_color.b);
+
+            return tex_color;
+        }
+
+        var mixerHtmlPasaColor = (
+            rgbax,
+            rgba2 = { r: 0.5, g: 0.45, b: 0.36 }, porcent, bool = true
+        ) => {
+
+            var maxx0 = Math.max(rgbax.r, rgbax.g, rgbax.b);
+
+            var clmd = 1.0 - porcent;
+            rgbax.r = rgbax.r * clmd + rgba2.r * porcent;
+            rgbax.g = rgbax.g * clmd + rgba2.g * porcent;
+            rgbax.b = rgbax.b * clmd + rgba2.b * porcent;
+
+            if (bool) {
+                let max2 = Math.max(rgbax.r, rgbax.g, rgbax.b);
+                operacionMatematica(rgbax, maxx0 / (max2 + 0.00001), "*");
+            }
+
+
+            return rgbax;
+        };
+        var colorDivide = (color1) => {
+            var maxx0 = Math.max(color1.r, color1.g, color1.b) + 0.00001;
+            var minx = Math.min(color1.r, color1.g, color1.b);
+
+            return minx / (maxx0 + 0.0000001);
+        }
+        var maximopixel = (rgba) => {
+            return Math.max(rgba.r, rgba.g, rgba.b);
+        }
+        var minmopixel = (rgba) => {
+            return Math.min(rgba.r, rgba.g, rgba.b);
+        }
+        var simpleLinealFuncion = (x1, y1, x2, y2, val) => {
+            let m = 0;
+            let b = 0;
+
+            let dx = x2 - x1;
+            dx = dx + 0.00001;
+            let dy = y2 - y1;
+            m = dy / dx;
+            b = y2 - m * x2;
+            let e = null;
+            e = m * val + b;
+            return e;
+        }
+
+        var pasocolor3dmesh = (canvas = document.getElementById("myCanvas")) => {
+            let imagendata = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
+            imagendata = colorpasocolor3dmesh(imagendata);
+            canvas.getContext("2d").putImageData(imagendata, 0, 0);
+
+        }
+         var pasomeshpaintcolor27112025731 = (canvas = document.getElementById("myCanvas")) => {
+            let imagendata = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
+            imagendata = meshpaintcolor27112025731(imagendata);
+            canvas.getContext("2d").putImageData(imagendata, 0, 0);
+
+        }
+
+         
+        var pasocolorsaturacionideal = (canvas = document.getElementById("myCanvas")) => {
+            let imagendata = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
+            imagendata = colorsaturacionideal(imagendata);
+            canvas.getContext("2d").putImageData(imagendata, 0, 0);
+
+        }
+        var pasocolorhumyuan = (canvas = document.getElementById("myCanvas")) => {
+            let imagendata = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
+            imagendata = colorinihunyuan(imagendata);
+            canvas.getContext("2d").putImageData(imagendata, 0, 0);
+
+        }
+
+        var colorinihunyuan = (imageData) => {
+
+
+            let data = imageData.data;
+
+            var rgba = {
+                r: 0,
+                g: 0,
+                b: 0,
+            };
+
+            var rgba2 = {
+                r: 0,
+                g: 0,
+                b: 0,
+            };
+
+            var vacontar = 0;
+
+            var maxipx = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255;
+                rgba.g = data[i + 1] / 255;
+                rgba.b = data[i + 2] / 255;
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                if (maxpx > 0.3 && maxpx < 0.7) {
+                    rgba2.r = rgba2.r + rgba.r;
+                    rgba2.g = rgba2.g + rgba.g;
+                    rgba2.b = rgba2.b + rgba.b;
+                    vacontar++;
+                }
+
+                maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
+
+            }
+            rgba2.r = rgba2.r / vacontar;
+            rgba2.g = rgba2.g / vacontar;
+            rgba2.b = rgba2.b / vacontar;
+
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255;
+                rgba.g = data[i + 1] / 255;
+                rgba.b = data[i + 2] / 255;
+
+
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                operacionMatematica(rgba, (1 - limit(maxpx * 2)) * 0.1, "+");
+                operacionMatematica(rgba, (simpleLinealFuncion(1, 0.5, 0, 1.2, maxpx)), "*");
+                maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+
+                // operacionMatematica(rgba,(simpleLinealFuncion(1,0.63,0,0.3,maxpx))/(maxpx+0.00001),"*");
+                maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                let dv = colorDivide(rgba);
+
+                dv = colorDivide(rgba);
+                /*   rgba=saturationGio(rgba,0.3-dv);
+        
+                  
+               */
+                rgba = mixerHtmlPasaColor(rgba, rgba2, limit(simpleLinealFuncion(1, 1, 0.4, 0, dv)), true);
+
+                data[i] = rgba.r * 255;
+                data[i + 1] = rgba.g * 255;
+                data[i + 2] = rgba.b * 255;
+            }
+
+            return imageData;
+        }
+        var limit = (num, min = 0.0, max = 1.0) => {
+            if (num > max) {
+                num = max;
+
+            }
+            if (num < min) {
+                num = min;
+
+            }
+
+            return num;
+
+        }
+
+        var colorinihunyuan2 = (imageData) => {
+
+
+            let data = imageData.data;
+
+            var rgba = {
+                r: 0,
+                g: 0,
+                b: 0,
+            };
+
+            var rgba2 = {
+                r: 0,
+                g: 0,
+                b: 0,
+            };
+
+            var vacontar = 0;
+
+            var maxipx = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255;
+                rgba.g = data[i + 1] / 255;
+                rgba.b = data[i + 2] / 255;
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                if (maxpx > 0.1 && maxpx < 0.9) {
+                    rgba2.r = rgba2.r + rgba.r;
+                    rgba2.g = rgba2.g + rgba.g;
+                    rgba2.b = rgba2.b + rgba.b;
+                    vacontar++;
+                }
+
+                maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
+
+            }
+
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255;
+                rgba.g = data[i + 1] / 255;
+                rgba.b = data[i + 2] / 255;
+
+
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                operacionMatematica(rgba, (simpleLinealFuncion(1, 0.63, 0, 0.3, maxpx)) / (maxpx + 0.00001), "*");
+                maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                let dv = colorDivide(rgba);
+                rgba = saturationGio(rgba, dv * -0.5);
+                dv = colorDivide(rgba);
+                rgba = saturationGio(rgba, dv * -0.5);
+                dv = colorDivide(rgba);
+                rgba = saturationGio(rgba, dv * -0.5);
+                dv = colorDivide(rgba);
+                rgba = saturationGio(rgba, dv * -0.5);
+                dv = colorDivide(rgba);
+                rgba = saturationGio(rgba, dv * -0.5);
+                dv = colorDivide(rgba);
+                rgba = saturationGio(rgba, dv * -0.5);
+                dv = colorDivide(rgba);
+                rgba = saturationGio(rgba, dv * -0.5);
+                dv = colorDivide(rgba);
+                rgba = saturationGio(rgba, dv * -0.5);
+                dv = colorDivide(rgba);
+                rgba = saturationGio(rgba, 0.3 - dv);
+
+
+
+
+                data[i] = rgba.r * 255;
+                data[i + 1] = rgba.g * 255;
+                data[i + 2] = rgba.b * 255;
+            }
+
+            return imageData;
+        }
+
+        var meshpaintcolor27112025731 = (imageData) => {
+            let data = imageData.data;
+            var rgba = {
+                r: 0,
+                g: 0,
+                b: 0,
+            };
+
+            var rgba2 = {
+                r: 0,
+                g: 0,
+                b: 0,
+            };
+
+            var rgba3 = {
+                r: 0,
+                g: 0,
+                b: 0,
+            };
+
+            var vacontar = 0;
+            var vacontar3 = 0;
+
+            var maxipx = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255;
+                rgba.g = data[i + 1] / 255;
+                rgba.b = data[i + 2] / 255;
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+
+                let dv = colorDivide(rgba);
+                if (maxpx > 0.1 && maxpx < 0.9) {
+                    rgba2.r = rgba2.r + rgba.r;
+                    rgba2.g = rgba2.g + rgba.g;
+                    rgba2.b = rgba2.b + rgba.b;
+                    vacontar++;
+                }
+                if (dv > 0.9 && maxpx > 0.2 && maxpx < 0.7) {
+                    rgba3.r = rgba3.r + rgba.r;
+                    rgba3.g = rgba3.g + rgba.g;
+                    rgba3.b = rgba3.b + rgba.b;
+                    vacontar3++;
+                }
+
+                maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
+
+            }
+            vacontar3 = vacontar3 + 0.000001;
+            vacontar = vacontar + 0.000001;
+            rgba2.r = rgba2.r / vacontar;
+            rgba2.g = rgba2.g / vacontar;
+            rgba2.b = rgba2.b / vacontar;
+            rgba3.r = rgba3.r / vacontar3;
+            rgba3.g = rgba3.g / vacontar3;
+            rgba3.b = rgba3.b / vacontar3;
+
+         let vuelta=confirm("no espara blender");
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255;
+                rgba.g = data[i + 1] / 255;
+                rgba.b = data[i + 2] / 255;
+
+                if(vuelta){
+    let maxpx = Math.max(rgba.r, rgba.g, rgba.b);  
+operacionMatematica(rgba,simpleLinealFuncion(1, 0,0,0.2,maxpx),"+");
+ let  dv=colorDivide(rgba);
+              saturationGio(rgba,0.5-dv);
+              maxpx = Math.max(rgba.r, rgba.g, rgba.b);          
+           if(maxpx>0.67){
+            operacionMatematica(rgba,0.67/(maxpx+0.000001),"*"); 
+           }
+         dv=colorDivide(rgba);
+              saturationGio(rgba, -dv*0.3);   
+
+                }
+                else{
+
+                    let maxpx = Math.max(rgba.r, rgba.g, rgba.b);                 
+                operacionMatematica(rgba,(1-maxpx)*0.2*maxpx,"+");    
+                maxpx = Math.max(rgba.r, rgba.g, rgba.b);                 
+                operacionMatematica(rgba,(1-maxpx)*0.2*maxpx,"+");   
+                 maxpx = Math.max(rgba.r, rgba.g, rgba.b);                 
+                operacionMatematica(rgba,( maxpx)*0.2*-maxpx,"+");   
+                }
              
-          }
-        if(sat){          let dv=colorDivide(rgba);
-          rgba=saturationGio(rgba,0.5-dv); }
 
-          
-    
 
-          
-      
-        
-          data[i] =rgba.r * 255;
-          data[i + 1] =rgba.g* 255;
-          data[i + 2] = rgba.b * 255;
+                data[i] = rgba.r * 255;
+                data[i + 1] = rgba.g * 255;
+                data[i + 2] = rgba.b * 255;
+            }
+
+            return imageData;
         }
 
-        return imageData;
-      }
-
-    var colorsaturacionideal = (imageData) => {
+  
+        var colorpasocolor3dmesh = (imageData) => {
 
 
-        let data = imageData.data;
+            let data = imageData.data;
 
-        var rgba = {
-          r: 0,
-          g: 0,
-          b: 0,
-        };
+            var rgba = {
+                r: 0,
+                g: 0,
+                b: 0,
+            };
 
-        var rgba2 = {
-          r: 0,
-          g: 0,
-          b: 0,
-        };
+            var rgba2 = {
+                r: 0,
+                g: 0,
+                b: 0,
+            };
 
-        var vacontar = 0;
+            var rgba3 = {
+                r: 0,
+                g: 0,
+                b: 0,
+            };
 
-        var maxipx = 0;
-        for (let i = 0; i < data.length; i += 4) {
-          rgba.r = data[i] / 255;
-          rgba.g = data[i + 1] / 255;
-          rgba.b = data[i + 2] / 255;
-          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-          if (maxpx > 0.1 && maxpx < 0.9) {
-            rgba2.r = rgba2.r + rgba.r;
-            rgba2.g = rgba2.g + rgba.g;
-            rgba2.b = rgba2.b + rgba.b;
-            vacontar++;
-          }
+            var vacontar = 0;
+            var vacontar3 = 0;
 
-          maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
+            var maxipx = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255;
+                rgba.g = data[i + 1] / 255;
+                rgba.b = data[i + 2] / 255;
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
 
+                let dv = colorDivide(rgba);
+                if (maxpx > 0.1 && maxpx < 0.9) {
+                    rgba2.r = rgba2.r + rgba.r;
+                    rgba2.g = rgba2.g + rgba.g;
+                    rgba2.b = rgba2.b + rgba.b;
+                    vacontar++;
+                }
+                if (dv > 0.9 && maxpx > 0.2 && maxpx < 0.7) {
+                    rgba3.r = rgba3.r + rgba.r;
+                    rgba3.g = rgba3.g + rgba.g;
+                    rgba3.b = rgba3.b + rgba.b;
+                    vacontar3++;
+                }
+
+                maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
+
+            }
+            vacontar3 = vacontar3 + 0.000001;
+            vacontar = vacontar + 0.000001;
+
+            rgba2.r = rgba2.r / vacontar;
+            rgba2.g = rgba2.g / vacontar;
+            rgba2.b = rgba2.b / vacontar;
+
+            rgba3.r = rgba3.r / vacontar3;
+            rgba3.g = rgba3.g / vacontar3;
+            rgba3.b = rgba3.b / vacontar3;
+            let mul = confirm("sum");
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255;
+                rgba.g = data[i + 1] / 255;
+                rgba.b = data[i + 2] / 255;
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                if (mul) {
+                    rgba = operacionMatematica(rgba, simpleLinealFuncion(1, 0.7, 0, 0.09, maxpx) / (maxpx + 0.000001), "*");
+                }
+                else {
+                    let dv = colorDivide(rgba);
+                    let y = 0.2 + 0.9 * maxpx - 0.6 * maxpx * maxpx;
+                    rgba = operacionMatematica(rgba, 0.05, "+");
+                    maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                    if (maxpx > 0.5) {
+                        rgba = operacionMatematica(rgba, 0.5 / (maxpx + 0.00001), "*");
+                    }
+                    dv = colorDivide(rgba);
+                    saturationGio(rgba, 0.3 - dv); dv = colorDivide(rgba);
+                    saturationGio(rgba, 0.3 - dv)
+                }
+                data[i] = rgba.r * 255;
+                data[i + 1] = rgba.g * 255;
+                data[i + 2] = rgba.b * 255;
+            }
+
+            return imageData;
         }
-     
-        for (let i = 0; i < data.length; i += 4) {
-          rgba.r = data[i] / 255;
-          rgba.g = data[i + 1] / 255;
-          rgba.b = data[i + 2] / 255;
 
- 
-          let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-          operacionMatematica(rgba,simpleLinealFuncion(1,0.7,0.0,1.25,maxpx),"*");
-          maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-          let dv=colorDivide(rgba);
-          rgba=saturationGio(rgba,0.28-dv);
+        var colorsaturacionideal = (imageData) => {
 
-          
-      
-        
-          data[i] =rgba.r * 255;
-          data[i + 1] =rgba.g* 255;
-          data[i + 2] = rgba.b * 255;
-        }
 
-        return imageData;
-      }
-     var operacionMatematica = (rgba, val, operacion) => {
-        function value1o0(v) {
-          if (v < 0) {
-            v = 0;
-          }
-          if (v > 1) {
-            v = 1;
-          }
-          return v;
+            let data = imageData.data;
+
+            var rgba = {
+                r: 0,
+                g: 0,
+                b: 0,
+            };
+
+            var rgba2 = {
+                r: 0,
+                g: 0,
+                b: 0,
+            };
+
+            var vacontar = 0;
+
+            var maxipx = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255;
+                rgba.g = data[i + 1] / 255;
+                rgba.b = data[i + 2] / 255;
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                if (maxpx > 0.1 && maxpx < 0.9) {
+                    rgba2.r = rgba2.r + rgba.r;
+                    rgba2.g = rgba2.g + rgba.g;
+                    rgba2.b = rgba2.b + rgba.b;
+                    vacontar++;
+                }
+
+                maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
+
+            }
+
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255;
+                rgba.g = data[i + 1] / 255;
+                rgba.b = data[i + 2] / 255;
+
+
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                operacionMatematica(rgba, simpleLinealFuncion(1, 0.7, 0.0, 1.25, maxpx), "*");
+                maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                let dv = colorDivide(rgba);
+                rgba = saturationGio(rgba, 0.28 - dv);
+
+
+
+
+                data[i] = rgba.r * 255;
+                data[i + 1] = rgba.g * 255;
+                data[i + 2] = rgba.b * 255;
+            }
+
+            return imageData;
         }
-        if ("multiplicar" == operacion || operacion == "*") {
-          rgba.r *= val;
-          rgba.r = value1o0(rgba.r);
-          rgba.g *= val;
-          rgba.g = value1o0(rgba.g);
-          rgba.b *= val;
-          rgba.b = value1o0(rgba.b);
-          return rgba;
+        var operacionMatematica = (rgba, val, operacion) => {
+            function value1o0(v) {
+                if (v < 0) {
+                    v = 0;
+                }
+                if (v > 1) {
+                    v = 1;
+                }
+                return v;
+            }
+            if ("multiplicar" == operacion || operacion == "*") {
+                rgba.r *= val;
+                rgba.r = value1o0(rgba.r);
+                rgba.g *= val;
+                rgba.g = value1o0(rgba.g);
+                rgba.b *= val;
+                rgba.b = value1o0(rgba.b);
+                return rgba;
+            }
+            if (operacion == "+") {
+                rgba.r += val;
+                rgba.r = value1o0(rgba.r);
+                rgba.g += val;
+                rgba.g = value1o0(rgba.g);
+                rgba.b += val;
+                rgba.b = value1o0(rgba.b);
+                return rgba;
+            }
+            if ("potencia" == operacion || operacion == "pow") {
+                rgba.r = Math.pow(rgba.r, val);
+                rgba.r = value1o0(rgba.r);
+                rgba.g = Math.pow(rgba.g, val);
+                rgba.g = value1o0(rgba.g);
+                rgba.b = Math.pow(rgba.b, val);
+                rgba.b = value1o0(rgba.b);
+                return rgba;
+            }
+            if ("asigna" == operacion || operacion == "=") {
+                rgba.r = val.r;
+                rgba.r = value1o0(rgba.r);
+                rgba.g = val.g;
+                rgba.g = value1o0(rgba.g);
+                rgba.b = val.b;
+                rgba.b = value1o0(rgba.b);
+                return rgba;
+            }
+            if (operacion == "srgba") {
+                rgba.r += rgba.r;
+                rgba.r = value1o0(rgba.r);
+                rgba.g += rgba.g;
+                rgba.g = value1o0(rgba.g);
+                rgba.b += rgba.b;
+                rgba.b = value1o0(rgba.b);
+                return rgba;
+            }
+            return rgba;
         }
-        if (operacion == "+") {
-          rgba.r += val;
-          rgba.r = value1o0(rgba.r);
-          rgba.g += val;
-          rgba.g = value1o0(rgba.g);
-          rgba.b += val;
-          rgba.b = value1o0(rgba.b);
-          return rgba;
-        }
-        if ("potencia" == operacion || operacion == "pow") {
-          rgba.r = Math.pow(rgba.r, val);
-          rgba.r = value1o0(rgba.r);
-          rgba.g = Math.pow(rgba.g, val);
-          rgba.g = value1o0(rgba.g);
-          rgba.b = Math.pow(rgba.b, val);
-          rgba.b = value1o0(rgba.b);
-          return rgba;
-        }
-        if ("asigna" == operacion || operacion == "=") {
-          rgba.r = val.r;
-          rgba.r = value1o0(rgba.r);
-          rgba.g = val.g;
-          rgba.g = value1o0(rgba.g);
-          rgba.b = val.b;
-          rgba.b = value1o0(rgba.b);
-          return rgba;
-        }
-        if (operacion == "srgba") {
-          rgba.r += rgba.r;
-          rgba.r = value1o0(rgba.r);
-          rgba.g += rgba.g;
-          rgba.g = value1o0(rgba.g);
-          rgba.b += rgba.b;
-          rgba.b = value1o0(rgba.b);
-          return rgba;
-        }
-        return rgba;
-      }
 
         function createNormalMap() {
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data;
             const newData = new Uint8ClampedArray(data.length);
-            
+
             const bias = parseFloat(biasSlider.value) / 100.0;
             const strength = parseFloat(strengthSlider.value) / 10.0;
             const invertR = invertCheckbox.checked ? -1.0 : 1.0;
             const invertG = invertCheckbox.checked ? -1.0 : 1.0;
             const useRed = redChannelCheckbox.checked;
             const useGreen = greenChannelCheckbox.checked;
-            
+
             for (let y = 0; y < canvas.height; y++) {
                 for (let x = 0; x < canvas.width; x++) {
                     const index = (y * canvas.width + x) * 4;
-                    
+
                     const d0 = getRedValue(data, x, y, canvas.width, canvas.height) / 255.0;
                     const d1 = getRedValue(data, x + 1, y, canvas.width, canvas.height) / 255.0;
                     const d2 = getRedValue(data, x - 1, y, canvas.width, canvas.height) / 255.0;
                     const d3 = getRedValue(data, x, y + 1, canvas.width, canvas.height) / 255.0;
                     const d4 = getRedValue(data, x, y - 1, canvas.width, canvas.height) / 255.0;
-                    
+
                     let dx = (d2 - d1) * strength;
                     let dy = (d4 - d3) * strength;
-                    
+
                     dx *= invertR;
                     dy *= invertG;
-                    
+
                     const dz = 1.0 / Math.max(bias, 0.01);
-                    
+
                     const length = Math.sqrt(dx * dx + dy * dy + dz * dz);
                     const normX = dx / length;
                     const normY = dy / length;
                     const normZ = dz / length;
-                    
+
                     if (useRed) {
                         newData[index] = Math.floor(Math.max(0, Math.min(255, (normX * 0.5 + 0.5) * 255)));
                     } else {
                         newData[index] = data[index];
                     }
-                    
+
                     if (useGreen) {
                         newData[index + 1] = Math.floor(Math.max(0, Math.min(255, (normY * 0.5 + 0.5) * 255)));
                     } else {
                         newData[index + 1] = data[index + 1];
                     }
-                    
+
                     newData[index + 2] = Math.floor(Math.max(0, Math.min(255, (normZ * 0.5 + 0.5) * 255)));
                     newData[index + 3] = 255;
                 }
             }
-            
+
             const newImageData = new ImageData(newData, canvas.width, canvas.height);
             ctx.putImageData(newImageData, 0, 0);
         }
@@ -1385,7 +1488,7 @@ pasocolorhumyuan(canvas);
             currentHue = 0;
             currentContrast = 100;
             currentBlur = 0;
-            
+
             saturationSlider.value = 100;
             brightnessSlider.value = 100;
             hueSlider.value = 0;
@@ -1393,7 +1496,7 @@ pasocolorhumyuan(canvas);
             blurSlider.value = 0;
             biasSlider.value = 10;
             strengthSlider.value = 50;
-            
+
             document.getElementById('saturationValue').textContent = '100';
             document.getElementById('brightnessValue').textContent = '100';
             document.getElementById('hueValue').textContent = '0';
@@ -1401,11 +1504,11 @@ pasocolorhumyuan(canvas);
             document.getElementById('blurValue').textContent = '0';
             document.getElementById('biasValue').textContent = '10';
             document.getElementById('strengthValue').textContent = '50';
-            
+
             invertCheckbox.checked = false;
             redChannelCheckbox.checked = true;
             greenChannelCheckbox.checked = true;
-            
+
             if (originalImageData) {
                 ctx.putImageData(originalImageData, 0, 0);
             } else {
@@ -1461,4 +1564,5 @@ pasocolorhumyuan(canvas);
         });
     </script>
 </body>
+
 </html>
