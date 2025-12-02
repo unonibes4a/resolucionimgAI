@@ -1168,51 +1168,22 @@
             rgba3.g = rgba3.g / vacontar3;
             rgba3.b = rgba3.b / vacontar3;
 
+            let paso2=confirm("paso A");
+
     
             for (let i = 0; i < data.length; i += 4) {
                 rgba.r = data[i] / 255;
                 rgba.g = data[i + 1] / 255;
                 rgba.b = data[i + 2] / 255;
-
-           
+                if(!paso2){
+                    
     let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
     let maxpx2 = Math.max(rgba.r, rgba.g, rgba.b)*2;   
     if(maxpx2>1){maxpx2=1;} 
  
   
    var dv=colorDivide(rgba);
-  /*  if(maxpx2>0.5){ operacionMatematica(rgba,0.6/(maxpx+0.000001),"*"); }
-    if(maxpx2>0.4 &&dv>0.95){ operacionMatematica(rgba,0.36/(maxpx+0.000001),"*"); }
-   if(maxpx2<0.2){
- operacionMatematica(rgba,0.2/(maxpx+0.000001),"*"); 
-   }
-
-
- 
-   if(maxpx>0.3 && dv>0.97){mixerHtmlPasaColor(rgba,{r:0.3,g:0.27,b:0.27},dv,false);}
-   else{
-    saturationGio(rgba,-dv);
-   } 
-   for(var iz=0; iz<4;iz++){
-    if(dv<0.96){
-        dv=colorDivide(rgba);
-     saturationGio(rgba,-dv);
-    }
- 
-   }
-  dv=colorDivide(rgba);
-   if(dv>0.82){
-rgba.r=0.3;
- rgba.g=0.3;
-  rgba.b=0.3;
-   }
-   maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-      if(maxpx<0.23){
-rgba.r=0.23;
- rgba.g=0.23;
-  rgba.b=0.23;
-   } */
-
+  
 
    operacionMatematica(rgba,simpleLinealFuncion(1,0.5,0,3,maxpx),"*");
    operacionMatematica(rgba,limit(simpleLinealFuncion(0.95,0,0.92,1,dv),0.2,1),"*");
@@ -1224,6 +1195,18 @@ rgba.r=0.23;
   dv=colorDivide(rgba);   saturationGio(rgba,0.4-dv);
     dv=colorDivide(rgba);   saturationGio(rgba,0.4-dv);
    
+                }
+                else{
+    let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+       operacionMatematica(rgba,simpleLinealFuncion(1,0.67,0,1.3,limit(maxpx*2,0,1)  ),"*");
+       for(var i2=0; i2<2;i2++){
+ let dv=colorDivide(rgba);    saturationGio(rgba,0.5-dv);
+       }
+       
+
+                 }
+
+            
    
 
 
