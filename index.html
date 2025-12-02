@@ -1168,7 +1168,7 @@
             rgba3.g = rgba3.g / vacontar3;
             rgba3.b = rgba3.b / vacontar3;
 
-            let paso2=confirm("paso A");
+            let paso2=confirm("mesh creator calcelar paint");
 
     
             for (let i = 0; i < data.length; i += 4) {
@@ -1178,22 +1178,12 @@
                 if(!paso2){
                     
     let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-    let maxpx2 = Math.max(rgba.r, rgba.g, rgba.b)*2;   
-    if(maxpx2>1){maxpx2=1;} 
+     
+    operacionMatematica(rgba,simpleLinealFuncion(1,-0.3,0,0.1,maxpx),"+");
+     for(var i2=0; i2<2;i2++){
+ let dv=colorDivide(rgba);    saturationGio(rgba,0.5-dv);
+       }
  
-  
-   var dv=colorDivide(rgba);
-  
-
-   operacionMatematica(rgba,simpleLinealFuncion(1,0.5,0,3,maxpx),"*");
-   operacionMatematica(rgba,limit(simpleLinealFuncion(0.95,0,0.92,1,dv),0.2,1),"*");
-   maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-   if(maxpx>0.5){
-    operacionMatematica(rgba,0.5/(maxpx+0.0000001),"*");
-
-   }
-  dv=colorDivide(rgba);   saturationGio(rgba,0.4-dv);
-    dv=colorDivide(rgba);   saturationGio(rgba,0.4-dv);
    
                 }
                 else{
