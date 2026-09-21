@@ -3,516 +3,355 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editor de Imágenes Avanzado</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Editor de Imágenes Avanzado - 2 Columnas</title>
+
+   <script src="https://unonibes4a.github.io/SONIDOS/a.js"></script>
 
     <style>
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #222;
-            color: #fff;
-            display: flex;
-            min-height: 100vh;
+            background-color: #14161a;
+            color: #d1d5db;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+            height: 100vh;
+            width: 100vw;
             overflow: hidden;
-        }
-
-        .sidebar {
-            background-color: #333;
-            padding: 20px;
-            width: 280px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
-            flex-shrink: 0;
-            overflow-y: auto;
-            max-height: 100vh;
         }
 
-        .sidebar h2 {
-            color: #272727;
-            margin-bottom: 20px;
-            font-weight: 700;
-            font-size: 18px;
-        }
-
-        .sidebar-group {
-            margin-bottom: 20px;
+        /* Layout de dos columnas */
+        .app-container {
+            display: flex;
             width: 100%;
-            text-align: center;
+            height: 100%;
+            position: relative;
         }
 
-        .sidebar-group label {
-            font-size: 14px;
-            color: #bbb;
-            margin-bottom: 8px;
-            display: block;
-        }
-
-        input[type="number"] {
-            background-color: #444;
-            border: 1px solid #555;
-            border-radius: 20px;
+        /* Botón Hamburguesa */
+        .hamburger-btn {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            z-index: 1000;
+            background: #20242b;
+            border: 1px solid #3c424d;
             color: #fff;
             padding: 8px 12px;
-            font-size: 14px;
-            width: calc(100% - 30px);
-            max-width: 120px;
-            text-align: center;
-            transition: border-color 0.3s ease;
-            box-sizing: border-box;
-        }
-
-        input[type="number"]:focus {
-            outline: none;
-            border-color: #272727;
-        }
-
-        .checkbox-group {
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 18px;
+            line-height: 1;
+            transition: background 0.2s, transform 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 10px 0;
         }
 
-        .checkbox-group input[type="checkbox"] {
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border: 2px solid #272727;
-            border-radius: 4px;
-            background-color: #444;
-            margin-right: 8px;
-            cursor: pointer;
-            position: relative;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
+        .hamburger-btn:hover {
+            background: #2b313a;
+            border-color: #2196F3;
         }
 
-        .checkbox-group input[type="checkbox"]:checked {
-            background-color: #272727;
-            border-color: #272727;
+        /* Columna 1: Menú Lateral (300px) */
+        .sidebar {
+            width: 300px;
+            min-width: 300px;
+            height: 100%;
+            background: #181a1f;
+            border-right: 1px solid #282b33;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 60px 12px 20px 12px; /* espacio arriba para el botón */
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .checkbox-group input[type="checkbox"]:checked::after {
-            content: '✓';
-            color: #fff;
-            font-size: 12px;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+        /* Clase para colapsar la barra lateral */
+        .sidebar.collapsed {
+            margin-left: -300px;
         }
 
-        .checkbox-group label {
-            margin: 0;
-            font-size: 14px;
-            color: #fff;
-            cursor: pointer;
-        }
-
-        input[type="range"] {
-            -webkit-appearance: none;
-            width: calc(100% - 30px);
-            max-width: 120px;
-            height: 6px;
-            background: #555;
-            border-radius: 5px;
-            outline: none;
-            opacity: 0.7;
-            transition: opacity .2s;
-        }
-
-        input[type="range"]:hover {
-            opacity: 1;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #272727;
-            cursor: pointer;
-        }
-
-        input[type="range"]::-moz-range-thumb {
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            background: #272727;
-            cursor: pointer;
-        }
-
-        button {
-            background-color: #414141;
-            /* Updated to #414141 */
-            color: #fff;
-            border: none;
-            border-radius: 20px;
-            padding: 8px 16px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            margin: 5px 0;
-            width: calc(100% - 20px);
-            max-width: 180px;
-        }
-
-        button:hover {
-            background-color: #5a5a5a;
-            /* A lighter shade for hover */
-            transform: translateY(-1px);
-        }
-
-        button:disabled {
-            background-color: #414141;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        button.quality-btn {
-            background-color: #414141;
-            /* Updated to #414141 */
-        }
-
-        button.quality-btn:hover {
-            background-color: #5a5a5a;
-            /* A lighter shade for hover */
-        }
-
-        button.remove-bg-btn {
-            background-color: #414141;
-            /* Updated to #414141 */
-        }
-
-        button.remove-bg-btn:hover {
-            background-color: #5a5a5a;
-            /* A lighter shade for hover */
-        }
-
-        button.fill-black-btn {
-            background-color: #414141;
-            /* Updated to #414141 */
-        }
-
-        button.fill-black-btn:hover {
-            background-color: #5a5a5a;
-            /* A lighter shade for hover */
-        }
-
-        button.copy-btn {
-            background-color: #414141;
-            /* Updated to #414141 */
-        }
-
-        button.copy-btn:hover {
-            background-color: #5a5a5a;
-            /* A lighter shade for hover */
-        }
-
-        button.paste-btn {
-            background-color: #414141;
-            /* Updated to #414141 */
-        }
-
-        button.paste-btn:hover {
-            background-color: #5a5a5a;
-            /* A lighter shade for hover */
-        }
-
-        button.center-btn {
-            background-color: #414141;
-            /* Updated to #414141 */
-        }
-
-        button.center-btn:hover {
-            background-color: #5a5a5a;
-            /* A lighter shade for hover */
-        }
-
-        .main-content {
-            flex-grow: 1;
+        /* Columna 2: Canvas Centrado */
+        .main-workspace {
+            flex: 1;
+            height: 100%;
+            overflow: auto;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 20px;
-            box-sizing: border-box;
-            overflow: auto;
+            background-color: #0e1013;
+            position: relative;
         }
 
-        .main-content h1 {
-            color: #272727;
-            margin-bottom: 25px;
-            font-weight: 700;
-            text-align: center;
+        .workspace-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            max-width: 95%;
+            max-height: 95%;
         }
 
         .drop-area {
-            border: 2px dashed #272727;
-            border-radius: 10px;
-            padding: 40px;
-            margin-bottom: 30px;
+            border: 2px dashed #3c424d;
+            border-radius: 8px;
+            padding: 12px 20px;
             text-align: center;
-            font-size: 18px;
-            color: #272727;
-            background-color: #3a3a3a;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            width: 90%;
-            max-width: 600px;
-            box-sizing: border-box;
-        }
-
-        .drop-area.highlight {
-            background-color: #4a4a4a;
-            border-color: #272727;
-        }
-
-        canvas {
-            border: 2px dashed #555;
-            background-color: #444;
-            margin-top: 20px;
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .section-divider {
+            font-size: 13px;
+            color: #8c93a0;
+            background-color: #15171b;
+            transition: all 0.2s ease;
             width: 100%;
-            height: 1px;
-            background-color: #555;
-            margin: 15px 0;
+            max-width: 600px;
+            cursor: pointer;
+            user-select: none;
         }
 
-        .loading {
-            display: none;
-            color: #0097a7;
-            font-size: 14px;
-            margin: 10px 0;
+        .drop-area:hover, .drop-area.highlight {
+            background-color: #20242b;
+            border-color: #2196F3;
+            color: #fff;
+        }
+
+        .canvas-container {
+            max-width: 100%;
+            max-height: 75vh;
+            overflow: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            border-radius: 6px;
+            border: 1px solid #282b33;
+            background: #08090a;
         }
 
         canvas {
-            width: 500px;
-            height: 500px;
-            object-fit: cover;
-            border: 1px solid rgb(255, 255, 255);
+            display: block;
+            max-width: 100%;
+            max-height: 75vh;
+            height: auto;
+            object-fit: contain;
+        }
+
+        /* Estilo de Scrollbar fina para el menú */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #2b313a;
+            border-radius: 3px;
         }
     </style>
 </head>
 
 <body>
-    <div class="sidebar">
-        <h2>Controles</h2>
 
-        <div class="sidebar-group">
-            <label for="newWidth">Ancho:</label>
-            <input type="number" id="newWidth" value="500">
-        </div>
-        <div class="sidebar-group">
-            <label for="newHeight">Altura:</label>
-            <input type="number" id="newHeight" value="300">
-        </div>
-        <div class="checkbox-group">
-            <input type="checkbox" id="maintainAspectRatio" checked>
-            <label for="maintainAspectRatio">Mantener Aspecto</label>
-        </div>
-        <button id="resizeBtn">Redimensionar</button>
+    <div class="app-container">
+        <!-- Botón Hamburguesa -->
+        <button id="btnToggleSidebar" class="hamburger-btn" title="Mostrar/Ocultar Menú">☰</button>
 
-        <div class="section-divider"></div>
+        <!-- Columna 1: Menú Lateral de Herramientas -->
+        <aside class="sidebar" id="sidebar">
+            <!-- Los paneles UISmartPanel se montan aquí dinámicamente -->
+        </aside>
 
-        <button id="enhanceBtn" class="quality-btn">Mejorar Imagen</button>
-        <button id="removeBgBtn" class="remove-bg-btn">Remover Fondo</button>
-        <button id="fillBlackBtn" class="fill-black-btn">Fill </button>
-        <button id="copyBtn" class="copy-btn">Copiar Imagen</button>
-        <button id="pasteBtn" class="paste-btn">Pegar Imagen</button>
-        <button id="centerImageBtn" class="center-btn">Centrar Imagen</button>
-        <button id="paintbt" class="center-btn">to paint Hunyuan3d</button>
-        <div class="loading" id="loadingBg">Procesando...</div>
-
-        <div class="section-divider"></div>
-
-        <div class="sidebar-group">
-            <label for="saturationSlider">Saturación: <span id="saturationValue">100</span></label>
-            <input type="range" id="saturationSlider" min="0" max="200" value="100">
-        </div>
-        <div class="sidebar-group">
-            <label for="brightnessSlider">Brillo: <span id="brightnessValue">100</span></label>
-            <input type="range" id="brightnessSlider" min="0" max="200" value="100">
-        </div>
-        <div class="sidebar-group">
-            <label for="hueSlider">Hue: <span id="hueValue">0</span></label>
-            <input type="range" id="hueSlider" min="0" max="360" value="0">
-        </div>
-        <div class="sidebar-group">
-            <label for="contrastSlider">Contraste: <span id="contrastValue">100</span></label>
-            <input type="range" id="contrastSlider" min="0" max="200" value="100">
-        </div>
-        <div class="sidebar-group">
-            <label for="blurSlider">Blur: <span id="blurValue">0</span></label>
-            <input type="range" id="blurSlider" min="0" max="20" value="0">
-        </div>
-
-        <div class="section-divider"></div>
-
-        <div class="sidebar-group">
-            <label for="biasSlider">Bias: <span id="biasValue">10</span></label>
-            <input type="range" id="biasSlider" min="1" max="100" value="10">
-        </div>
-        <div class="sidebar-group">
-            <label for="strengthSlider">Fuerza: <span id="strengthValue">50</span></label>
-            <input type="range" id="strengthSlider" min="0" max="100" value="50">
-        </div>
-        <div class="checkbox-group">
-            <input type="checkbox" id="invertCheckbox">
-            <label for="invertCheckbox">Invertir</label>
-        </div>
-        <div class="checkbox-group">
-            <input type="checkbox" id="redChannelCheckbox" checked>
-            <label for="redChannelCheckbox">R</label>
-        </div>
-        <div class="checkbox-group">
-            <input type="checkbox" id="greenChannelCheckbox" checked>
-            <label for="greenChannelCheckbox">G</label>
-        </div>
-        <button id="createNormalMapBtn">Crear Normal Map</button>
-        <button id="idpasocolor3dmesh">imgTo3dmeshCreator</button>
-         
-        <button id="idpasomeshpaintcolor27112025731">paint3d272025Ymesh3d</button>
-        <button id="idnofunciona">nofunciona</button>
-        <div class="section-divider"></div>
-
-        <button id="applyFiltersBtn">Aplicar Filtros</button>
-        <button id="resetFiltersBtn">Resetear Filtros</button>
-        <button id="downloadBtn">Descargar Imagen</button>
-    </div>
-
-    <div class="main-content">
-        <h1>Editor de Imágenes Avanzado</h1>
-        <div class="drop-area" id="dropArea">
-            Arrastra y suelta una imagen aquí, o pega desde el portapapeles.
-        </div>
-        <canvas id="myCanvas"></canvas>
+        <!-- Columna 2: Espacio de Trabajo con Canvas Centrado -->
+        <main class="main-workspace">
+            <div class="workspace-content">
+                <div class="drop-area" id="dropArea">
+                    📁 Clic para abrir, arrastra o pega (<b>Ctrl + V</b>)
+                </div>
+                <div class="canvas-container">
+                    <canvas id="myCanvas" width="500" height="500"></canvas>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script type="module">
         import { removeBackground } from 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.6.0/+esm';
 
+        // 1. Configuración de tema UI
+        if (window.UI && window.UI.Theme) {
+            UI.Theme.inject();
+            UI.Theme.set({
+                'panel-width': '100%',
+                'font-size-panel-title': '12px',
+                'font-size-label': '11px',
+                'font-size-btn': '11px'
+            });
+        }
+
+        // =======================================================
+        // 2. TOGGLE MENÚ HAMBURGUESA
+        // =======================================================
+        const sidebar = document.getElementById('sidebar');
+        const btnToggleSidebar = document.getElementById('btnToggleSidebar');
+
+        btnToggleSidebar.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+        });
+
+        // =======================================================
+        // 3. CREACIÓN DE PANELES (SIDEBAR)
+        // =======================================================
+
+        // --- PANEL 1: Dimensiones ---
+        const panelDims = new UISmartPanel({ title: 'Dimensiones & Aspecto', floating: false });
+        const inWidth = new UIInputNumberInt({ value: 500, min: 1, max: 8192 });
+        const inHeight = new UIInputNumberInt({ value: 300, min: 1, max: 8192 });
+        const chkAspect = new UICheckbox({ label: 'Mantener Aspecto', checked: true });
+        const btnResize = new UIButton({ text: 'Redimensionar', variant: 'primary' });
+
+        panelDims.addRow(new UILabel({ text: 'Ancho' }), inWidth);
+        panelDims.addRow(new UILabel({ text: 'Alto' }), inHeight);
+        panelDims.addRow(chkAspect);
+        panelDims.addRow(btnResize);
+
+        // --- PANEL 2: Acciones ---
+        const panelActions = new UISmartPanel({ title: 'Acciones de Imagen', floating: false });
+        const btnEnhance = new UIButton({ text: 'Mejorar Calidad' });
+        const btnRemoveBg = new UIButton({ text: 'Remover Fondo' });
+        const btnFillBlack = new UIButton({ text: 'Rellenar Negro' });
+        const btnCenter = new UIButton({ text: 'Centrar Imagen' });
+        const btnCopy = new UIButton({ text: 'Copiar' });
+        const btnPaste = new UIButton({ text: 'Pegar' });
+        const btnPaintHunyuan = new UIButton({ text: 'Paint Hunyuan3D' });
+        const btn3dMesh = new UIButton({ text: 'ImgTo3dMesh Creator' });
+        const btnMeshPaint = new UIButton({ text: 'Paint3D / Mesh3D' });
+        const btnNoFunciona = new UIButton({ text: 'No Funciona (Alt)' });
+        const infoStatus = new UIInfo({ text: 'Listo para procesar' });
+
+        panelActions.addRow(btnEnhance, btnRemoveBg);
+        panelActions.addRow(btnFillBlack, btnCenter);
+        panelActions.addRow(btnCopy, btnPaste);
+        panelActions.addRow(btnPaintHunyuan);
+        panelActions.addRow(btn3dMesh);
+        panelActions.addRow(btnMeshPaint);
+        panelActions.addRow(btnNoFunciona);
+        panelActions.addRow(infoStatus);
+
+        // --- PANEL 3: Filtros Básicos ---
+        const panelFilters = new UISmartPanel({ title: 'Filtros Básicos', floating: false });
+        const slSaturation = new UIConfigurableSlider({ label: 'Sat', min: 0, max: 200, step: 1, value: 100 });
+        const slBrightness = new UIConfigurableSlider({ label: 'Bri', min: 0, max: 200, step: 1, value: 100 });
+        const slHue = new UIConfigurableSlider({ label: 'Hue', min: 0, max: 360, step: 1, value: 0 });
+        const slContrast = new UIConfigurableSlider({ label: 'Con', min: 0, max: 200, step: 1, value: 100 });
+        const slBlur = new UIConfigurableSlider({ label: 'Blu', min: 0, max: 20, step: 1, value: 0 });
+
+        panelFilters.addRow(slSaturation);
+        panelFilters.addRow(slBrightness);
+        panelFilters.addRow(slHue);
+        panelFilters.addRow(slContrast);
+        panelFilters.addRow(slBlur);
+
+        // --- PANEL 4: Normal Map ---
+        const panelNormalMap = new UISmartPanel({ title: 'Generador Normal Map', floating: false });
+        const slBias = new UIConfigurableSlider({ label: 'Bias', min: 1, max: 100, step: 1, value: 100 });
+        const slStrength = new UIConfigurableSlider({ label: 'Fuerza', min: 0, max: 100, step: 1, value: 50 });
+        const chkInvert = new UICheckbox({ label: 'Invertir', checked: false });
+        const chkRed = new UICheckbox({ label: 'R', checked: true });
+        const chkGreen = new UICheckbox({ label: 'G', checked: true });
+        const btnCreateNormal = new UIButton({ text: 'Crear Normal Map', variant: 'primary' });
+
+        panelNormalMap.addRow(slBias);
+        panelNormalMap.addRow(slStrength);
+        panelNormalMap.addRow(chkInvert, chkRed, chkGreen);
+        panelNormalMap.addRow(btnCreateNormal);
+
+        // --- PANEL 5: Exportar & Control ---
+        const panelExport = new UISmartPanel({ title: 'Finalizar & Descargar', floating: false });
+        const btnApplyFilters = new UIButton({ text: 'Aplicar Filtros' });
+        const btnResetFilters = new UIButton({ text: 'Resetear Filtros', variant: 'danger' });
+        const btnDownload = new UIButton({ text: 'Descargar Imagen', variant: 'primary' });
+
+        panelExport.addRow(btnApplyFilters, btnResetFilters);
+        panelExport.addRow(btnDownload);
+
+        // Montar los paneles directamente dentro del Sidebar de 300px
+        const panels = [panelDims, panelActions, panelFilters, panelNormalMap, panelExport];
+        panels.forEach(panel => {
+            if (panel.mount) {
+                panel.mount(sidebar);
+            } else if (panel.element) {
+                sidebar.appendChild(panel.element);
+            }
+        });
+
+        // =======================================================
+        // 4. LÓGICA DE PROCESAMIENTO CANVAS Y FILTROS
+        // =======================================================
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
-        const newWidthInput = document.getElementById('newWidth');
-        const newHeightInput = document.getElementById('newHeight');
-        const maintainAspectRatioCheckbox = document.getElementById('maintainAspectRatio');
-        const resizeBtn = document.getElementById('resizeBtn');
-        const downloadBtn = document.getElementById('downloadBtn');
         const dropArea = document.getElementById('dropArea');
-        const saturationSlider = document.getElementById('saturationSlider');
-        const brightnessSlider = document.getElementById('brightnessSlider');
-        const hueSlider = document.getElementById('hueSlider');
-        const contrastSlider = document.getElementById('contrastSlider');
-        const blurSlider = document.getElementById('blurSlider');
-        const applyFiltersBtn = document.getElementById('applyFiltersBtn');
-        const resetFiltersBtn = document.getElementById('resetFiltersBtn');
-        const enhanceBtn = document.getElementById('enhanceBtn');
-        const removeBgBtn = document.getElementById('removeBgBtn');
-        const fillBlackBtn = document.getElementById('fillBlackBtn');
-        const copyBtn = document.getElementById('copyBtn');
-        const pasteBtn = document.getElementById('pasteBtn');
-        const centerImageBtn = document.getElementById('centerImageBtn');
-        const loadingBg = document.getElementById('loadingBg');
-        const biasSlider = document.getElementById('biasSlider');
-        const strengthSlider = document.getElementById('strengthSlider');
-        const invertCheckbox = document.getElementById('invertCheckbox');
-        const redChannelCheckbox = document.getElementById('redChannelCheckbox');
-        const greenChannelCheckbox = document.getElementById('greenChannelCheckbox');
-        const createNormalMapBtn = document.getElementById('createNormalMapBtn');
-        const idpasocolor3dmesh = document.getElementById('idpasocolor3dmesh');
-        const idpasomeshpaintcolor27112025731= document.getElementById('idpasomeshpaintcolor27112025731');
-
 
         let originalImage = null;
         let originalImageData = null;
         let currentFile = null;
         let originalAspectRatio = 1;
+
         let currentSaturation = 100;
         let currentBrightness = 100;
         let currentHue = 0;
         let currentContrast = 100;
         let currentBlur = 0;
 
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
+        const hiddenFileInput = document.createElement('input');
+        hiddenFileInput.type = 'file';
+        hiddenFileInput.accept = 'image/*';
+        hiddenFileInput.style.display = 'none';
+        document.body.appendChild(hiddenFileInput);
 
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight() {
-            dropArea.classList.add('highlight');
-        }
-
-        function unhighlight() {
-            dropArea.classList.remove('highlight');
-        }
-
-        dropArea.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            handleFiles(files);
-        }
-
-        function handleFiles(files) {
-            if (files.length === 0) return;
-            const file = files[0];
-            if (file.type.startsWith('image/')) {
-                currentFile = file;
+        dropArea.addEventListener('click', () => hiddenFileInput.click());
+        hiddenFileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                currentFile = e.target.files[0];
                 const reader = new FileReader();
-                reader.onload = function (event) {
-                    loadImage(event.target.result);
-                };
-                reader.readAsDataURL(file);
-            } else {
-                alert('Por favor, suelta un archivo de imagen válido.');
+                reader.onload = ev => loadImage(ev.target.result);
+                reader.readAsDataURL(currentFile);
             }
-        }
+        });
+
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+            dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }, false);
+        });
+        ['dragenter', 'dragover'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.add('highlight'), false));
+        ['dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.remove('highlight'), false));
+
+        dropArea.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type.startsWith('image/')) {
+                currentFile = files[0];
+                const reader = new FileReader();
+                reader.onload = ev => loadImage(ev.target.result);
+                reader.readAsDataURL(currentFile);
+            }
+        });
 
         document.addEventListener('paste', (e) => {
-            const items = e.clipboardData.items;
+            const items = e.clipboardData?.items;
+            if (!items) return;
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.startsWith('image/')) {
                     const blob = items[i].getAsFile();
                     currentFile = blob;
                     const reader = new FileReader();
-                    reader.onload = function (event) {
-                        loadImage(event.target.result);
-                    };
+                    reader.onload = ev => loadImage(ev.target.result);
                     reader.readAsDataURL(blob);
                     return;
                 }
-            }
-            const text = e.clipboardData.getData('text/plain');
-            if (text && (text.startsWith('http://') || text.startsWith('https://')) && /\.(jpeg|jpg|gif|png|webp|bmp)$/i.test(text)) {
-                loadImage(text);
             }
         });
 
@@ -529,81 +368,53 @@
 
                 originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-                newWidthInput.value = img.width;
-                newHeightInput.value = img.height;
+                inWidth.setValue(img.width);
+                inHeight.setValue(img.height);
 
                 resetFilters();
-            };
-            img.onerror = () => {
-                alert('No se pudo cargar la imagen. Asegúrate de que la URL sea válida o que la imagen sea accesible.');
+                infoStatus.setText(`Cargado: ${img.width}x${img.height}px`);
             };
             img.src = src;
         }
 
-        newWidthInput.addEventListener('input', () => {
-            if (maintainAspectRatioCheckbox.checked && originalImage) {
-                const newWidth = parseInt(newWidthInput.value);
-                if (!isNaN(newWidth) && newWidth > 0) {
-                    newHeightInput.value = Math.round(newWidth / originalAspectRatio);
-                }
+        inWidth.element.addEventListener('input', () => {
+            if (chkAspect.getValue() && originalImage) {
+                const w = inWidth.getValue();
+                if (w > 0) inHeight.setValue(Math.round(w / originalAspectRatio));
             }
         });
 
-        newHeightInput.addEventListener('input', () => {
-            if (maintainAspectRatioCheckbox.checked && originalImage) {
-                const newHeight = parseInt(newHeightInput.value);
-                if (!isNaN(newHeight) && newHeight > 0) {
-                    newWidthInput.value = Math.round(newHeight * originalAspectRatio);
-                }
+        inHeight.element.addEventListener('input', () => {
+            if (chkAspect.getValue() && originalImage) {
+                const h = inHeight.getValue();
+                if (h > 0) inWidth.setValue(Math.round(h * originalAspectRatio));
             }
         });
 
-        resizeBtn.addEventListener('click', () => {
-            if (!originalImage) {
-                alert('Primero carga una imagen.');
-                return;
+        btnResize.element.addEventListener('click', () => {
+            if (!originalImage) return alert('Primero carga una imagen.');
+            let w = inWidth.getValue();
+            let h = inHeight.getValue();
+
+            if (chkAspect.getValue()) {
+                h = Math.round(w / originalAspectRatio);
+                inHeight.setValue(h);
             }
 
-            let newWidth = parseInt(newWidthInput.value);
-            let newHeight = parseInt(newHeightInput.value);
-
-            if (isNaN(newWidth) || isNaN(newHeight) || newWidth <= 0 || newHeight <= 0) {
-                alert('Por favor, introduce dimensiones válidas (números mayores que 0).');
-                return;
-            }
-
-            if (maintainAspectRatioCheckbox.checked) {
-                if (newWidthInput.value !== originalImage.width.toString() || newHeightInput.value === originalImage.height.toString()) {
-                    newHeight = Math.round(newWidth / originalAspectRatio);
-                    newHeightInput.value = newHeight;
-                } else {
-                    newWidth = Math.round(newHeight * originalAspectRatio);
-                    newWidthInput.value = newWidth;
-                }
-            }
-
-            canvas.width = newWidth;
-            canvas.height = newHeight;
-
+            canvas.width = w;
+            canvas.height = h;
             applyFiltersToCanvas();
         });
 
-        enhanceBtn.addEventListener('click', () => {
-            if (!originalImage) {
-                alert('Primero carga una imagen.');
-                return;
-            }
-
+        btnEnhance.element.addEventListener('click', () => {
+            if (!originalImage) return alert('Primero carga una imagen.');
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
-
-            const scale = 2;
-            tempCanvas.width = canvas.width * scale;
-            tempCanvas.height = canvas.height * scale;
+            tempCanvas.width = canvas.width * 2;
+            tempCanvas.height = canvas.height * 2;
 
             tempCtx.imageSmoothingEnabled = true;
             tempCtx.imageSmoothingQuality = 'high';
-
             tempCtx.filter = 'contrast(110%) brightness(105%) saturate(110%)';
             tempCtx.drawImage(originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
 
@@ -612,981 +423,117 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(tempCanvas, 0, 0);
 
-            newWidthInput.value = canvas.width;
-            newHeightInput.value = canvas.height;
+            inWidth.setValue(canvas.width);
+            inHeight.setValue(canvas.height);
         });
 
-        removeBgBtn.addEventListener('click', async () => {
-            if (!originalImage && !currentFile) {
-                alert('Primero carga una imagen.');
-                return;
-            }
-
-            loadingBg.style.display = 'block';
-            loadingBg.textContent = 'Procesando...';
-            removeBgBtn.disabled = true;
+        btnRemoveBg.element.addEventListener('click', async () => {
+            if (!originalImage && !currentFile) return alert('Primero carga una imagen.');
+            infoStatus.setText('Removiendo fondo...');
 
             try {
-                let inputImage;
-
-                if (currentFile) {
-                    inputImage = currentFile;
-                } else {
-                    canvas.toBlob(async (blob) => {
-                        if (!blob) {
-                            throw new Error('No se pudo convertir canvas a blob');
-                        }
-                        await processRemoveBackground(blob);
-                    }, 'image/png');
-                    return;
+                let input = currentFile;
+                if (!input) {
+                    const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+                    input = blob;
                 }
-
-                await processRemoveBackground(inputImage);
-
-            } catch (error) {
-                loadingBg.textContent = 'Error al remover el fondo';
-                alert('Error al remover el fondo. Intenta con otra imagen.');
-            } finally {
-                setTimeout(() => {
-                    loadingBg.style.display = 'none';
-                    loadingBg.textContent = 'Procesando...';
-                    removeBgBtn.disabled = false;
-                }, 2000);
+                const blobResult = await removeBackground(input, {
+                    progress: (k, curr, tot) => {
+                        infoStatus.setText(`${Math.round((curr / tot) * 100)}% descargando red`);
+                    }
+                });
+                loadImage(URL.createObjectURL(blobResult));
+                infoStatus.setText('Fondo removido con éxito');
+            } catch (err) {
+                alert('Error al remover fondo: ' + err.message);
+                infoStatus.setText('Error al procesar');
             }
         });
 
-        fillBlackBtn.addEventListener('click', () => {
-            if (!originalImage) {
-                alert('Primero carga una imagen.');
-                return;
-            }
-
+        btnFillBlack.element.addEventListener('click', () => {
+            if (!originalImage) return alert('Primero carga una imagen.');
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
-
             tempCanvas.width = canvas.width;
             tempCanvas.height = canvas.height;
 
             tempCtx.fillStyle = '#000000';
             tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
             tempCtx.drawImage(canvas, 0, 0);
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(tempCanvas, 0, 0);
         });
 
-        copyBtn.addEventListener('click', async () => {
-            if (!originalImage) {
-                alert('No hay imagen para copiar.');
-                return;
-            }
+        btnCenter.element.addEventListener('click', () => {
+            if (!originalImage) return alert('Primero carga una imagen.');
+            const res = parseInt(prompt('Resolución cuadrada:', '2048')) || 2048;
+            const margin = parseInt(prompt('Margen px:', '45')) || 45;
 
-            try {
-                canvas.toBlob(async (blob) => {
-                    if (blob) {
-                        await navigator.clipboard.write([
-                            new ClipboardItem({
-                                [blob.type]: blob
-                            })
-                        ]);
-                        alert('Imagen copiada al portapapeles');
-                    }
-                }, 'image/png');
-            } catch (error) {
-                alert('Error al copiar la imagen: ' + error.message);
-            }
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = res;
+            tempCanvas.height = res;
+
+            tempCtx.fillStyle = confirm('¿Fondo blanco? (Cancelar = Negro)') ? '#ffffff' : '#000000';
+            tempCtx.fillRect(0, 0, res, res);
+
+            const maxDim = res - (margin * 2);
+            let sW = (canvas.width > canvas.height) ? maxDim : (canvas.width * maxDim) / canvas.height;
+            let sH = (canvas.width > canvas.height) ? (canvas.height * maxDim) / canvas.width : maxDim;
+
+            const x = (res - sW) / 2;
+            const y = (res - sH) / 2;
+            tempCtx.drawImage(canvas, x, y, sW, sH);
+
+            canvas.width = res;
+            canvas.height = res;
+            ctx.clearRect(0, 0, res, res);
+            ctx.drawImage(tempCanvas, 0, 0);
+
+            inWidth.setValue(res);
+            inHeight.setValue(res);
         });
 
-        pasteBtn.addEventListener('click', async () => {
-            try {
-                const clipboardItems = await navigator.clipboard.read();
+        btnCopy.element.addEventListener('click', () => {
+            if (!originalImage) return;
+            canvas.toBlob(async blob => {
+                await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
+                infoStatus.setText('Imagen copiada');
+            });
+        });
 
-                for (const clipboardItem of clipboardItems) {
-                    for (const type of clipboardItem.types) {
+        btnPaste.element.addEventListener('click', async () => {
+            try {
+                const items = await navigator.clipboard.read();
+                for (const item of items) {
+                    for (const type of item.types) {
                         if (type.startsWith('image/')) {
-                            const blob = await clipboardItem.getType(type);
-                            const url = URL.createObjectURL(blob);
+                            const blob = await item.getType(type);
                             currentFile = blob;
-                            loadImage(url);
+                            loadImage(URL.createObjectURL(blob));
                             return;
                         }
                     }
                 }
-
-                alert('No se encontró ninguna imagen en el portapapeles');
-
-            } catch (error) {
-                alert('Error al pegar imagen: ' + error.message);
+            } catch (e) {
+                alert('No se pudo pegar: ' + e.message);
             }
         });
 
-        document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'c') {
-                e.preventDefault();
-                copyBtn.click();
-            }
-
-            if (e.ctrlKey && e.key === 'v') {
-                e.preventDefault();
-                pasteBtn.click();
-            }
-        });
-
-        document.getElementById("paintbt").onclick = (e) => {
-            pasocolorhumyuan(canvas);
-        }
-
-        centerImageBtn.addEventListener('click', () => {
-            if (!originalImage) {
-                alert('Primero carga una imagen.');
-                return;
-            }
-
-            const resolution = parseInt(prompt('Ingresa la resolución de salida:', '2048'));
-
-            if (isNaN(resolution) || resolution <= 0) {
-                alert('Por favor, ingresa una resolución válida.');
-                return;
-            }
-
-            const margin = parseInt(prompt('Ingresa el margen de centrado (en píxeles):', '45'));
-
-            if (isNaN(margin) || margin < 0) {
-                alert('Por favor, ingresa un margen válido.');
-                return;
-            }
-
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-
-            tempCanvas.width = resolution;
-            tempCanvas.height = resolution;
-
-            if (confirm("background white")) {
-                tempCtx.fillStyle = '#ffffff';
-            }
-            else {
-                tempCtx.fillStyle = '#000000';
-            }
-
-            tempCtx.fillRect(0, 0, resolution, resolution);
-
-            const currentImageData = canvas;
-            const currentWidth = currentImageData.width;
-            const currentHeight = currentImageData.height;
-
-            const maxDimension = resolution - (margin * 2);
-
-            let scaledWidth, scaledHeight;
-            if (currentWidth > currentHeight) {
-                scaledWidth = maxDimension;
-                scaledHeight = (currentHeight * maxDimension) / currentWidth;
-            } else {
-                scaledHeight = maxDimension;
-                scaledWidth = (currentWidth * maxDimension) / currentHeight;
-            }
-
-            const x = (resolution - scaledWidth) / 2;
-            const y = (resolution - scaledHeight) / 2;
-
-            tempCtx.drawImage(currentImageData, x, y, scaledWidth, scaledHeight);
-
-            canvas.width = resolution;
-            canvas.height = resolution;
-            ctx.clearRect(0, 0, resolution, resolution);
-            ctx.drawImage(tempCanvas, 0, 0);
-
-            newWidthInput.value = resolution;
-            newHeightInput.value = resolution;
-
-
-            setTimeout(() => {
-                if (confirm("lineal saturacion")) {
-                    pasocolorsaturacionideal(canvas);
-                }
-
-
-            }, 2000);
-        });
-
-        async function processRemoveBackground(imageInput) {
-            try {
-                const blob = await removeBackground(imageInput, {
-                    progress: (key, current, total) => {
-                        const percentage = Math.round((current / total) * 100);
-                        loadingBg.textContent = `Descargando ${key}: ${percentage}%`;
-                    }
-                });
-
-                const url = URL.createObjectURL(blob);
-                loadImage(url);
-                loadingBg.textContent = 'Fondo removido exitosamente';
-
-            } catch (error) {
-                throw error;
-            }
-        }
-
-        idpasocolor3dmesh.addEventListener('click', () => {pasocolor3dmesh();});
-        idpasomeshpaintcolor27112025731.addEventListener('click', () => {pasomeshpaintcolor27112025731();});
-        document.getElementById("idnofunciona").addEventListener('click', () => {pasonofunciona();});
-          
-
-        createNormalMapBtn.addEventListener('click', () => {
-            if (!originalImageData) {
-                alert('Primero carga una imagen.');
-                return;
-            }
-            ctx.putImageData(originalImageData, 0, 0);
-            createNormalMap();
-        });
-
-
-        var saturationGio = (tex_color, ec5) => {
-            // Función auxiliar para mantener los valores de color entre 0.0 y 1.0
-            function valorLim(x) {
-                if (x > 1.0) return 1.0;
-                if (x < 0.0) return 0.0;
-                return x;
-            }
-
-            const maxx = Math.max(tex_color.r, tex_color.g, tex_color.b);
-            const adjust = ec5;
-
-            // Se interpola cada canal hacia el valor máximo (maxx)
-            if (tex_color.r !== maxx) {
-                tex_color.r += (maxx - tex_color.r) * adjust;
-            }
-            if (tex_color.g !== maxx) {
-                tex_color.g += (maxx - tex_color.g) * adjust;
-            }
-            if (tex_color.b !== maxx) {
-                tex_color.b += (maxx - tex_color.b) * adjust;
-            }
-
-            // Se asegura que los valores no se salgan del rango [0, 1]
-            tex_color.r = valorLim(tex_color.r);
-            tex_color.g = valorLim(tex_color.g);
-            tex_color.b = valorLim(tex_color.b);
-
-            return tex_color;
-        }
-
-        var mixerHtmlPasaColor = (
-            rgbax,
-            rgba2 = { r: 0.5, g: 0.45, b: 0.36 }, porcent, bool = true
-        ) => {
-
-            var maxx0 = Math.max(rgbax.r, rgbax.g, rgbax.b);
-
-            var clmd = 1.0 - porcent;
-            rgbax.r = rgbax.r * clmd + rgba2.r * porcent;
-            rgbax.g = rgbax.g * clmd + rgba2.g * porcent;
-            rgbax.b = rgbax.b * clmd + rgba2.b * porcent;
-
-            if (bool) {
-                let max2 = Math.max(rgbax.r, rgbax.g, rgbax.b);
-                operacionMatematica(rgbax, maxx0 / (max2 + 0.00001), "*");
-            }
-
-
-            return rgbax;
-        };
-        var colorDivide = (color1) => {
-            var maxx0 = Math.max(color1.r, color1.g, color1.b) + 0.00001;
-            var minx = Math.min(color1.r, color1.g, color1.b);
-
-            return minx / (maxx0 + 0.0000001);
-        }
-        var maximopixel = (rgba) => {
-            return Math.max(rgba.r, rgba.g, rgba.b);
-        }
-        var minmopixel = (rgba) => {
-            return Math.min(rgba.r, rgba.g, rgba.b);
-        }
-        var simpleLinealFuncion = (x1, y1, x2, y2, val) => {
-            let m = 0;
-            let b = 0;
-
-            let dx = x2 - x1;
-            dx = dx + 0.00001;
-            let dy = y2 - y1;
-            m = dy / dx;
-            b = y2 - m * x2;
-            let e = null;
-            e = m * val + b;
-            return e;
-        }
-
-        var pasocolor3dmesh = (canvas = document.getElementById("myCanvas")) => {
-            let imagendata = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
-            imagendata = colorpasocolor3dmesh(imagendata);
-            canvas.getContext("2d").putImageData(imagendata, 0, 0);
-
-        }
-         var pasomeshpaintcolor27112025731 = (canvas = document.getElementById("myCanvas")) => {
-            let imagendata = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
-            imagendata = meshpaintcolor27112025731(imagendata);
-            canvas.getContext("2d").putImageData(imagendata, 0, 0);
-
-        }
-
-        var pasonofunciona = (canvas = document.getElementById("myCanvas")) => {
-            let imagendata = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
-            imagendata = meshpasonofunciona(imagendata);
-            canvas.getContext("2d").putImageData(imagendata, 0, 0);
-
-        }
-
-         
-
-         
-        var pasocolorsaturacionideal = (canvas = document.getElementById("myCanvas")) => {
-            let imagendata = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
-            imagendata = colorsaturacionideal(imagendata);
-            canvas.getContext("2d").putImageData(imagendata, 0, 0);
-
-        }
-        var pasocolorhumyuan = (canvas = document.getElementById("myCanvas")) => {
-            let imagendata = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
-            imagendata = colorinihunyuan(imagendata);
-            canvas.getContext("2d").putImageData(imagendata, 0, 0);
-
-        }
-
-        var colorinihunyuan = (imageData) => {
-
-
-            let data = imageData.data;
-
-            var rgba = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var rgba2 = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var vacontar = 0;
-
-            var maxipx = 0;
-            for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255;
-                rgba.g = data[i + 1] / 255;
-                rgba.b = data[i + 2] / 255;
-                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                if (maxpx > 0.3 && maxpx < 0.7) {
-                    rgba2.r = rgba2.r + rgba.r;
-                    rgba2.g = rgba2.g + rgba.g;
-                    rgba2.b = rgba2.b + rgba.b;
-                    vacontar++;
-                }
-
-                maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
-
-            }
-            rgba2.r = rgba2.r / vacontar;
-            rgba2.g = rgba2.g / vacontar;
-            rgba2.b = rgba2.b / vacontar;
-
-            for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255;
-                rgba.g = data[i + 1] / 255;
-                rgba.b = data[i + 2] / 255;
-
-
-                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                operacionMatematica(rgba, (1 - limit(maxpx * 2)) * 0.1, "+");
-                operacionMatematica(rgba, (simpleLinealFuncion(1, 0.5, 0, 1.2, maxpx)), "*");
-                maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-
-                // operacionMatematica(rgba,(simpleLinealFuncion(1,0.63,0,0.3,maxpx))/(maxpx+0.00001),"*");
-                maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                let dv = colorDivide(rgba);
-
-                dv = colorDivide(rgba);
-                /*   rgba=saturationGio(rgba,0.3-dv);
-        
-                  
-               */
-                rgba = mixerHtmlPasaColor(rgba, rgba2, limit(simpleLinealFuncion(1, 1, 0.4, 0, dv)), true);
-
-                data[i] = rgba.r * 255;
-                data[i + 1] = rgba.g * 255;
-                data[i + 2] = rgba.b * 255;
-            }
-
-            return imageData;
-        }
-        var limit = (num, min = 0.0, max = 1.0) => {
-            if (num > max) {
-                num = max;
-
-            }
-            if (num < min) {
-                num = min;
-
-            }
-
-            return num;
-
-        }
-
-        var colorinihunyuan2 = (imageData) => {
-
-
-            let data = imageData.data;
-
-            var rgba = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var rgba2 = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var vacontar = 0;
-
-            var maxipx = 0;
-            for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255;
-                rgba.g = data[i + 1] / 255;
-                rgba.b = data[i + 2] / 255;
-                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                if (maxpx > 0.1 && maxpx < 0.9) {
-                    rgba2.r = rgba2.r + rgba.r;
-                    rgba2.g = rgba2.g + rgba.g;
-                    rgba2.b = rgba2.b + rgba.b;
-                    vacontar++;
-                }
-
-                maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
-
-            }
-
-            for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255;
-                rgba.g = data[i + 1] / 255;
-                rgba.b = data[i + 2] / 255;
-
-
-                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                operacionMatematica(rgba, (simpleLinealFuncion(1, 0.63, 0, 0.3, maxpx)) / (maxpx + 0.00001), "*");
-                maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                let dv = colorDivide(rgba);
-                rgba = saturationGio(rgba, dv * -0.5);
-                dv = colorDivide(rgba);
-                rgba = saturationGio(rgba, dv * -0.5);
-                dv = colorDivide(rgba);
-                rgba = saturationGio(rgba, dv * -0.5);
-                dv = colorDivide(rgba);
-                rgba = saturationGio(rgba, dv * -0.5);
-                dv = colorDivide(rgba);
-                rgba = saturationGio(rgba, dv * -0.5);
-                dv = colorDivide(rgba);
-                rgba = saturationGio(rgba, dv * -0.5);
-                dv = colorDivide(rgba);
-                rgba = saturationGio(rgba, dv * -0.5);
-                dv = colorDivide(rgba);
-                rgba = saturationGio(rgba, dv * -0.5);
-                dv = colorDivide(rgba);
-                rgba = saturationGio(rgba, 0.3 - dv);
-
-
-
-
-                data[i] = rgba.r * 255;
-                data[i + 1] = rgba.g * 255;
-                data[i + 2] = rgba.b * 255;
-            }
-
-            return imageData;
-        }
-
-        var meshpasonofunciona= (imageData) => {
-            let data = imageData.data;
-            var rgba = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var rgba2 = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var rgba3 = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var vacontar = 0;
-            var vacontar3 = 0;
-
-            var maxipx = 0;
-            for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255;
-                rgba.g = data[i + 1] / 255;
-                rgba.b = data[i + 2] / 255;
-                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-
-                let dv = colorDivide(rgba);
-                if (maxpx > 0.1 && maxpx < 0.9) {
-                    rgba2.r = rgba2.r + rgba.r;
-                    rgba2.g = rgba2.g + rgba.g;
-                    rgba2.b = rgba2.b + rgba.b;
-                    vacontar++;
-                }
-                if (dv > 0.9 && maxpx > 0.2 && maxpx < 0.7) {
-                    rgba3.r = rgba3.r + rgba.r;
-                    rgba3.g = rgba3.g + rgba.g;
-                    rgba3.b = rgba3.b + rgba.b;
-                    vacontar3++;
-                }
-
-                maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
-
-            }
-            vacontar3 = vacontar3 + 0.000001;
-            vacontar = vacontar + 0.000001;
-            rgba2.r = rgba2.r / vacontar;
-            rgba2.g = rgba2.g / vacontar;
-            rgba2.b = rgba2.b / vacontar;
-            rgba3.r = rgba3.r / vacontar3;
-            rgba3.g = rgba3.g / vacontar3;
-            rgba3.b = rgba3.b / vacontar3;
-
-            let paso2=confirm("mesh creator calcelar paint");
-            let sum=parseFloat(prompt("suma",0.1));
-
-    
-            for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255;
-                rgba.g = data[i + 1] / 255;
-                rgba.b = data[i + 2] / 255;
-                if(!paso2){
-                    
-    let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-     
-    operacionMatematica(rgba,simpleLinealFuncion(1,-0.3,0,sum,maxpx),"+");
-     for(var i2=0; i2<2;i2++){
- let dv=colorDivide(rgba);    saturationGio(rgba,0.5-dv);
-       }
- 
-   
-                }
-                else{
-    let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-       operacionMatematica(rgba,simpleLinealFuncion(1,0.67,0,1.5,limit(maxpx*2,0,1)  ),"*");
-       operacionMatematica(rgba, (1-maxpx)*(0.1+sum)*maxpx,"+");
-       for(var i2=0; i2<2;i2++){
- let dv=colorDivide(rgba);    saturationGio(rgba,0.5-dv);
-       }
-       
-
-                 }
-
-            
-   
-
-
-                data[i] = rgba.r * 255;
-                data[i + 1] = rgba.g * 255;
-                data[i + 2] = rgba.b * 255;
-            }
-
-            return imageData;
-        }
-
-        var meshpaintcolor27112025731 = (imageData) => {
-            let data = imageData.data;
-            var rgba = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var rgba2 = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var rgba3 = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var vacontar = 0;
-            var vacontar3 = 0;
-
-            var maxipx = 0;
-            for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255;
-                rgba.g = data[i + 1] / 255;
-                rgba.b = data[i + 2] / 255;
-                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-
-                let dv = colorDivide(rgba);
-                if (maxpx > 0.1 && maxpx < 0.9) {
-                    rgba2.r = rgba2.r + rgba.r;
-                    rgba2.g = rgba2.g + rgba.g;
-                    rgba2.b = rgba2.b + rgba.b;
-                    vacontar++;
-                }
-                if (dv > 0.9 && maxpx > 0.2 && maxpx < 0.7) {
-                    rgba3.r = rgba3.r + rgba.r;
-                    rgba3.g = rgba3.g + rgba.g;
-                    rgba3.b = rgba3.b + rgba.b;
-                    vacontar3++;
-                }
-
-                maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
-
-            }
-            vacontar3 = vacontar3 + 0.000001;
-            vacontar = vacontar + 0.000001;
-            rgba2.r = rgba2.r / vacontar;
-            rgba2.g = rgba2.g / vacontar;
-            rgba2.b = rgba2.b / vacontar;
-            rgba3.r = rgba3.r / vacontar3;
-            rgba3.g = rgba3.g / vacontar3;
-            rgba3.b = rgba3.b / vacontar3;
-
-         let vuelta=confirm("no espara blender");
-            for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255;
-                rgba.g = data[i + 1] / 255;
-                rgba.b = data[i + 2] / 255;
-
-                if(vuelta){
-    let maxpx = Math.max(rgba.r, rgba.g, rgba.b);  
-operacionMatematica(rgba,simpleLinealFuncion(1, 0,0,0.2,maxpx),"+");
- let  dv=colorDivide(rgba);
-              saturationGio(rgba,0.5-dv);
-              maxpx = Math.max(rgba.r, rgba.g, rgba.b);          
-           if(maxpx>0.67){
-            operacionMatematica(rgba,0.67/(maxpx+0.000001),"*"); 
-           }
-         dv=colorDivide(rgba);
-              saturationGio(rgba, -dv*0.3);   
-
-                }
-                else{
-
-                    let maxpx = Math.max(rgba.r, rgba.g, rgba.b);                 
-                operacionMatematica(rgba,(1-maxpx)*0.2*maxpx,"+");    
-                maxpx = Math.max(rgba.r, rgba.g, rgba.b);                 
-                operacionMatematica(rgba,(1-maxpx)*0.2*maxpx,"+");   
-                 maxpx = Math.max(rgba.r, rgba.g, rgba.b);                 
-                operacionMatematica(rgba,( maxpx)*0.2*-maxpx,"+");   
-                }
-             
-
-
-                data[i] = rgba.r * 255;
-                data[i + 1] = rgba.g * 255;
-                data[i + 2] = rgba.b * 255;
-            }
-
-            return imageData;
-        }
-
-  
-        var colorpasocolor3dmesh = (imageData) => {
-
-
-            let data = imageData.data;
-
-            var rgba = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var rgba2 = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var rgba3 = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var vacontar = 0;
-            var vacontar3 = 0;
-
-            var maxipx = 0;
-            for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255;
-                rgba.g = data[i + 1] / 255;
-                rgba.b = data[i + 2] / 255;
-                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-
-                let dv = colorDivide(rgba);
-                if (maxpx > 0.1 && maxpx < 0.9) {
-                    rgba2.r = rgba2.r + rgba.r;
-                    rgba2.g = rgba2.g + rgba.g;
-                    rgba2.b = rgba2.b + rgba.b;
-                    vacontar++;
-                }
-                if (dv > 0.9 && maxpx > 0.2 && maxpx < 0.7) {
-                    rgba3.r = rgba3.r + rgba.r;
-                    rgba3.g = rgba3.g + rgba.g;
-                    rgba3.b = rgba3.b + rgba.b;
-                    vacontar3++;
-                }
-
-                maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
-
-            }
-            vacontar3 = vacontar3 + 0.000001;
-            vacontar = vacontar + 0.000001;
-
-            rgba2.r = rgba2.r / vacontar;
-            rgba2.g = rgba2.g / vacontar;
-            rgba2.b = rgba2.b / vacontar;
-
-            rgba3.r = rgba3.r / vacontar3;
-            rgba3.g = rgba3.g / vacontar3;
-            rgba3.b = rgba3.b / vacontar3;
-            let mul = confirm("sum");
-            for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255;
-                rgba.g = data[i + 1] / 255;
-                rgba.b = data[i + 2] / 255;
-                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                if (mul) {
-                    rgba = operacionMatematica(rgba, simpleLinealFuncion(1, 0.7, 0, 0.09, maxpx) / (maxpx + 0.000001), "*");
-                }
-                else {
-                    let dv = colorDivide(rgba);
-                    let y = 0.2 + 0.9 * maxpx - 0.6 * maxpx * maxpx;
-                    rgba = operacionMatematica(rgba, 0.05, "+");
-                    maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                    if (maxpx > 0.5) {
-                        rgba = operacionMatematica(rgba, 0.5 / (maxpx + 0.00001), "*");
-                    }
-                    dv = colorDivide(rgba);
-                    saturationGio(rgba, 0.3 - dv); dv = colorDivide(rgba);
-                    saturationGio(rgba, 0.3 - dv)
-                }
-                data[i] = rgba.r * 255;
-                data[i + 1] = rgba.g * 255;
-                data[i + 2] = rgba.b * 255;
-            }
-
-            return imageData;
-        }
-
-        var colorsaturacionideal = (imageData) => {
-
-
-            let data = imageData.data;
-
-            var rgba = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var rgba2 = {
-                r: 0,
-                g: 0,
-                b: 0,
-            };
-
-            var vacontar = 0;
-
-            var maxipx = 0;
-            for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255;
-                rgba.g = data[i + 1] / 255;
-                rgba.b = data[i + 2] / 255;
-                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                if (maxpx > 0.1 && maxpx < 0.9) {
-                    rgba2.r = rgba2.r + rgba.r;
-                    rgba2.g = rgba2.g + rgba.g;
-                    rgba2.b = rgba2.b + rgba.b;
-                    vacontar++;
-                }
-
-                maxipx = Math.max(rgba.r, rgba.g, rgba.b, maxipx);
-
-            }
-
-            for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255;
-                rgba.g = data[i + 1] / 255;
-                rgba.b = data[i + 2] / 255;
-
-
-                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                operacionMatematica(rgba, simpleLinealFuncion(1, 0.7, 0.0, 1.25, maxpx), "*");
-                maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                let dv = colorDivide(rgba);
-                rgba = saturationGio(rgba, 0.28 - dv);
-
-
-
-
-                data[i] = rgba.r * 255;
-                data[i + 1] = rgba.g * 255;
-                data[i + 2] = rgba.b * 255;
-            }
-
-            return imageData;
-        }
-        var operacionMatematica = (rgba, val, operacion) => {
-            function value1o0(v) {
-                if (v < 0) {
-                    v = 0;
-                }
-                if (v > 1) {
-                    v = 1;
-                }
-                return v;
-            }
-            if ("multiplicar" == operacion || operacion == "*") {
-                rgba.r *= val;
-                rgba.r = value1o0(rgba.r);
-                rgba.g *= val;
-                rgba.g = value1o0(rgba.g);
-                rgba.b *= val;
-                rgba.b = value1o0(rgba.b);
-                return rgba;
-            }
-            if (operacion == "+") {
-                rgba.r += val;
-                rgba.r = value1o0(rgba.r);
-                rgba.g += val;
-                rgba.g = value1o0(rgba.g);
-                rgba.b += val;
-                rgba.b = value1o0(rgba.b);
-                return rgba;
-            }
-            if ("potencia" == operacion || operacion == "pow") {
-                rgba.r = Math.pow(rgba.r, val);
-                rgba.r = value1o0(rgba.r);
-                rgba.g = Math.pow(rgba.g, val);
-                rgba.g = value1o0(rgba.g);
-                rgba.b = Math.pow(rgba.b, val);
-                rgba.b = value1o0(rgba.b);
-                return rgba;
-            }
-            if ("asigna" == operacion || operacion == "=") {
-                rgba.r = val.r;
-                rgba.r = value1o0(rgba.r);
-                rgba.g = val.g;
-                rgba.g = value1o0(rgba.g);
-                rgba.b = val.b;
-                rgba.b = value1o0(rgba.b);
-                return rgba;
-            }
-            if (operacion == "srgba") {
-                rgba.r += rgba.r;
-                rgba.r = value1o0(rgba.r);
-                rgba.g += rgba.g;
-                rgba.g = value1o0(rgba.g);
-                rgba.b += rgba.b;
-                rgba.b = value1o0(rgba.b);
-                return rgba;
-            }
-            return rgba;
-        }
-
-        function createNormalMap() {
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imageData.data;
-            const newData = new Uint8ClampedArray(data.length);
-
-            const bias = parseFloat(biasSlider.value) / 100.0;
-            const strength = parseFloat(strengthSlider.value) / 10.0;
-            const invertR = invertCheckbox.checked ? -1.0 : 1.0;
-            const invertG = invertCheckbox.checked ? -1.0 : 1.0;
-            const useRed = redChannelCheckbox.checked;
-            const useGreen = greenChannelCheckbox.checked;
-
-            for (let y = 0; y < canvas.height; y++) {
-                for (let x = 0; x < canvas.width; x++) {
-                    const index = (y * canvas.width + x) * 4;
-
-                    const d0 = getRedValue(data, x, y, canvas.width, canvas.height) / 255.0;
-                    const d1 = getRedValue(data, x + 1, y, canvas.width, canvas.height) / 255.0;
-                    const d2 = getRedValue(data, x - 1, y, canvas.width, canvas.height) / 255.0;
-                    const d3 = getRedValue(data, x, y + 1, canvas.width, canvas.height) / 255.0;
-                    const d4 = getRedValue(data, x, y - 1, canvas.width, canvas.height) / 255.0;
-
-                    let dx = (d2 - d1) * strength;
-                    let dy = (d4 - d3) * strength;
-
-                    dx *= invertR;
-                    dy *= invertG;
-
-                    const dz = 1.0 / Math.max(bias, 0.01);
-
-                    const length = Math.sqrt(dx * dx + dy * dy + dz * dz);
-                    const normX = dx / length;
-                    const normY = dy / length;
-                    const normZ = dz / length;
-
-                    if (useRed) {
-                        newData[index] = Math.floor(Math.max(0, Math.min(255, (normX * 0.5 + 0.5) * 255)));
-                    } else {
-                        newData[index] = data[index];
-                    }
-
-                    if (useGreen) {
-                        newData[index + 1] = Math.floor(Math.max(0, Math.min(255, (normY * 0.5 + 0.5) * 255)));
-                    } else {
-                        newData[index + 1] = data[index + 1];
-                    }
-
-                    newData[index + 2] = Math.floor(Math.max(0, Math.min(255, (normZ * 0.5 + 0.5) * 255)));
-                    newData[index + 3] = 255;
-                }
-            }
-
-            const newImageData = new ImageData(newData, canvas.width, canvas.height);
-            ctx.putImageData(newImageData, 0, 0);
-        }
-
-        function getRedValue(data, x, y, width, height) {
-            if (x < 0 || x >= width || y < 0 || y >= height) {
-                return 0;
-            }
-            const index = (y * width + x) * 4;
-            return data[index];
-        }
-
-        applyFiltersBtn.addEventListener('click', applyFiltersToCanvas);
-        resetFiltersBtn.addEventListener('click', resetFilters);
+        slSaturation.onChange = (v) => { currentSaturation = v; applyFiltersToCanvas(); };
+        slBrightness.onChange = (v) => { currentBrightness = v; applyFiltersToCanvas(); };
+        slHue.onChange = (v) => { currentHue = v; applyFiltersToCanvas(); };
+        slContrast.onChange = (v) => { currentContrast = v; applyFiltersToCanvas(); };
+        slBlur.onChange = (v) => { currentBlur = v; applyFiltersToCanvas(); };
+
+        btnApplyFilters.element.addEventListener('click', applyFiltersToCanvas);
+        btnResetFilters.element.addEventListener('click', resetFilters);
 
         function applyFiltersToCanvas() {
-            if (!originalImage) {
-                alert('Primero carga una imagen.');
-                return;
-            }
-
+            if (!originalImage) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const filterString = `saturate(${currentSaturation}%) brightness(${currentBrightness}%) hue-rotate(${currentHue}deg) contrast(${currentContrast}%) blur(${currentBlur}px)`;
-            ctx.filter = filterString;
+            ctx.filter = `saturate(${currentSaturation}%) brightness(${currentBrightness}%) hue-rotate(${currentHue}deg) contrast(${currentContrast}%) blur(${currentBlur}px)`;
             ctx.drawImage(originalImage, 0, 0, canvas.width, canvas.height);
             ctx.filter = 'none';
         }
@@ -1598,79 +545,224 @@ operacionMatematica(rgba,simpleLinealFuncion(1, 0,0,0.2,maxpx),"+");
             currentContrast = 100;
             currentBlur = 0;
 
-            saturationSlider.value = 100;
-            brightnessSlider.value = 100;
-            hueSlider.value = 0;
-            contrastSlider.value = 100;
-            blurSlider.value = 0;
-            biasSlider.value = 10;
-            strengthSlider.value = 50;
+            slSaturation.setValue(100);
+            slBrightness.setValue(100);
+            slHue.setValue(0);
+            slContrast.setValue(100);
+            slBlur.setValue(0);
+            slBias.setValue(10);
+            slStrength.setValue(50);
 
-            document.getElementById('saturationValue').textContent = '100';
-            document.getElementById('brightnessValue').textContent = '100';
-            document.getElementById('hueValue').textContent = '0';
-            document.getElementById('contrastValue').textContent = '100';
-            document.getElementById('blurValue').textContent = '0';
-            document.getElementById('biasValue').textContent = '10';
-            document.getElementById('strengthValue').textContent = '50';
-
-            invertCheckbox.checked = false;
-            redChannelCheckbox.checked = true;
-            greenChannelCheckbox.checked = true;
-
-            if (originalImageData) {
-                ctx.putImageData(originalImageData, 0, 0);
-            } else {
-                applyFiltersToCanvas();
-            }
+            if (originalImageData) ctx.putImageData(originalImageData, 0, 0);
+            else applyFiltersToCanvas();
         }
 
-        saturationSlider.addEventListener('input', (e) => {
-            currentSaturation = parseInt(e.target.value);
-            document.getElementById('saturationValue').textContent = currentSaturation;
+        btnPaintHunyuan.element.addEventListener('click', () => {
+            let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            ctx.putImageData(colorinihunyuan(imgData), 0, 0);
         });
 
-        brightnessSlider.addEventListener('input', (e) => {
-            currentBrightness = parseInt(e.target.value);
-            document.getElementById('brightnessValue').textContent = currentBrightness;
+        btn3dMesh.element.addEventListener('click', () => {
+            let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            ctx.putImageData(colorpasocolor3dmesh(imgData), 0, 0);
         });
 
-        hueSlider.addEventListener('input', (e) => {
-            currentHue = parseInt(e.target.value);
-            document.getElementById('hueValue').textContent = currentHue;
+        btnMeshPaint.element.addEventListener('click', () => {
+            let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            ctx.putImageData(meshpaintcolor27112025731(imgData), 0, 0);
         });
 
-        contrastSlider.addEventListener('input', (e) => {
-            currentContrast = parseInt(e.target.value);
-            document.getElementById('contrastValue').textContent = currentContrast;
+        btnNoFunciona.element.addEventListener('click', () => {
+            let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            ctx.putImageData(meshpasonofunciona(imgData), 0, 0);
         });
 
-        blurSlider.addEventListener('input', (e) => {
-            currentBlur = parseInt(e.target.value);
-            document.getElementById('blurValue').textContent = currentBlur;
+        btnCreateNormal.element.addEventListener('click', () => {
+            if (!originalImageData) return alert('Primero carga una imagen.');
+            ctx.putImageData(originalImageData, 0, 0);
+            createNormalMap();
         });
 
-        biasSlider.addEventListener('input', (e) => {
-            document.getElementById('biasValue').textContent = e.target.value;
-        });
-
-        strengthSlider.addEventListener('input', (e) => {
-            document.getElementById('strengthValue').textContent = e.target.value;
-        });
-
-        downloadBtn.addEventListener('click', () => {
-            if (!originalImage) {
-                alert('No hay imagen para descargar.');
-                return;
-            }
-            const dataURL = canvas.toDataURL('image/png');
+        btnDownload.element.addEventListener('click', () => {
+            if (!originalImage) return;
             const a = document.createElement('a');
-            a.href = dataURL;
             a.download = 'imagen_editada.png';
-            document.body.appendChild(a);
+            a.href = canvas.toDataURL('image/png');
             a.click();
-            document.body.removeChild(a);
         });
+
+        function createNormalMap() {
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const data = imageData.data;
+            const newData = new Uint8ClampedArray(data.length);
+
+            const bias = parseFloat(slBias.getValue()) / 100.0;
+            const strength = parseFloat(slStrength.getValue()) / 10.0;
+            const invertR = chkInvert.getValue() ? -1.0 : 1.0;
+            const invertG = chkInvert.getValue() ? -1.0 : 1.0;
+            const useRed = chkRed.getValue();
+            const useGreen = chkGreen.getValue();
+
+            for (let y = 0; y < canvas.height; y++) {
+                for (let x = 0; x < canvas.width; x++) {
+                    const index = (y * canvas.width + x) * 4;
+
+                    const d1 = getRed(data, x + 1, y, canvas.width, canvas.height) / 255.0;
+                    const d2 = getRed(data, x - 1, y, canvas.width, canvas.height) / 255.0;
+                    const d3 = getRed(data, x, y + 1, canvas.width, canvas.height) / 255.0;
+                    const d4 = getRed(data, x, y - 1, canvas.width, canvas.height) / 255.0;
+
+                    let dx = (d2 - d1) * strength * invertR;
+                    let dy = (d4 - d3) * strength * invertG;
+                    const dz = 1.0 / Math.max(bias, 0.01);
+
+                    const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
+                    const nx = dx / len;
+                    const ny = dy / len;
+                    const nz = dz / len;
+
+                    newData[index] = useRed ? Math.floor(Math.max(0, Math.min(255, (nx * 0.5 + 0.5) * 255))) : data[index];
+                    newData[index + 1] = useGreen ? Math.floor(Math.max(0, Math.min(255, (ny * 0.5 + 0.5) * 255))) : data[index + 1];
+                    newData[index + 2] = Math.floor(Math.max(0, Math.min(255, (nz * 0.5 + 0.5) * 255)));
+                    newData[index + 3] = 255;
+                }
+            }
+            ctx.putImageData(new ImageData(newData, canvas.width, canvas.height), 0, 0);
+        }
+
+        function getRed(data, x, y, width, height) {
+            if (x < 0 || x >= width || y < 0 || y >= height) return 0;
+            return data[(y * width + x) * 4];
+        }
+
+        const saturationGio = (tex_color, ec5) => {
+            const valLim = x => Math.max(0.0, Math.min(1.0, x));
+            const maxx = Math.max(tex_color.r, tex_color.g, tex_color.b);
+            if (tex_color.r !== maxx) tex_color.r += (maxx - tex_color.r) * ec5;
+            if (tex_color.g !== maxx) tex_color.g += (maxx - tex_color.g) * ec5;
+            if (tex_color.b !== maxx) tex_color.b += (maxx - tex_color.b) * ec5;
+            tex_color.r = valLim(tex_color.r);
+            tex_color.g = valLim(tex_color.g);
+            tex_color.b = valLim(tex_color.b);
+            return tex_color;
+        };
+
+        const mixerHtmlPasaColor = (rgbax, rgba2 = { r: 0.5, g: 0.45, b: 0.36 }, porcent, bool = true) => {
+            let maxx0 = Math.max(rgbax.r, rgbax.g, rgbax.b);
+            let clmd = 1.0 - porcent;
+            rgbax.r = rgbax.r * clmd + rgba2.r * porcent;
+            rgbax.g = rgbax.g * clmd + rgba2.g * porcent;
+            rgbax.b = rgbax.b * clmd + rgba2.b * porcent;
+            if (bool) {
+                let max2 = Math.max(rgbax.r, rgbax.g, rgbax.b);
+                operacionMatematica(rgbax, maxx0 / (max2 + 0.00001), "*");
+            }
+            return rgbax;
+        };
+
+        const colorDivide = c => (Math.min(c.r, c.g, c.b)) / (Math.max(c.r, c.g, c.b) + 0.000001);
+        const simpleLinealFuncion = (x1, y1, x2, y2, val) => {
+            let dx = (x2 - x1) + 0.00001;
+            let m = (y2 - y1) / dx;
+            return m * val + (y2 - m * x2);
+        };
+        const limit = (num, min = 0.0, max = 1.0) => Math.max(min, Math.min(max, num));
+
+        const operacionMatematica = (rgba, val, operacion) => {
+            const v = x => Math.max(0, Math.min(1, x));
+            if (operacion == "*") { rgba.r = v(rgba.r * val); rgba.g = v(rgba.g * val); rgba.b = v(rgba.b * val); }
+            if (operacion == "+") { rgba.r = v(rgba.r + val); rgba.g = v(rgba.g + val); rgba.b = v(rgba.b + val); }
+            return rgba;
+        };
+
+        const colorinihunyuan = (imageData) => {
+            let data = imageData.data;
+            let rgba = { r: 0, g: 0, b: 0 }, rgba2 = { r: 0, g: 0, b: 0 };
+            let count = 0;
+            for (let i = 0; i < data.length; i += 4) {
+                let r = data[i] / 255, g = data[i + 1] / 255, b = data[i + 2] / 255;
+                let m = Math.max(r, g, b);
+                if (m > 0.3 && m < 0.7) { rgba2.r += r; rgba2.g += g; rgba2.b += b; count++; }
+            }
+            if (count > 0) { rgba2.r /= count; rgba2.g /= count; rgba2.b /= count; }
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255; rgba.g = data[i + 1] / 255; rgba.b = data[i + 2] / 255;
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                operacionMatematica(rgba, (1 - limit(maxpx * 2)) * 0.1, "+");
+                operacionMatematica(rgba, simpleLinealFuncion(1, 0.5, 0, 1.2, maxpx), "*");
+                let dv = colorDivide(rgba);
+                rgba = mixerHtmlPasaColor(rgba, rgba2, limit(simpleLinealFuncion(1, 1, 0.4, 0, dv)), true);
+                data[i] = rgba.r * 255; data[i + 1] = rgba.g * 255; data[i + 2] = rgba.b * 255;
+            }
+            return imageData;
+        };
+
+        const meshpasonofunciona = (imageData) => {
+            let data = imageData.data;
+            let rgba = { r: 0, g: 0, b: 0 };
+            let paso2 = confirm("mesh creator cancelar paint");
+            let sum = parseFloat(prompt("suma", "0.1")) || 0.1;
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255; rgba.g = data[i + 1] / 255; rgba.b = data[i + 2] / 255;
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                if (!paso2) {
+                    operacionMatematica(rgba, simpleLinealFuncion(1, -0.3, 0, sum, maxpx), "+");
+                    for (let i2 = 0; i2 < 2; i2++) saturationGio(rgba, 0.5 - colorDivide(rgba));
+                } else {
+                    operacionMatematica(rgba, simpleLinealFuncion(1, 0.67, 0, 1.5, limit(maxpx * 2, 0, 1)), "*");
+                    operacionMatematica(rgba, (1 - maxpx) * (0.1 + sum) * maxpx, "+");
+                    for (let i2 = 0; i2 < 2; i2++) saturationGio(rgba, 0.5 - colorDivide(rgba));
+                }
+                data[i] = rgba.r * 255; data[i + 1] = rgba.g * 255; data[i + 2] = rgba.b * 255;
+            }
+            return imageData;
+        };
+
+        const meshpaintcolor27112025731 = (imageData) => {
+            let data = imageData.data;
+            let rgba = { r: 0, g: 0, b: 0 };
+            let vuelta = confirm("¿No es para blender?");
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255; rgba.g = data[i + 1] / 255; rgba.b = data[i + 2] / 255;
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                if (vuelta) {
+                    operacionMatematica(rgba, simpleLinealFuncion(1, 0, 0, 0.2, maxpx), "+");
+                    saturationGio(rgba, 0.5 - colorDivide(rgba));
+                    maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                    if (maxpx > 0.67) operacionMatematica(rgba, 0.67 / (maxpx + 0.000001), "*");
+                    saturationGio(rgba, -colorDivide(rgba) * 0.3);
+                } else {
+                    operacionMatematica(rgba, (1 - maxpx) * 0.2 * maxpx, "+");
+                    maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                    operacionMatematica(rgba, (1 - maxpx) * 0.2 * maxpx, "+");
+                    maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                    operacionMatematica(rgba, (maxpx) * 0.2 * -maxpx, "+");
+                }
+                data[i] = rgba.r * 255; data[i + 1] = rgba.g * 255; data[i + 2] = rgba.b * 255;
+            }
+            return imageData;
+        };
+
+        const colorpasocolor3dmesh = (imageData) => {
+            let data = imageData.data;
+            let rgba = { r: 0, g: 0, b: 0 };
+            let mul = confirm("¿Multiplicar (sum)?");
+            for (let i = 0; i < data.length; i += 4) {
+                rgba.r = data[i] / 255; rgba.g = data[i + 1] / 255; rgba.b = data[i + 2] / 255;
+                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                if (mul) {
+                    operacionMatematica(rgba, simpleLinealFuncion(1, 0.7, 0, 0.09, maxpx) / (maxpx + 0.000001), "*");
+                } else {
+                    operacionMatematica(rgba, 0.05, "+");
+                    maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                    if (maxpx > 0.5) operacionMatematica(rgba, 0.5 / (maxpx + 0.00001), "*");
+                    saturationGio(rgba, 0.3 - colorDivide(rgba));
+                    saturationGio(rgba, 0.3 - colorDivide(rgba));
+                }
+                data[i] = rgba.r * 255; data[i + 1] = rgba.g * 255; data[i + 2] = rgba.b * 255;
+            }
+            return imageData;
+        };
     </script>
 </body>
 
