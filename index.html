@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 
@@ -224,7 +225,7 @@
         const panelActions = new UISmartPanel({ title: 'Acciones de Imagen', floating: false });
         const btnEnhance = new UIButton({ text: 'Mejorar Calidad' });
         const btnRemoveBg = new UIButton({ text: 'Remover Fondo' });
-        const btnFillBlack = new UIButton({ text: 'Rellenar Negro' });
+      
         const btnCenter = new UIButton({ text: 'Centrar Imagen' });
         const btnCopy = new UIButton({ text: 'Copiar' });
         const btnPaste = new UIButton({ text: 'Pegar' });
@@ -235,7 +236,7 @@
         const infoStatus = new UIInfo({ text: 'Listo para procesar' });
 
         panelActions.addRow(btnEnhance, btnRemoveBg);
-        panelActions.addRow(btnFillBlack, btnCenter);
+   
         panelActions.addRow(btnCopy, btnPaste);
         panelActions.addRow(btnPaintHunyuan);
         panelActions.addRow(btn3dMesh);
@@ -450,20 +451,7 @@
             }
         });
 
-        btnFillBlack.element.addEventListener('click', () => {
-            if (!originalImage) return alert('Primero carga una imagen.');
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = canvas.width;
-            tempCanvas.height = canvas.height;
-
-            tempCtx.fillStyle = '#000000';
-            tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-            tempCtx.drawImage(canvas, 0, 0);
-
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(tempCanvas, 0, 0);
-        });
+ 
 
         btnCenter.element.addEventListener('click', () => {
             if (!originalImage) return alert('Primero carga una imagen.');
@@ -475,7 +463,7 @@
             tempCanvas.width = res;
             tempCanvas.height = res;
 
-            tempCtx.fillStyle = confirm('¿Fondo blanco? (Cancelar = Negro)') ? '#ffffff' : '#000000';
+            tempCtx.fillStyle = confirm('¿Fondo blanco? (Cancelar = sin )') ? '#ffffff' : '#000000';
             tempCtx.fillRect(0, 0, res, res);
 
             const maxDim = res - (margin * 2);
