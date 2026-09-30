@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="es">
 
@@ -225,8 +224,7 @@
         const panelActions = new UISmartPanel({ title: 'Acciones de Imagen', floating: false });
         const btnEnhance = new UIButton({ text: 'Mejorar Calidad' });
         const btnRemoveBg = new UIButton({ text: 'Remover Fondo' });
-      
-        const btnCenter = new UIButton({ text: 'Centrar Imagen' });
+        const btnCenter = new UIButton({ text: 'Centrar Imagen', variant: 'primary' });
         const btnCopy = new UIButton({ text: 'Copiar' });
         const btnPaste = new UIButton({ text: 'Pegar' });
         const btnPaintHunyuan = new UIButton({ text: 'Paint Hunyuan3D' });
@@ -236,7 +234,7 @@
         const infoStatus = new UIInfo({ text: 'Listo para procesar' });
 
         panelActions.addRow(btnEnhance, btnRemoveBg);
-   
+        panelActions.addRow(btnCenter);
         panelActions.addRow(btnCopy, btnPaste);
         panelActions.addRow(btnPaintHunyuan);
         panelActions.addRow(btn3dMesh);
@@ -451,29 +449,57 @@
             }
         });
 
- 
-
+        // =======================================================
+        // FUNCIONALIDAD: CENTRAR IMAGEN EN CANVAS CUADRADO
+        // =======================================================
         btnCenter.element.addEventListener('click', () => {
             if (!originalImage) return alert('Primero carga una imagen.');
-            const res = parseInt(prompt('Resolución cuadrada:', '2048')) || 2048;
-            const margin = parseInt(prompt('Margen px:', '45')) || 45;
 
+            // 1. Pedir resolución con prompt (por defecto 2048)
+            const promptRes = prompt('Resolución cuadrada (ancho y alto):', '2048');
+            if (promptRes === null) return;
+            const res = parseInt(promptRes) || 2048;
+
+            // 2. Pedir margen con prompt (por defecto 120 px)
+            const promptMargin = prompt('Margen en píxeles:', '120');
+            if (promptMargin === null) return;
+            const margin = Math.max(0, parseInt(promptMargin) || 120);
+
+            // 3. Confirmar color de fondo: Aceptar = Blanco, Cancelar = Negro
+            const fondoBlanco = confirm('¿Fondo blanco? (Aceptar = Blanco, Cancelar = Negro)');
+
+            // 4. Crear canvas temporal
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
             tempCanvas.width = res;
             tempCanvas.height = res;
 
-            tempCtx.fillStyle = confirm('¿Fondo blanco? (Cancelar = sin )') ? '#ffffff' : '#000000';
+            // Rellenar fondo
+            tempCtx.fillStyle = fondoBlanco ? '#ffffff' : '#000000';
             tempCtx.fillRect(0, 0, res, res);
 
-            const maxDim = res - (margin * 2);
-            let sW = (canvas.width > canvas.height) ? maxDim : (canvas.width * maxDim) / canvas.height;
-            let sH = (canvas.width > canvas.height) ? (canvas.height * maxDim) / canvas.width : maxDim;
+            // 5. Calcular tamaño manteniendo la relación de aspecto de la imagen
+            const maxDim = Math.max(1, res - (margin * 2));
+            const aspect = canvas.width / canvas.height;
+            let sW, sH;
 
+            if (aspect >= 1) {
+                sW = maxDim;
+                sH = maxDim / aspect;
+            } else {
+                sH = maxDim;
+                sW = maxDim * aspect;
+            }
+
+            // Centrar dentro del canvas temporal
             const x = (res - sW) / 2;
             const y = (res - sH) / 2;
+
+            tempCtx.imageSmoothingEnabled = true;
+            tempCtx.imageSmoothingQuality = 'high';
             tempCtx.drawImage(canvas, x, y, sW, sH);
 
+            // 6. Pasar el resultado al canvas principal y sincronizar el estado
             canvas.width = res;
             canvas.height = res;
             ctx.clearRect(0, 0, res, res);
@@ -481,6 +507,15 @@
 
             inWidth.setValue(res);
             inHeight.setValue(res);
+            originalAspectRatio = 1;
+
+            const newImg = new Image();
+            newImg.onload = () => {
+                originalImage = newImg;
+                originalImageData = ctx.getImageData(0, 0, res, res);
+                infoStatus.setText(`Centrado en ${res}x${res}px (Margen: ${margin}px)`);
+            };
+            newImg.src = tempCanvas.toDataURL('image/png');
         });
 
         btnCopy.element.addEventListener('click', () => {
