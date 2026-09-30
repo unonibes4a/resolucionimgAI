@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Editor de Imágenes Avanzado</title>
+    <title>Advanced Image Editor</title>
 
     <script src="https://unonibes4a.github.io/pintaresta/a.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -100,7 +100,7 @@
         <main class="main-workspace">
             <div class="workspace-content">
                 <div class="drop-area" id="dropArea" onclick="document.getElementById('hiddenFileInput').click()">
-                      Click paste 
+                      Click or paste
                 </div>
                 <input type="file" id="hiddenFileInput" accept="image/*" style="display:none">
                 <input type="file" id="folderInput" webkitdirectory directory multiple accept="image/*" style="display:none">
@@ -114,7 +114,7 @@
     <script>
         class CanvasCurves {
             constructor(canvas, opts = {}) {
-                if (!canvas || canvas.tagName !== 'CANVAS') throw new Error('CanvasCurves: <canvas> requerido');
+                if (!canvas || canvas.tagName !== 'CANVAS') throw new Error('CanvasCurves: <canvas> required');
                 this.canvas = canvas;
                 this.ctx = canvas.getContext('2d', { willReadFrequently: true });
 
@@ -338,7 +338,7 @@
 
             mountUI(parentContainer) {
                 if (this._panel) return this._panel;
-                const panel = new UISmartPanel({ title: 'Curvas', floating: false });
+                const panel = new UISmartPanel({ title: 'Curves', floating: false });
 
                 const infoLabel = new UILabel({ text: 'X: —   Y: —' });
                 infoLabel.element.style.cssText =
@@ -346,7 +346,7 @@
                     'font-size:11px;color:#9aa3b2;text-align:right;flex:1;';
                 this._infoLabel = infoLabel;
 
-                panel.addRow(1, new UILabel({ text: 'Valor:' }), infoLabel);
+                panel.addRow(1, new UILabel({ text: 'Value:' }), infoLabel);
 
                 const chRow = new UIRow({ align: 0 });
                 const channels = this.includeAlpha ? ['rgb','r','g','b','a'] : ['rgb','r','g','b'];
@@ -395,9 +395,9 @@
                 });
                 ec.addEventListener('contextmenu', e => e.preventDefault());
 
-                const btnGray = new UIButton({ text: 'Gris' });
+                const btnGray = new UIButton({ text: 'Gray' });
                 const btnReset = new UIButton({ text: 'Reset', variant: 'danger' });
-                const btnApply = new UIButton({ text: 'Aplicar', variant: 'primary' });
+                const btnApply = new UIButton({ text: 'Apply', variant: 'primary' });
 
                 btnGray.element.addEventListener('click', () => {
                     this.toggleGrayscale();
@@ -607,12 +607,12 @@
 
         class BatchFolder {
             constructor(inputEl, opts = {}) {
-                if (!inputEl) throw new Error('BatchFolder: input requerido');
+                if (!inputEl) throw new Error('BatchFolder: input required');
                 this.input = inputEl;
                 this.onStatus = opts.onStatus || null;
 
                 this.items = [];
-                this.outputName = 'imagen';
+                this.outputName = 'image';
                 this.resolution = 1024;
                 this.startNumber = 0;
                 this.formats = { jpg: true, png: false, webp: false };
@@ -637,7 +637,7 @@
 
             async loadFiles(files) {
                 this._disposeItems();
-                this._setStatus(`Cargando ${files.length} archivos...`);
+                this._setStatus(`Loading ${files.length} files...`);
                 for (let i = 0; i < files.length; i++) {
                     const f = files[i];
                     const url = URL.createObjectURL(f);
@@ -647,10 +647,10 @@
                     } catch (err) {
                         URL.revokeObjectURL(url);
                     }
-                    this._setStatus(`Cargando ${i + 1}/${files.length}...`);
+                    this._setStatus(`Loading ${i + 1}/${files.length}...`);
                 }
                 this._renderGrid();
-                this._setStatus(`${this.items.length} imágenes cargadas`);
+                this._setStatus(`${this.items.length} images loaded`);
             }
 
             _loadImage(src) {
@@ -677,14 +677,14 @@
             mountUI(container) {
                 if (this._panel) return this._panel;
 
-                const panel = new UISmartPanel({ title: 'Procesar Carpeta (ZIP)', floating: false });
+                const panel = new UISmartPanel({ title: 'Process Folder (ZIP)', floating: false });
 
-                const statusLabel = new UILabel({ text: 'Sin imágenes' });
+                const statusLabel = new UILabel({ text: 'No images' });
                 statusLabel.element.style.cssText = 'font-size:10px;color:#6b7280;';
                 this._statusLabel = statusLabel;
                 panel.addRow(statusLabel);
 
-                const btnPick = new UIButton({ text: '  Seleccionar Carpeta', variant: 'primary' });
+                const btnPick = new UIButton({ text: '  Select Folder', variant: 'primary' });
                 btnPick.element.style.width = '100%';
                 btnPick.element.addEventListener('click', () => this.input.click());
                 panel.addRow(btnPick);
@@ -696,11 +696,11 @@
                 this._renderGrid();
 
                 const filterDefs = [
-                    ['grayscale', 'Gris'], ['invert', 'Invertir'],
+                    ['grayscale', 'Gray'], ['invert', 'Invert'],
                     ['sepia', 'Sepia'], ['blur', 'Blur'],
-                    ['brightness', 'Brillo+'], ['contrast', 'Contraste+'],
-                    ['saturate', 'Saturar+'], ['mirrorH', 'Espejo H'],
-                    ['mirrorV', 'Espejo V']
+                    ['brightness', 'Brightness+'], ['contrast', 'Contrast+'],
+                    ['saturate', 'Saturate+'], ['mirrorH', 'Mirror H'],
+                    ['mirrorV', 'Mirror V']
                 ];
                 for (let i = 0; i < filterDefs.length; i += 2) {
                     const row = new UIRow({ align: 0 });
@@ -725,18 +725,18 @@
                     onChange: (v) => { this.resolution = v; }
                 });
                 resInput.element.style.flex = '1';
-                resRow.append(new UILabel({ text: 'Resolución:' }));
+                resRow.append(new UILabel({ text: 'Resolution:' }));
                 resRow.append(resInput);
                 panel.body.appendChild(resRow.element);
 
                 const nameRow = new UIRow({ align: 0 });
                 const nameInput = new UIInputText({
                     value: this.outputName,
-                    placeholder: 'imagen',
-                    onChange: (v) => { this.outputName = v.trim() || 'imagen'; }
+                    placeholder: 'image',
+                    onChange: (v) => { this.outputName = v.trim() || 'image'; }
                 });
                 nameInput.element.style.flex = '1';
-                nameRow.append(new UILabel({ text: 'Nombre:' }));
+                nameRow.append(new UILabel({ text: 'Name:' }));
                 nameRow.append(nameInput);
                 panel.body.appendChild(nameRow.element);
 
@@ -748,7 +748,7 @@
                     onChange: (v) => { this.startNumber = v; }
                 });
                 numInput.element.style.flex = '1';
-                numRow.append(new UILabel({ text: 'Inicio N°:' }));
+                numRow.append(new UILabel({ text: 'Start #:' }));
                 numRow.append(numInput);
                 panel.body.appendChild(numRow.element);
 
@@ -765,17 +765,17 @@
                 });
                 panel.body.appendChild(fmtRow.element);
 
-                const btnDl = new UIButton({ text: '⬇ Descargar ZIP', variant: 'primary' });
+                const btnDl = new UIButton({ text: '⬇ Download ZIP', variant: 'primary' });
                 btnDl.element.style.width = '100%';
                 btnDl.element.addEventListener('click', () => this.download());
                 panel.addRow(btnDl);
 
-                const btnClr = new UIButton({ text: 'Limpiar' });
+                const btnClr = new UIButton({ text: 'Clear' });
                 btnClr.element.style.width = '100%';
                 btnClr.element.addEventListener('click', () => {
                     this._disposeItems();
                     this._renderGrid();
-                    this._setStatus('Sin imágenes');
+                    this._setStatus('No images');
                     this.input.value = '';
                 });
                 panel.addRow(btnClr);
@@ -790,7 +790,7 @@
                 this._gridEl.innerHTML = '';
                 if (this.items.length === 0) {
                     const empty = document.createElement('div');
-                    empty.textContent = 'Sin imágenes';
+                    empty.textContent = 'No images';
                     empty.style.cssText = 'color:#4b5563;font-size:11px;padding:20px;text-align:center;grid-column:1/-1;';
                     this._gridEl.appendChild(empty);
                     return;
@@ -867,13 +867,13 @@
             }
 
             async download() {
-                if (this.items.length === 0) { alert('No hay imágenes cargadas.'); return; }
+                if (this.items.length === 0) { alert('No images loaded.'); return; }
                 const activeFormats = Object.keys(this.formats).filter(k => this.formats[k]);
-                if (activeFormats.length === 0) { alert('Seleccioná al menos un formato.'); return; }
-                if (!window.JSZip) { alert('JSZip no disponible.'); return; }
+                if (activeFormats.length === 0) { alert('Select at least one format.'); return; }
+                if (!window.JSZip) { alert('JSZip not available.'); return; }
 
                 const zip = new JSZip();
-                const baseName = this.outputName || 'imagen';
+                const baseName = this.outputName || 'image';
                 const startNum = this.startNumber;
                 const fmtMime = { jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp' };
                 const fmtExt  = { jpg: 'jpg', png: 'png', webp: 'webp' };
@@ -882,7 +882,7 @@
                 let done = 0;
                 let total = 0;
 
-                this._setStatus(`Procesando 0/${totalJobs}...`);
+                this._setStatus(`Processing 0/${totalJobs}...`);
 
                 for (let i = 0; i < this.items.length; i++) {
                     const it = this.items[i];
@@ -898,11 +898,11 @@
                             }
                         } catch (err) {}
                         done++;
-                        this._setStatus(`Procesando ${done}/${totalJobs}...`);
+                        this._setStatus(`Processing ${done}/${totalJobs}...`);
                     }
                 }
 
-                this._setStatus('Generando ZIP...');
+                this._setStatus('Generating ZIP...');
                 const zipBlob = await zip.generateAsync({ type: 'blob' });
                 const url = URL.createObjectURL(zipBlob);
                 const a = document.createElement('a');
@@ -912,7 +912,7 @@
                 a.click();
                 document.body.removeChild(a);
                 setTimeout(() => URL.revokeObjectURL(url), 2000);
-                this._setStatus(`✓ ZIP listo · ${total} archivos`);
+                this._setStatus(`✓ ZIP ready · ${total} files`);
             }
 
             destroy() {
@@ -925,12 +925,12 @@
     </script>
 
     <script type="module">
-        let removeBackground = async () => { throw new Error('removeBackground no disponible'); };
+        let removeBackground = async () => { throw new Error('removeBackground not available'); };
         try {
             const mod = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.6.0/+esm');
             removeBackground = mod.removeBackground;
         } catch (e) {
-            console.warn('No se pudo cargar removeBackground:', e);
+            console.warn('Could not load removeBackground:', e);
         }
 
         UI.Theme.inject();
@@ -945,30 +945,30 @@
         const btnToggleSidebar = document.getElementById('btnToggleSidebar');
         btnToggleSidebar.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
 
-        const panelDims = new UISmartPanel({ title: 'Dimensiones & Aspecto', floating: false });
+        const panelDims = new UISmartPanel({ title: 'Dimensions & Aspect', floating: false });
         const inWidth = new UIInputNumberInt({ value: 1024, min: 1, max: 8192 });
         const inHeight = new UIInputNumberInt({ value: 1024, min: 1, max: 8192 });
-        const chkAspect = new UICheckbox({ label: 'Mantener Aspecto', checked: true });
-        const btnResize = new UIButton({ text: 'Redimensionar', variant: 'primary' });
+        const chkAspect = new UICheckbox({ label: 'Keep Aspect', checked: true });
+        const btnResize = new UIButton({ text: 'Resize', variant: 'primary' });
 
-        panelDims.addRow(new UILabel({ text: 'Ancho' }), inWidth);
-        panelDims.addRow(new UILabel({ text: 'Alto' }), inHeight);
+        panelDims.addRow(new UILabel({ text: 'Width' }), inWidth);
+        panelDims.addRow(new UILabel({ text: 'Height' }), inHeight);
         panelDims.addRow(chkAspect);
         panelDims.addRow(btnResize);
 
-        const panelActions = new UISmartPanel({ title: 'Acciones de Imagen', floating: false });
-        const btnEnhance = new UIButton({ text: 'Mejorar Calidad' });
-        const btnRemoveBg = new UIButton({ text: 'Remover Fondo' });
-        const btnCenter = new UIButton({ text: 'Centrar Imagen' });
-        const btnGray = new UIButton({ text: 'Imagen a Gris' });
-        const btnCurves = new UIButton({ text: 'Curvas (GIMP)' });
-        const btnCopy = new UIButton({ text: 'Copiar' });
-        const btnPaste = new UIButton({ text: 'Pegar' });
+        const panelActions = new UISmartPanel({ title: 'Image Actions', floating: false });
+        const btnEnhance = new UIButton({ text: 'Enhance Quality' });
+        const btnRemoveBg = new UIButton({ text: 'Remove Background' });
+        const btnCenter = new UIButton({ text: 'Center Image' });
+        const btnGray = new UIButton({ text: 'Image to Gray' });
+        const btnCurves = new UIButton({ text: 'Curves (GIMP)' });
+        const btnCopy = new UIButton({ text: 'Copy' });
+        const btnPaste = new UIButton({ text: 'Paste' });
         const btnPaintHunyuan = new UIButton({ text: 'Paint Hunyuan3D' });
         const btn3dMesh = new UIButton({ text: 'ImgTo3dMesh Creator' });
         const btnMeshPaint = new UIButton({ text: 'Paint3D / Mesh3D' });
-        const btnNoFunciona = new UIButton({ text: 'No Funciona (Alt)' });
-        const infoStatus = new UIInfo({ text: 'Listo para procesar' });
+        const btnNoFunciona = new UIButton({ text: "Doesn't Work (Alt)" });
+        const infoStatus = new UIInfo({ text: 'Ready to process' });
 
         panelActions.addRow(btnEnhance, btnRemoveBg);
         panelActions.addRow(btnCenter);
@@ -980,7 +980,7 @@
         panelActions.addRow(btnNoFunciona);
         panelActions.addRow(infoStatus);
 
-        const panelFilters = new UISmartPanel({ title: 'Filtros Básicos', floating: false });
+        const panelFilters = new UISmartPanel({ title: 'Basic Filters', floating: false });
         const slSaturation = new UIConfigurableSlider({ label: 'Sat', min: 0, max: 200, step: 1, value: 100 });
         const slBrightness = new UIConfigurableSlider({ label: 'Bri', min: 0, max: 200, step: 1, value: 100 });
         const slHue = new UIConfigurableSlider({ label: 'Hue', min: 0, max: 360, step: 1, value: 0 });
@@ -993,23 +993,23 @@
         panelFilters.addRow(slContrast);
         panelFilters.addRow(slBlur);
 
-        const panelNormalMap = new UISmartPanel({ title: 'Generador Normal Map', floating: false });
+        const panelNormalMap = new UISmartPanel({ title: 'Normal Map Generator', floating: false });
         const slBias = new UIConfigurableSlider({ label: 'Bias', min: 1, max: 100, step: 1, value: 100 });
-        const slStrength = new UIConfigurableSlider({ label: 'Fuerza', min: 0, max: 100, step: 1, value: 50 });
-        const chkInvert = new UICheckbox({ label: 'Invertir', checked: false });
+        const slStrength = new UIConfigurableSlider({ label: 'Strength', min: 0, max: 100, step: 1, value: 50 });
+        const chkInvert = new UICheckbox({ label: 'Invert', checked: false });
         const chkRed = new UICheckbox({ label: 'R', checked: true });
         const chkGreen = new UICheckbox({ label: 'G', checked: true });
-        const btnCreateNormal = new UIButton({ text: 'Crear Normal Map', variant: 'primary' });
+        const btnCreateNormal = new UIButton({ text: 'Create Normal Map', variant: 'primary' });
 
         panelNormalMap.addRow(slBias);
         panelNormalMap.addRow(slStrength);
         panelNormalMap.addRow(chkInvert, chkRed, chkGreen);
         panelNormalMap.addRow(btnCreateNormal);
 
-        const panelExport = new UISmartPanel({ title: 'Finalizar & Descargar', floating: false });
-        const btnApplyFilters = new UIButton({ text: 'Aplicar Filtros' });
-        const btnResetFilters = new UIButton({ text: 'Resetear Filtros', variant: 'danger' });
-        const btnDownload = new UIButton({ text: 'Descargar Imagen', variant: 'primary' });
+        const panelExport = new UISmartPanel({ title: 'Finish & Download', floating: false });
+        const btnApplyFilters = new UIButton({ text: 'Apply Filters' });
+        const btnResetFilters = new UIButton({ text: 'Reset Filters', variant: 'danger' });
+        const btnDownload = new UIButton({ text: 'Download Image', variant: 'primary' });
 
         panelExport.addRow(btnApplyFilters, btnResetFilters);
         panelExport.addRow(btnDownload);
@@ -1081,7 +1081,7 @@
                 inWidth.setValue(img.width);
                 inHeight.setValue(img.height);
                 resetFilters();
-                infoStatus.setText(`Cargado: ${img.width}x${img.height}px`);
+                infoStatus.setText(`Loaded: ${img.width}x${img.height}px`);
             };
             img.src = src;
         }
@@ -1100,7 +1100,7 @@
         });
 
         btnResize.element.addEventListener('click', () => {
-            if (!originalImage) return alert('Primero carga una imagen.');
+            if (!originalImage) return alert('Load an image first.');
             let w = inWidth.getValue();
             let h = inHeight.getValue();
             if (chkAspect.getValue()) { h = Math.round(w / originalAspectRatio); inHeight.setValue(h); }
@@ -1109,7 +1109,7 @@
         });
 
         btnEnhance.element.addEventListener('click', () => {
-            if (!originalImage) return alert('Primero carga una imagen.');
+            if (!originalImage) return alert('Load an image first.');
             const t = document.createElement('canvas');
             const tc = t.getContext('2d');
             t.width = canvas.width * 2; t.height = canvas.height * 2;
@@ -1125,8 +1125,8 @@
         });
 
         btnRemoveBg.element.addEventListener('click', async () => {
-            if (!originalImage && !currentFile) return alert('Primero carga una imagen.');
-            infoStatus.setText('Removiendo fondo...');
+            if (!originalImage && !currentFile) return alert('Load an image first.');
+            infoStatus.setText('Removing background...');
             try {
                 let input = currentFile;
                 if (!input) {
@@ -1135,33 +1135,33 @@
                 }
                 const blobResult = await removeBackground(input, {
                     progress: (k, curr, tot) => {
-                        infoStatus.setText(`${Math.round((curr / tot) * 100)}% descargando red`);
+                        infoStatus.setText(`${Math.round((curr / tot) * 100)}% downloading model`);
                     }
                 });
                 loadImage(URL.createObjectURL(blobResult));
-                infoStatus.setText('Fondo removido con éxito');
+                infoStatus.setText('Background removed successfully');
             } catch (err) {
-                alert('Error al remover fondo: ' + err.message);
-                infoStatus.setText('Error al procesar');
+                alert('Error removing background: ' + err.message);
+                infoStatus.setText('Processing error');
             }
         });
 
         btnCenter.element.addEventListener('click', () => {
-            if (!originalImage) return alert('Primero carga una imagen.');
-            let res = parseInt(prompt('Resolución (ancho y alto en px):', '2048'));
+            if (!originalImage) return alert('Load an image first.');
+            let res = parseInt(prompt('Resolution (width and height in px):', '2048'));
             if (!res || res < 1) res = 2048;
-            let margin = parseInt(prompt('Margen en px (borde):', '120'));
+            let margin = parseInt(prompt('Margin in px (border):', '120'));
             if (isNaN(margin) || margin < 0) margin = 120;
             if (margin * 2 >= res) margin = Math.floor(res / 4);
-            const fondoBlanco = confirm('¿Fondo BLANCO?\n\nAceptar = Blanco\nCancelar = Negro');
+            const whiteBg = confirm('WHITE background?\n\nOK = White\nCancel = Black');
 
             const t = document.createElement('canvas');
             const tc = t.getContext('2d');
             t.width = res; t.height = res;
-            tc.fillStyle = fondoBlanco ? '#ffffff' : '#000000';
+            tc.fillStyle = whiteBg ? '#ffffff' : '#000000';
             tc.fillRect(0, 0, res, res);
-            const areaUtil = res - margin * 2;
-            const scale = Math.min(areaUtil / canvas.width, areaUtil / canvas.height);
+            const usable = res - margin * 2;
+            const scale = Math.min(usable / canvas.width, usable / canvas.height);
             const sW = canvas.width * scale, sH = canvas.height * scale;
             const x = (res - sW) / 2, y = (res - sH) / 2;
             tc.imageSmoothingEnabled = true;
@@ -1175,39 +1175,39 @@
             originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             inWidth.setValue(res);
             inHeight.setValue(res);
-            infoStatus.setText(`Centrado: ${res}×${res}px · margen ${margin}px`);
+            infoStatus.setText(`Centered: ${res}×${res}px · margin ${margin}px`);
         });
 
         btnGray.element.addEventListener('click', () => {
-            if (!originalImage) return alert('Primero carga una imagen.');
+            if (!originalImage) return alert('Load an image first.');
             CanvasCurves.toGrayscale(canvas);
             originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            infoStatus.setText('Imagen en gris');
+            infoStatus.setText('Image in grayscale');
         });
 
         let curvesEditor = null;
         btnCurves.element.addEventListener('click', () => {
-            if (!originalImage) return alert('Primero carga una imagen.');
+            if (!originalImage) return alert('Load an image first.');
             if (!curvesEditor) {
                 curvesEditor = new CanvasCurves(canvas, {
                     onApply: (img) => {
                         originalImageData = img;
-                        infoStatus.setText('Curvas aplicadas');
+                        infoStatus.setText('Curves applied');
                     },
-                    onReset: () => infoStatus.setText('Curvas reseteadas'),
-                    onGrayscale: (on) => infoStatus.setText(on ? 'Vista previa gris ON' : 'Vista previa gris OFF')
+                    onReset: () => infoStatus.setText('Curves reset'),
+                    onGrayscale: (on) => infoStatus.setText(on ? 'Gray preview ON' : 'Gray preview OFF')
                 });
             }
             curvesEditor.begin();
             curvesEditor.mountUI(sidebar);
-            infoStatus.setText('Editor de curvas activo');
+            infoStatus.setText('Curve editor active');
         });
 
         btnCopy.element.addEventListener('click', () => {
             if (!originalImage) return;
             canvas.toBlob(async blob => {
                 await navigator.clipboard.write([new ClipboardItem({ [blob.type]: blob })]);
-                infoStatus.setText('Imagen copiada');
+                infoStatus.setText('Image copied');
             });
         });
 
@@ -1225,7 +1225,7 @@
                     }
                 }
             } catch (e) {
-                alert('No se pudo pegar: ' + e.message);
+                alert('Could not paste: ' + e.message);
             }
         });
 
@@ -1278,7 +1278,7 @@
         });
 
         btnCreateNormal.element.addEventListener('click', () => {
-            if (!originalImageData) return alert('Primero carga una imagen.');
+            if (!originalImageData) return alert('Load an image first.');
             ctx.putImageData(originalImageData, 0, 0);
             createNormalMap();
         });
@@ -1286,7 +1286,7 @@
         btnDownload.element.addEventListener('click', () => {
             if (!originalImage) return;
             const a = document.createElement('a');
-            a.download = 'imagen_editada.png';
+            a.download = 'edited_image.png';
             a.href = canvas.toDataURL('image/png');
             a.click();
         });
@@ -1388,8 +1388,8 @@
         const meshpasonofunciona = (imageData) => {
             const data = imageData.data;
             const rgba = { r: 0, g: 0, b: 0 };
-            const paso2 = confirm("mesh creator cancelar paint");
-            const sum = parseFloat(prompt("suma", "0.1")) || 0.1;
+            const paso2 = confirm("mesh creator — cancel = paint");
+            const sum = parseFloat(prompt("sum", "0.1")) || 0.1;
             for (let i = 0; i < data.length; i += 4) {
                 rgba.r = data[i]/255; rgba.g = data[i+1]/255; rgba.b = data[i+2]/255;
                 const maxpx = Math.max(rgba.r, rgba.g, rgba.b);
@@ -1409,7 +1409,7 @@
         const meshpaintcolor27112025731 = (imageData) => {
             const data = imageData.data;
             const rgba = { r: 0, g: 0, b: 0 };
-            const vuelta = confirm("¿No es para blender?");
+            const vuelta = confirm("Not for Blender?");
             for (let i = 0; i < data.length; i += 4) {
                 rgba.r = data[i]/255; rgba.g = data[i+1]/255; rgba.b = data[i+2]/255;
                 let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
@@ -1434,7 +1434,7 @@
         const colorpasocolor3dmesh = (imageData) => {
             const data = imageData.data;
             const rgba = { r: 0, g: 0, b: 0 };
-            const mul = confirm("¿Multiplicar (sum)?");
+            const mul = confirm("Multiply (sum)?");
             for (let i = 0; i < data.length; i += 4) {
                 rgba.r = data[i]/255; rgba.g = data[i+1]/255; rgba.b = data[i+2]/255;
                 let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
