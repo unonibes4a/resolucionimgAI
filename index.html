@@ -4,156 +4,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Editor de Imágenes Avanzado - 2 Columnas</title>
+    <title>Editor de Imágenes Avanzado</title>
 
     <script src="https://unonibes4a.github.io/pintaresta/a.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <style>
         * { box-sizing: border-box; }
-
         body {
             background-color: #14161a;
             color: #d1d5db;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            width: 100vw;
+            margin: 0; padding: 0;
+            height: 100vh; width: 100vw;
             overflow: hidden;
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             display: flex;
         }
-
-        .app-container {
-            display: flex;
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-
+        .app-container { display: flex; width: 100%; height: 100%; position: relative; }
         .hamburger-btn {
-            position: absolute;
-            top: 14px;
-            left: 14px;
-            z-index: 1000;
-            background: #20242b;
-            border: 1px solid #3c424d;
-            color: #fff;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 18px;
-            line-height: 1;
-            transition: background 0.2s, transform 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; top: 14px; left: 14px; z-index: 1000;
+            background: #20242b; border: 1px solid #3c424d; color: #fff;
+            padding: 8px 12px; border-radius: 6px; cursor: pointer;
+            font-size: 18px; line-height: 1;
         }
-
-        .hamburger-btn:hover {
-            background: #2b313a;
-            border-color: #2196F3;
-        }
-
+        .hamburger-btn:hover { background: #3b3b3b57; border-color: #2195f36e; }
         .sidebar {
-            width: 300px;
-            min-width: 300px;
-            height: 100%;
-            background: #49494957;
-            border-right: 1px solid #3d3d3dbd;
-            overflow-y: auto;
-            overflow-x: hidden;
+            width: 300px; min-width: 300px; height: 100%;
+            background: #3838387e; border-right: 1px solid #282b33;
+            overflow-y: auto; overflow-x: hidden;
             padding: 60px 12px 20px 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
+            display: flex; flex-direction: column; gap: 12px;
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
         .sidebar.collapsed { margin-left: -300px; }
-
         .main-workspace {
-            flex: 1;
-            height: 100%;
-            overflow: auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background-color: #000000b4;
-            position: relative;
+            flex: 1; height: 100%; overflow: auto;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 20px; background-color: #1d1d1dd5; position: relative;
         }
-
         .workspace-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 14px;
-            max-width: 95%;
-            max-height: 95%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 14px; max-width: 95%; max-height: 95%;
         }
-
         .drop-area {
-            border: 2px dashed #555557;
-            border-radius: 8px;
-            padding: 12px 20px;
-            text-align: center;
-            font-size: 13px;
-            color: #8c93a0;
-            background-color: #2020208a;
-            transition: all 0.2s ease;
-            width: 100%;
-            max-width: 600px;
-            cursor: pointer;
-            user-select: none;
+        
+            text-align: center; font-size: 13px; color: #8c93a0;
+            background-color: #3838383b; transition: all 0.2s ease;
+            width: 100%; max-width: 600px; cursor: pointer; user-select: none;
         }
-
         .drop-area:hover, .drop-area.highlight {
-            background-color: #424242bb;
-            border-color: #2195f3ab;
-            color: #fff;
+            background-color: #1b1b1b; border-color: #2195f31e; color: #fff;
         }
-
         .canvas-container {
-            max-width: 100%;
-            max-height: 75vh;
-            overflow: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-     
-            border-radius: 6px;
-            border: 1px solid #30303079;
-            background: #3a3a3a42;
+            max-width: 100%; max-height: 75vh; overflow: auto;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            border-radius: 6px; border: 1px solid #282b33; background: #08090a;
         }
-
-        canvas {
-            display: block;
-            max-width: 100%;
-            max-height: 75vh;
-            height: auto;
-            object-fit: contain;
+        canvas#myCanvas {
+            display: block; max-width: 100%; max-height: 75vh;
+            height: auto; object-fit: contain;
         }
-
+        .batch-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, 100px);
+            gap: 6px; max-height: 320px; overflow-y: auto;
+            padding: 6px; background: #101318;
+            border: 1px solid #2c313c; border-radius: 6px;
+        }
+        .batch-cell {
+            width: 100px; height: 100px;
+            background: #1d1d1d81; border: 1px solid #2c313c;
+            border-radius: 4px; overflow: hidden; position: relative;
+        }
+        .batch-cell img {
+            width: 100%; height: 100%; object-fit: contain; display: block;
+        }
+        .batch-cell .name {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.7); color: #d1d5db;
+            font-size: 9px; padding: 2px 4px;
+            text-overflow: ellipsis; overflow: hidden; white-space: nowrap;
+        }
         .sidebar::-webkit-scrollbar { width: 6px; }
-        .sidebar::-webkit-scrollbar-thumb { background: #2b313a; border-radius: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #3b3b3b57; border-radius: 3px; }
     </style>
 </head>
 
 <body>
 
     <div class="app-container">
-        <button id="btnToggleSidebar" class="hamburger-btn" title="Mostrar/Ocultar Menú">☰</button>
-
+        <button id="btnToggleSidebar" class="hamburger-btn">☰</button>
         <aside class="sidebar" id="sidebar"></aside>
 
         <main class="main-workspace">
             <div class="workspace-content">
                 <div class="drop-area" id="dropArea" onclick="document.getElementById('hiddenFileInput').click()">
-                    Clic para abrir, arrastra o pega 
+                      Click paste 
                 </div>
                 <input type="file" id="hiddenFileInput" accept="image/*" style="display:none">
+                <input type="file" id="folderInput" webkitdirectory directory multiple accept="image/*" style="display:none">
                 <div class="canvas-container">
                     <canvas id="myCanvas" width="1024" height="1024"></canvas>
                 </div>
@@ -176,11 +126,7 @@
                 this.includeAlpha = !!opts.includeAlpha;
 
                 this.colors = Object.assign({
-                    rgb: '#e6e6e6',
-                    r:   '#ff5555',
-                    g:   '#55ff55',
-                    b:   '#5599ff',
-                    a:   '#ffcc55'
+                    rgb: '#e6e6e6', r: '#ff5555', g: '#55ff55', b: '#5599ff', a: '#ffcc55'
                 }, opts.colors || {});
 
                 this._initCurves();
@@ -188,12 +134,12 @@
                 this.grayscale = false;
                 this.snapshot = null;
 
-                this._ui = null;
+                this._panel = null;
                 this._ec = null;
                 this._ecx = null;
                 this._dragIdx = -1;
                 this._hoverIdx = -1;
-                this._infoEl = null;
+                this._infoLabel = null;
 
                 this._cw = 260;
                 this._ch = 252;
@@ -257,7 +203,6 @@
                 ch = ch || this.active;
                 const pts = this.curves[ch];
                 if (idx < 0 || idx >= pts.length) return this;
-
                 if (idx === 0) {
                     pts[0].x = 0;
                     pts[0].y = Math.max(0, Math.min(255, Math.round(y)));
@@ -324,7 +269,6 @@
             _buildLUT(points) {
                 const lut = new Uint8Array(256);
                 const n = points.length;
-
                 if (n === 0) { for (let i = 0; i < 256; i++) lut[i] = i; return lut; }
                 if (n === 1) { for (let i = 0; i < 256; i++) lut[i] = points[0].y; return lut; }
                 if (n === 2 && points[0].x === 0 && points[0].y === 0 &&
@@ -332,44 +276,32 @@
                     for (let i = 0; i < 256; i++) lut[i] = i;
                     return lut;
                 }
-
-                const xs = new Float64Array(n);
-                const ys = new Float64Array(n);
+                const xs = new Float64Array(n), ys = new Float64Array(n);
                 for (let i = 0; i < n; i++) { xs[i] = points[i].x; ys[i] = points[i].y; }
-
-                const dx = new Float64Array(n - 1);
-                const ms = new Float64Array(n - 1);
+                const dx = new Float64Array(n - 1), ms = new Float64Array(n - 1);
                 for (let i = 0; i < n - 1; i++) {
                     dx[i] = xs[i + 1] - xs[i];
                     ms[i] = dx[i] === 0 ? 0 : (ys[i + 1] - ys[i]) / dx[i];
                 }
-
                 const c1 = new Float64Array(n);
-                c1[0] = ms[0];
-                c1[n - 1] = ms[n - 2];
+                c1[0] = ms[0]; c1[n - 1] = ms[n - 2];
                 for (let i = 1; i < n - 1; i++) {
-                    if (ms[i - 1] * ms[i] <= 0) {
-                        c1[i] = 0;
-                    } else {
+                    if (ms[i - 1] * ms[i] <= 0) c1[i] = 0;
+                    else {
                         const w1 = 2 * dx[i] + dx[i - 1];
                         const w2 = dx[i] + 2 * dx[i - 1];
                         c1[i] = (w1 + w2) / (w1 / ms[i - 1] + w2 / ms[i]);
                     }
                 }
-
                 let seg = 0;
                 for (let x = 0; x < 256; x++) {
-                    if (x <= xs[0])     { lut[x] = ys[0] | 0; continue; }
+                    if (x <= xs[0]) { lut[x] = ys[0] | 0; continue; }
                     if (x >= xs[n - 1]) { lut[x] = ys[n - 1] | 0; continue; }
                     while (seg < n - 2 && x > xs[seg + 1]) seg++;
-
-                    const t  = (x - xs[seg]) / dx[seg];
-                    const t2 = t * t;
-                    const t3 = t2 * t;
-                    const h00 =  2 * t3 - 3 * t2 + 1;
-                    const h10 =      t3 - 2 * t2 + t;
-                    const h01 = -2 * t3 + 3 * t2;
-                    const h11 =      t3 -     t2;
+                    const t = (x - xs[seg]) / dx[seg];
+                    const t2 = t * t, t3 = t2 * t;
+                    const h00 = 2*t3 - 3*t2 + 1, h10 = t3 - 2*t2 + t;
+                    const h01 = -2*t3 + 3*t2, h11 = t3 - t2;
                     const y = h00 * ys[seg] + h10 * dx[seg] * c1[seg]
                             + h01 * ys[seg + 1] + h11 * dx[seg] * c1[seg + 1];
                     lut[x] = y < 0 ? 0 : y > 255 ? 255 : (y + 0.5) | 0;
@@ -379,19 +311,15 @@
 
             _render() {
                 if (!this.snapshot) this.begin();
-                const w = this.canvas.width;
-                const h = this.canvas.height;
+                const w = this.canvas.width, h = this.canvas.height;
                 const src = this.snapshot.data;
                 const out = new Uint8ClampedArray(src.length);
-
                 const lutM = this._buildLUT(this.curves.rgb);
                 const lutR = this._buildLUT(this.curves.r);
                 const lutG = this._buildLUT(this.curves.g);
                 const lutB = this._buildLUT(this.curves.b);
                 const lutA = this.includeAlpha ? this._buildLUT(this.curves.a) : null;
-
                 const gray = this.grayscale;
-
                 for (let i = 0; i < src.length; i += 4) {
                     let r = src[i], g = src[i + 1], b = src[i + 2], a = src[i + 3];
                     if (gray) {
@@ -403,71 +331,48 @@
                     out[i + 2] = lutB[lutM[b]];
                     out[i + 3] = lutA ? lutA[a] : a;
                 }
-
                 const imgData = new ImageData(out, w, h);
                 this.ctx.putImageData(imgData, 0, 0);
                 if (this.onPreview) this.onPreview(imgData);
             }
 
-            mountUI(container) {
-                if (this._ui) return this._ui;
+            mountUI(parentContainer) {
+                if (this._panel) return this._panel;
+                const panel = new UISmartPanel({ title: 'Curvas', floating: false });
 
-                const root = document.createElement('div');
-                root.style.cssText =
-                    'background:#1c1f26;border:1px solid #2c313c;border-radius:8px;' +
-                    'padding:12px;width:280px;color:#d1d5db;box-sizing:border-box;' +
-                    'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:12px;';
-
-                const header = document.createElement('div');
-                header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;';
-
-                const title = document.createElement('div');
-                title.textContent = 'Curvas';
-                title.style.cssText = 'font-weight:600;font-size:13px;color:#fff;';
-
-                const info = document.createElement('div');
-                info.textContent = 'X: —   Y: —';
-                info.style.cssText =
+                const infoLabel = new UILabel({ text: 'X: —   Y: —' });
+                infoLabel.element.style.cssText =
                     'font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;' +
-                    'font-size:11px;color:#9aa3b2;background:#101318;padding:3px 7px;' +
-                    'border-radius:4px;border:1px solid #2c313c;letter-spacing:0.3px;' +
-                    'min-width:110px;text-align:center;';
-                this._infoEl = info;
+                    'font-size:11px;color:#9aa3b2;text-align:right;flex:1;';
+                this._infoLabel = infoLabel;
 
-                header.appendChild(title);
-                header.appendChild(info);
-                root.appendChild(header);
+                panel.addRow(1, new UILabel({ text: 'Valor:' }), infoLabel);
 
-                const chRow = document.createElement('div');
-                chRow.style.cssText = 'display:flex;gap:4px;margin-bottom:10px;';
+                const chRow = new UIRow({ align: 0 });
                 const channels = this.includeAlpha ? ['rgb','r','g','b','a'] : ['rgb','r','g','b'];
                 const chBtns = {};
+                const updateChannelUI = () => {
+                    channels.forEach(ch => {
+                        const b = chBtns[ch];
+                        if (!b || !b.element) return;
+                        const on = ch === this.active;
+                        b.element.style.background = on ? this.colors[ch] : '#232830';
+                        b.element.style.color = on ? '#111' : '#9aa3b2';
+                        b.element.style.borderColor = on ? this.colors[ch] : '#2c313c';
+                    });
+                };
                 channels.forEach(ch => {
-                    const btn = document.createElement('button');
-                    btn.textContent = ch.toUpperCase();
-                    btn.style.cssText =
-                        'flex:1;padding:5px 0;border:1px solid #2c313c;border-radius:4px;' +
-                        'background:#232830;color:#9aa3b2;font-size:10px;font-weight:600;' +
-                        'cursor:pointer;letter-spacing:0.5px;';
-                    btn.addEventListener('click', () => {
+                    const b = new UIButton({ text: ch.toUpperCase() });
+                    b.element.style.flex = '1';
+                    b.element.addEventListener('click', () => {
                         this.setChannel(ch);
                         updateChannelUI();
                         this._updateInfo(null, null, null);
                     });
-                    chRow.appendChild(btn);
-                    chBtns[ch] = btn;
+                    chRow.append(b);
+                    chBtns[ch] = b;
                 });
-                root.appendChild(chRow);
-
-                const updateChannelUI = () => {
-                    channels.forEach(ch => {
-                        const b = chBtns[ch];
-                        const on = ch === this.active;
-                        b.style.background  = on ? this.colors[ch] : '#232830';
-                        b.style.color       = on ? '#111' : '#9aa3b2';
-                        b.style.borderColor = on ? this.colors[ch] : '#2c313c';
-                    });
-                };
+                panel.body.appendChild(chRow.element);
                 updateChannelUI();
 
                 const ec = document.createElement('canvas');
@@ -477,7 +382,7 @@
                     'display:block;width:100%;height:auto;border-radius:6px;' +
                     'background:#101318;border:1px solid #2c313c;cursor:crosshair;' +
                     'touch-action:none;user-select:none;';
-                root.appendChild(ec);
+                panel.body.appendChild(ec);
                 this._ec = ec;
                 this._ecx = ec.getContext('2d');
 
@@ -490,87 +395,49 @@
                 });
                 ec.addEventListener('contextmenu', e => e.preventDefault());
 
-                const btnRow = document.createElement('div');
-                btnRow.style.cssText = 'display:flex;gap:6px;margin-top:10px;';
+                const btnGray = new UIButton({ text: 'Gris' });
+                const btnReset = new UIButton({ text: 'Reset', variant: 'danger' });
+                const btnApply = new UIButton({ text: 'Aplicar', variant: 'primary' });
 
-                const btnGray = document.createElement('button');
-                btnGray.textContent = 'Gris';
-                btnGray.style.cssText = this._btnStyle();
-                btnGray.addEventListener('click', () => { this.toggleGrayscale(); updateGrayUI(); });
+                btnGray.element.addEventListener('click', () => {
+                    this.toggleGrayscale();
+                    btnGray.element.style.background = this.grayscale ? '#3b82f6' : '';
+                    btnGray.element.style.color = this.grayscale ? '#fff' : '';
+                });
+                btnReset.element.addEventListener('click', () => this.reset());
+                btnApply.element.addEventListener('click', () => this.apply());
 
-                const updateGrayUI = () => {
-                    const on = this.grayscale;
-                    btnGray.style.background  = on ? '#3b82f6' : '#232830';
-                    btnGray.style.color       = on ? '#fff' : '#d1d5db';
-                    btnGray.style.borderColor = on ? '#3b82f6' : '#2c313c';
-                };
-                updateGrayUI();
-
-                const btnReset = document.createElement('button');
-                btnReset.textContent = 'Reset';
-                btnReset.style.cssText = this._btnStyle();
-                btnReset.addEventListener('click', () => { this.reset(); updateChannelUI(); updateGrayUI(); });
-
-                const btnApply = document.createElement('button');
-                btnApply.textContent = 'Aplicar';
-                btnApply.style.cssText = this._btnStyle('#3b82f6', '#fff');
-                btnApply.addEventListener('click', () => { this.apply(); updateChannelUI(); updateGrayUI(); });
-
-                btnRow.appendChild(btnGray);
-                btnRow.appendChild(btnReset);
-                btnRow.appendChild(btnApply);
-                root.appendChild(btnRow);
-
-                const hint = document.createElement('div');
-                hint.textContent = 'Click: añadir · Arrastrar: mover · Click derecho: borrar';
-                hint.style.cssText = 'margin-top:8px;font-size:10px;color:#6b7280;text-align:center;';
-                root.appendChild(hint);
-
-                this._ui = root;
-                if (container) container.appendChild(root);
+                panel.addRow(btnGray, btnReset, btnApply);
+                panel.mount(parentContainer);
+                this._panel = panel;
                 this._drawEditor();
                 this._updateInfo(null, null, null);
-                return root;
-            }
-
-            _btnStyle(bg, color) {
-                return 'flex:1;padding:6px 0;border:1px solid #2c313c;border-radius:4px;' +
-                       'background:' + (bg || '#232830') + ';color:' + (color || '#d1d5db') + ';' +
-                       'font-size:11px;font-weight:600;cursor:pointer;';
+                return panel;
             }
 
             _updateInfo(x, y, idx) {
-                if (!this._infoEl) return;
+                if (!this._infoLabel) return;
                 if (x === null || y === null || idx === null || idx === undefined) {
-                    this._infoEl.textContent = 'X: —   Y: —';
+                    this._infoLabel.setText('X: —   Y: —');
                     return;
                 }
                 const nx = (x / 255).toFixed(3);
                 const ny = (y / 255).toFixed(3);
-                this._infoEl.textContent = `X: ${nx}   Y: ${ny}`;
+                this._infoLabel.setText(`X: ${nx}   Y: ${ny}`);
             }
 
             _drawEditor() {
                 if (!this._ec) return;
                 const cx = this._ecx;
-                const W = this._cw;
-                const H = this._ch;
-                const PL = this._padL;
-                const PT = this._padT;
-                const PB = this._padB;
-                const PR = this._padR;
-                const PW = this._pw;
-                const PH = this._ph;
+                const W = this._cw, H = this._ch;
+                const PL = this._padL, PT = this._padT;
+                const PW = this._pw, PH = this._ph;
 
                 cx.clearRect(0, 0, W, H);
-                cx.fillStyle = '#101318';
-                cx.fillRect(0, 0, W, H);
+                cx.fillStyle = '#101318'; cx.fillRect(0, 0, W, H);
+                cx.fillStyle = '#0a0d12'; cx.fillRect(PL, PT, PW, PH);
 
-                cx.fillStyle = '#0a0d12';
-                cx.fillRect(PL, PT, PW, PH);
-
-                cx.strokeStyle = '#1e232c';
-                cx.lineWidth = 1;
+                cx.strokeStyle = '#1e232c'; cx.lineWidth = 1;
                 for (let i = 1; i < 4; i++) {
                     const x = PL + (i / 4) * PW;
                     const y = PT + (i / 4) * PH;
@@ -580,47 +447,28 @@
                     cx.stroke();
                 }
 
-                cx.strokeStyle = '#2c313c';
-                cx.setLineDash([3, 3]);
+                cx.strokeStyle = '#2c313c'; cx.setLineDash([3, 3]);
                 cx.beginPath();
-                cx.moveTo(PL, PT + PH);
-                cx.lineTo(PL + PW, PT);
+                cx.moveTo(PL, PT + PH); cx.lineTo(PL + PW, PT);
                 cx.stroke();
                 cx.setLineDash([]);
-
-                cx.strokeStyle = '#2c313c';
                 cx.strokeRect(PL + 0.5, PT + 0.5, PW - 1, PH - 1);
 
                 const toX = x => PL + (x / 255) * PW;
                 const toY = y => PT + PH - (y / 255) * PH;
 
                 const labels = ['0', '0.25', '0.5', '0.75', '1'];
-                cx.font = '8px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
+                cx.font = '8px -apple-system,sans-serif';
                 cx.fillStyle = '#6b7280';
-
-                cx.textAlign = 'center';
-                cx.textBaseline = 'top';
+                cx.textAlign = 'center'; cx.textBaseline = 'top';
                 for (let i = 0; i < 5; i++) {
                     const x = PL + (i / 4) * PW;
                     cx.fillText(labels[i], x, PT + PH + 4);
                 }
-
-                cx.textAlign = 'right';
-                cx.textBaseline = 'middle';
+                cx.textAlign = 'right'; cx.textBaseline = 'middle';
                 for (let i = 0; i < 5; i++) {
                     const y = PT + PH - (i / 4) * PH;
                     cx.fillText(labels[i], PL - 4, y);
-                }
-
-                cx.strokeStyle = '#3a4150';
-                cx.lineWidth = 1;
-                for (let i = 0; i < 5; i++) {
-                    const x = PL + (i / 4) * PW;
-                    const y = PT + PH - (i / 4) * PH;
-                    cx.beginPath();
-                    cx.moveTo(x + 0.5, PT + PH - 2); cx.lineTo(x + 0.5, PT + PH);
-                    cx.moveTo(PL, y + 0.5); cx.lineTo(PL + 2, y + 0.5);
-                    cx.stroke();
                 }
 
                 const pts = this.curves[this.active];
@@ -631,66 +479,52 @@
                     const c = this.curves[ch];
                     if (c.length === 2 && c[0].y === 0 && c[1].y === 255) return;
                     const l = this._buildLUT(c);
-                    cx.strokeStyle = this.colors[ch] + '55';
-                    cx.lineWidth = 1;
+                    cx.strokeStyle = this.colors[ch] + '55'; cx.lineWidth = 1;
                     cx.beginPath();
                     for (let x = 0; x < 256; x++) {
-                        const sx = toX(x);
-                        const sy = toY(l[x]);
-                        if (x === 0) cx.moveTo(sx, sy);
-                        else cx.lineTo(sx, sy);
+                        const sx = toX(x), sy = toY(l[x]);
+                        if (x === 0) cx.moveTo(sx, sy); else cx.lineTo(sx, sy);
                     }
                     cx.stroke();
                 });
 
-                cx.strokeStyle = this.colors[this.active];
-                cx.lineWidth = 1.8;
+                cx.strokeStyle = this.colors[this.active]; cx.lineWidth = 1.8;
                 cx.beginPath();
                 for (let x = 0; x < 256; x++) {
-                    const sx = toX(x);
-                    const sy = toY(lut[x]);
-                    if (x === 0) cx.moveTo(sx, sy);
-                    else cx.lineTo(sx, sy);
+                    const sx = toX(x), sy = toY(lut[x]);
+                    if (x === 0) cx.moveTo(sx, sy); else cx.lineTo(sx, sy);
                 }
                 cx.stroke();
 
                 if (this._dragIdx >= 0 && this._dragIdx < pts.length) {
                     const p = pts[this._dragIdx];
-                    const sx = toX(p.x);
-                    const sy = toY(p.y);
+                    const sx = toX(p.x), sy = toY(p.y);
                     cx.strokeStyle = this.colors[this.active] + '88';
-                    cx.setLineDash([3, 3]);
-                    cx.lineWidth = 1;
+                    cx.setLineDash([3, 3]); cx.lineWidth = 1;
                     cx.beginPath();
                     cx.moveTo(sx, PT + PH); cx.lineTo(sx, sy);
-                    cx.moveTo(PL, sy);      cx.lineTo(sx, sy);
+                    cx.moveTo(PL, sy); cx.lineTo(sx, sy);
                     cx.stroke();
                     cx.setLineDash([]);
                 }
 
                 pts.forEach((p, i) => {
-                    const sx = toX(p.x);
-                    const sy = toY(p.y);
+                    const sx = toX(p.x), sy = toY(p.y);
                     const r = i === this._dragIdx ? 6 : i === this._hoverIdx ? 5.5 : 4.5;
                     cx.beginPath();
                     cx.arc(sx, sy, r, 0, Math.PI * 2);
-                    cx.fillStyle = this.colors[this.active];
-                    cx.fill();
-                    cx.strokeStyle = '#101318';
-                    cx.lineWidth = 2;
-                    cx.stroke();
+                    cx.fillStyle = this.colors[this.active]; cx.fill();
+                    cx.strokeStyle = '#101318'; cx.lineWidth = 2; cx.stroke();
                 });
             }
 
             _onMouseDown(e) {
                 e.preventDefault();
-
                 if (e.button === 2) {
                     const idx = this._hitTest(e);
                     if (idx > 0) this.removePoint(idx);
                     return;
                 }
-
                 const idx = this._hitTest(e);
                 if (idx >= 0) {
                     this._dragIdx = idx;
@@ -710,7 +544,6 @@
                         }
                     }
                 }
-
                 window.addEventListener('mousemove', this._boundMove);
                 window.addEventListener('mouseup', this._boundUp);
                 this._drawEditor();
@@ -749,12 +582,8 @@
             _hitTest(e) {
                 const pos = this._eventPos(e);
                 const pts = this.curves[this.active];
-                const PL = this._padL;
-                const PT = this._padT;
-                const PW = this._pw;
-                const PH = this._ph;
-                const toX = x => PL + (x / 255) * PW;
-                const toY = y => PT + PH - (y / 255) * PH;
+                const toX = x => this._padL + (x / 255) * this._pw;
+                const toY = y => this._padT + this._ph - (y / 255) * this._ph;
                 for (let i = 0; i < pts.length; i++) {
                     const dx = pos.x - toX(pts[i].x);
                     const dy = pos.y - toY(pts[i].y);
@@ -765,29 +594,338 @@
 
             _eventPos(e) {
                 const r = this._ec.getBoundingClientRect();
-                const sx = this._cw / r.width;
-                const sy = this._ch / r.height;
-                return {
-                    x: (e.clientX - r.left) * sx,
-                    y: (e.clientY - r.top) * sy
-                };
+                const sx = this._cw / r.width, sy = this._ch / r.height;
+                return { x: (e.clientX - r.left) * sx, y: (e.clientY - r.top) * sy };
             }
 
             _screenToValue(sx, sy) {
                 const x = ((sx - this._padL) / this._pw) * 255;
                 const y = (1 - (sy - this._padT) / this._ph) * 255;
-                return {
-                    x: Math.max(0, Math.min(255, x)),
-                    y: Math.max(0, Math.min(255, y))
+                return { x: Math.max(0, Math.min(255, x)), y: Math.max(0, Math.min(255, y)) };
+            }
+        }
+
+        class BatchFolder {
+            constructor(inputEl, opts = {}) {
+                if (!inputEl) throw new Error('BatchFolder: input requerido');
+                this.input = inputEl;
+                this.onStatus = opts.onStatus || null;
+
+                this.items = [];
+                this.outputName = 'imagen';
+                this.resolution = 1024;
+                this.startNumber = 0;
+                this.formats = { jpg: true, png: false, webp: false };
+                this.filters = {
+                    grayscale: false, invert: false, sepia: false, blur: false,
+                    brightness: false, contrast: false, saturate: false,
+                    mirrorH: false, mirrorV: false
                 };
+
+                this._panel = null;
+                this._gridEl = null;
+                this._statusLabel = null;
+
+                this._boundChange = this._onInputChange.bind(this);
+                this.input.addEventListener('change', this._boundChange);
+            }
+
+            async _onInputChange(e) {
+                const files = Array.from(e.target.files || []).filter(f => f.type.startsWith('image/'));
+                await this.loadFiles(files);
+            }
+
+            async loadFiles(files) {
+                this._disposeItems();
+                this._setStatus(`Cargando ${files.length} archivos...`);
+                for (let i = 0; i < files.length; i++) {
+                    const f = files[i];
+                    const url = URL.createObjectURL(f);
+                    try {
+                        const img = await this._loadImage(url);
+                        this.items.push({ file: f, img, url, name: f.name });
+                    } catch (err) {
+                        URL.revokeObjectURL(url);
+                    }
+                    this._setStatus(`Cargando ${i + 1}/${files.length}...`);
+                }
+                this._renderGrid();
+                this._setStatus(`${this.items.length} imágenes cargadas`);
+            }
+
+            _loadImage(src) {
+                return new Promise((res, rej) => {
+                    const img = new Image();
+                    img.onload = () => res(img);
+                    img.onerror = rej;
+                    img.src = src;
+                });
+            }
+
+            _disposeItems() {
+                for (const it of this.items) {
+                    try { URL.revokeObjectURL(it.url); } catch (e) {}
+                }
+                this.items = [];
+            }
+
+            _setStatus(msg) {
+                if (this._statusLabel) this._statusLabel.setText(msg);
+                if (this.onStatus) this.onStatus(msg);
+            }
+
+            mountUI(container) {
+                if (this._panel) return this._panel;
+
+                const panel = new UISmartPanel({ title: 'Procesar Carpeta (ZIP)', floating: false });
+
+                const statusLabel = new UILabel({ text: 'Sin imágenes' });
+                statusLabel.element.style.cssText = 'font-size:10px;color:#6b7280;';
+                this._statusLabel = statusLabel;
+                panel.addRow(statusLabel);
+
+                const btnPick = new UIButton({ text: '  Seleccionar Carpeta', variant: 'primary' });
+                btnPick.element.style.width = '100%';
+                btnPick.element.addEventListener('click', () => this.input.click());
+                panel.addRow(btnPick);
+
+                const grid = document.createElement('div');
+                grid.className = 'batch-grid';
+                panel.body.appendChild(grid);
+                this._gridEl = grid;
+                this._renderGrid();
+
+                const filterDefs = [
+                    ['grayscale', 'Gris'], ['invert', 'Invertir'],
+                    ['sepia', 'Sepia'], ['blur', 'Blur'],
+                    ['brightness', 'Brillo+'], ['contrast', 'Contraste+'],
+                    ['saturate', 'Saturar+'], ['mirrorH', 'Espejo H'],
+                    ['mirrorV', 'Espejo V']
+                ];
+                for (let i = 0; i < filterDefs.length; i += 2) {
+                    const row = new UIRow({ align: 0 });
+                    for (let j = 0; j < 2 && i + j < filterDefs.length; j++) {
+                        const [key, label] = filterDefs[i + j];
+                        const cb = new UICheckbox({
+                            label,
+                            checked: this.filters[key],
+                            onChange: (v) => { this.filters[key] = v; this._refreshThumbs(); }
+                        });
+                        cb.element.style.flex = '1';
+                        row.append(cb);
+                    }
+                    panel.body.appendChild(row.element);
+                }
+
+                const resRow = new UIRow({ align: 0 });
+                const resInput = new UIInputNumberInt({
+                    value: this.resolution,
+                    min: 1,
+                    max: 8192,
+                    onChange: (v) => { this.resolution = v; }
+                });
+                resInput.element.style.flex = '1';
+                resRow.append(new UILabel({ text: 'Resolución:' }));
+                resRow.append(resInput);
+                panel.body.appendChild(resRow.element);
+
+                const nameRow = new UIRow({ align: 0 });
+                const nameInput = new UIInputText({
+                    value: this.outputName,
+                    placeholder: 'imagen',
+                    onChange: (v) => { this.outputName = v.trim() || 'imagen'; }
+                });
+                nameInput.element.style.flex = '1';
+                nameRow.append(new UILabel({ text: 'Nombre:' }));
+                nameRow.append(nameInput);
+                panel.body.appendChild(nameRow.element);
+
+                const numRow = new UIRow({ align: 0 });
+                const numInput = new UIInputNumberInt({
+                    value: this.startNumber,
+                    min: 0,
+                    max: 99999,
+                    onChange: (v) => { this.startNumber = v; }
+                });
+                numInput.element.style.flex = '1';
+                numRow.append(new UILabel({ text: 'Inicio N°:' }));
+                numRow.append(numInput);
+                panel.body.appendChild(numRow.element);
+
+                const fmtRow = new UIRow({ align: 0 });
+                const fmtDefs = [['jpg', 'JPG'], ['png', 'PNG'], ['webp', 'WEBP']];
+                fmtDefs.forEach(([key, label]) => {
+                    const cb = new UICheckbox({
+                        label,
+                        checked: this.formats[key],
+                        onChange: (v) => { this.formats[key] = v; }
+                    });
+                    cb.element.style.flex = '1';
+                    fmtRow.append(cb);
+                });
+                panel.body.appendChild(fmtRow.element);
+
+                const btnDl = new UIButton({ text: '⬇ Descargar ZIP', variant: 'primary' });
+                btnDl.element.style.width = '100%';
+                btnDl.element.addEventListener('click', () => this.download());
+                panel.addRow(btnDl);
+
+                const btnClr = new UIButton({ text: 'Limpiar' });
+                btnClr.element.style.width = '100%';
+                btnClr.element.addEventListener('click', () => {
+                    this._disposeItems();
+                    this._renderGrid();
+                    this._setStatus('Sin imágenes');
+                    this.input.value = '';
+                });
+                panel.addRow(btnClr);
+
+                panel.mount(container);
+                this._panel = panel;
+                return panel;
+            }
+
+            _renderGrid() {
+                if (!this._gridEl) return;
+                this._gridEl.innerHTML = '';
+                if (this.items.length === 0) {
+                    const empty = document.createElement('div');
+                    empty.textContent = 'Sin imágenes';
+                    empty.style.cssText = 'color:#4b5563;font-size:11px;padding:20px;text-align:center;grid-column:1/-1;';
+                    this._gridEl.appendChild(empty);
+                    return;
+                }
+                for (const it of this.items) {
+                    const cell = document.createElement('div');
+                    cell.className = 'batch-cell';
+                    const img = document.createElement('img');
+                    img.src = it.url;
+                    const fstr = this._buildFilterString();
+                    img.style.filter = fstr || 'none';
+                    cell.appendChild(img);
+                    const name = document.createElement('div');
+                    name.className = 'name';
+                    name.textContent = it.name;
+                    cell.appendChild(name);
+                    this._gridEl.appendChild(cell);
+                }
+            }
+
+            _refreshThumbs() {
+                if (!this._gridEl) return;
+                const filter = this._buildFilterString() || 'none';
+                this._gridEl.querySelectorAll('img').forEach(i => { i.style.filter = filter; });
+            }
+
+            _buildFilterString() {
+                const parts = [];
+                if (this.filters.grayscale) parts.push('grayscale(1)');
+                if (this.filters.invert) parts.push('invert(1)');
+                if (this.filters.sepia) parts.push('sepia(1)');
+                if (this.filters.blur) parts.push('blur(3px)');
+                if (this.filters.brightness) parts.push('brightness(1.5)');
+                if (this.filters.contrast) parts.push('contrast(1.5)');
+                if (this.filters.saturate) parts.push('saturate(1.5)');
+                return parts.join(' ');
+            }
+
+            async _processToBlob(img, mime, quality) {
+                const res = this.resolution;
+                const canvas = document.createElement('canvas');
+                canvas.width = res;
+                canvas.height = res;
+                const ctx = canvas.getContext('2d');
+
+                if (mime === 'image/jpeg') {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillRect(0, 0, res, res);
+                }
+
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+
+                const filter = this._buildFilterString();
+                if (filter) ctx.filter = filter;
+
+                const scale = Math.min(res / img.width, res / img.height);
+                const w = img.width * scale;
+                const h = img.height * scale;
+                const x = (res - w) / 2;
+                const y = (res - h) / 2;
+
+                if (this.filters.mirrorH || this.filters.mirrorV) {
+                    ctx.save();
+                    ctx.translate(this.filters.mirrorH ? res : 0, this.filters.mirrorV ? res : 0);
+                    ctx.scale(this.filters.mirrorH ? -1 : 1, this.filters.mirrorV ? -1 : 1);
+                    ctx.drawImage(img, x, y, w, h);
+                    ctx.restore();
+                } else {
+                    ctx.drawImage(img, x, y, w, h);
+                }
+
+                return await new Promise(r => canvas.toBlob(r, mime, quality));
+            }
+
+            async download() {
+                if (this.items.length === 0) { alert('No hay imágenes cargadas.'); return; }
+                const activeFormats = Object.keys(this.formats).filter(k => this.formats[k]);
+                if (activeFormats.length === 0) { alert('Seleccioná al menos un formato.'); return; }
+                if (!window.JSZip) { alert('JSZip no disponible.'); return; }
+
+                const zip = new JSZip();
+                const baseName = this.outputName || 'imagen';
+                const startNum = this.startNumber;
+                const fmtMime = { jpg: 'image/jpeg', png: 'image/png', webp: 'image/webp' };
+                const fmtExt  = { jpg: 'jpg', png: 'png', webp: 'webp' };
+
+                const totalJobs = this.items.length * activeFormats.length;
+                let done = 0;
+                let total = 0;
+
+                this._setStatus(`Procesando 0/${totalJobs}...`);
+
+                for (let i = 0; i < this.items.length; i++) {
+                    const it = this.items[i];
+                    const num = String(startNum + i);
+                    for (const fmt of activeFormats) {
+                        const mime = fmtMime[fmt];
+                        const q = fmt === 'png' ? undefined : 0.92;
+                        try {
+                            const blob = await this._processToBlob(it.img, mime, q);
+                            if (blob) {
+                                zip.file(`${baseName}${num}.${fmtExt[fmt]}`, blob);
+                                total++;
+                            }
+                        } catch (err) {}
+                        done++;
+                        this._setStatus(`Procesando ${done}/${totalJobs}...`);
+                    }
+                }
+
+                this._setStatus('Generando ZIP...');
+                const zipBlob = await zip.generateAsync({ type: 'blob' });
+                const url = URL.createObjectURL(zipBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${baseName}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                setTimeout(() => URL.revokeObjectURL(url), 2000);
+                this._setStatus(`✓ ZIP listo · ${total} archivos`);
+            }
+
+            destroy() {
+                this.input.removeEventListener('change', this._boundChange);
+                this._disposeItems();
+                if (this._panel) this._panel.destroy();
+                this._panel = null;
             }
         }
     </script>
 
     <script type="module">
-        let removeBackground = async () => {
-            throw new Error('removeBackground no disponible');
-        };
+        let removeBackground = async () => { throw new Error('removeBackground no disponible'); };
         try {
             const mod = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.6.0/+esm');
             removeBackground = mod.removeBackground;
@@ -795,22 +933,17 @@
             console.warn('No se pudo cargar removeBackground:', e);
         }
 
-        if (window.UI && window.UI.Theme) {
-            UI.Theme.inject();
-            UI.Theme.set({
-                'panel-width': '100%',
-                'font-size-panel-title': '12px',
-                'font-size-label': '11px',
-                'font-size-btn': '11px'
-            });
-        }
+        UI.Theme.inject();
+        UI.Theme.set({
+            'panel-width': '100%',
+            'font-size-panel-title': '12px',
+            'font-size-label': '11px',
+            'font-size-btn': '11px'
+        });
 
         const sidebar = document.getElementById('sidebar');
         const btnToggleSidebar = document.getElementById('btnToggleSidebar');
-
-        btnToggleSidebar.addEventListener('click', () => {
-            sidebar.classList.toggle('collapsed');
-        });
+        btnToggleSidebar.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
 
         const panelDims = new UISmartPanel({ title: 'Dimensiones & Aspecto', floating: false });
         const inWidth = new UIInputNumberInt({ value: 1024, min: 1, max: 8192 });
@@ -881,14 +1014,7 @@
         panelExport.addRow(btnApplyFilters, btnResetFilters);
         panelExport.addRow(btnDownload);
 
-        const panels = [panelDims, panelActions, panelFilters, panelNormalMap, panelExport];
-        panels.forEach(panel => {
-            if (panel.mount) {
-                panel.mount(sidebar);
-            } else if (panel.element) {
-                sidebar.appendChild(panel.element);
-            }
-        });
+        [panelDims, panelActions, panelFilters, panelNormalMap, panelExport].forEach(p => p.mount(sidebar));
 
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -898,15 +1024,10 @@
         let originalImageData = null;
         let currentFile = null;
         let originalAspectRatio = 1;
-
-        let currentSaturation = 100;
-        let currentBrightness = 100;
-        let currentHue = 0;
-        let currentContrast = 100;
-        let currentBlur = 0;
+        let currentSaturation = 100, currentBrightness = 100, currentHue = 0,
+            currentContrast = 100, currentBlur = 0;
 
         const hiddenFileInput = document.getElementById('hiddenFileInput');
-
         hiddenFileInput.addEventListener('change', (e) => {
             if (e.target.files && e.target.files[0]) {
                 currentFile = e.target.files[0];
@@ -916,11 +1037,11 @@
             }
         });
 
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(ev => {
+        ['dragenter','dragover','dragleave','drop'].forEach(ev => {
             dropArea.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }, false);
         });
-        ['dragenter', 'dragover'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.add('highlight'), false));
-        ['dragleave', 'drop'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.remove('highlight'), false));
+        ['dragenter','dragover'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.add('highlight'), false));
+        ['dragleave','drop'].forEach(ev => dropArea.addEventListener(ev, () => dropArea.classList.remove('highlight'), false));
 
         dropArea.addEventListener('drop', (e) => {
             const files = e.dataTransfer.files;
@@ -952,17 +1073,13 @@
             img.onload = () => {
                 originalImage = img;
                 originalAspectRatio = img.width / img.height;
-
                 canvas.width = img.width;
                 canvas.height = img.height;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 ctx.drawImage(img, 0, 0);
-
                 originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
                 inWidth.setValue(img.width);
                 inHeight.setValue(img.height);
-
                 resetFilters();
                 infoStatus.setText(`Cargado: ${img.width}x${img.height}px`);
             };
@@ -975,7 +1092,6 @@
                 if (w > 0) inHeight.setValue(Math.round(w / originalAspectRatio));
             }
         });
-
         inHeight.element.addEventListener('input', () => {
             if (chkAspect.getValue() && originalImage) {
                 const h = inHeight.getValue();
@@ -987,34 +1103,23 @@
             if (!originalImage) return alert('Primero carga una imagen.');
             let w = inWidth.getValue();
             let h = inHeight.getValue();
-
-            if (chkAspect.getValue()) {
-                h = Math.round(w / originalAspectRatio);
-                inHeight.setValue(h);
-            }
-
-            canvas.width = w;
-            canvas.height = h;
+            if (chkAspect.getValue()) { h = Math.round(w / originalAspectRatio); inHeight.setValue(h); }
+            canvas.width = w; canvas.height = h;
             applyFiltersToCanvas();
         });
 
         btnEnhance.element.addEventListener('click', () => {
             if (!originalImage) return alert('Primero carga una imagen.');
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = canvas.width * 2;
-            tempCanvas.height = canvas.height * 2;
-
-            tempCtx.imageSmoothingEnabled = true;
-            tempCtx.imageSmoothingQuality = 'high';
-            tempCtx.filter = 'contrast(110%) brightness(105%) saturate(110%)';
-            tempCtx.drawImage(originalImage, 0, 0, tempCanvas.width, tempCanvas.height);
-
-            canvas.width = tempCanvas.width;
-            canvas.height = tempCanvas.height;
+            const t = document.createElement('canvas');
+            const tc = t.getContext('2d');
+            t.width = canvas.width * 2; t.height = canvas.height * 2;
+            tc.imageSmoothingEnabled = true;
+            tc.imageSmoothingQuality = 'high';
+            tc.filter = 'contrast(110%) brightness(105%) saturate(110%)';
+            tc.drawImage(originalImage, 0, 0, t.width, t.height);
+            canvas.width = t.width; canvas.height = t.height;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(tempCanvas, 0, 0);
-
+            ctx.drawImage(t, 0, 0);
             inWidth.setValue(canvas.width);
             inHeight.setValue(canvas.height);
         });
@@ -1022,7 +1127,6 @@
         btnRemoveBg.element.addEventListener('click', async () => {
             if (!originalImage && !currentFile) return alert('Primero carga una imagen.');
             infoStatus.setText('Removiendo fondo...');
-
             try {
                 let input = currentFile;
                 if (!input) {
@@ -1044,47 +1148,34 @@
 
         btnCenter.element.addEventListener('click', () => {
             if (!originalImage) return alert('Primero carga una imagen.');
-
             let res = parseInt(prompt('Resolución (ancho y alto en px):', '2048'));
             if (!res || res < 1) res = 2048;
-
             let margin = parseInt(prompt('Margen en px (borde):', '120'));
             if (isNaN(margin) || margin < 0) margin = 120;
             if (margin * 2 >= res) margin = Math.floor(res / 4);
-
             const fondoBlanco = confirm('¿Fondo BLANCO?\n\nAceptar = Blanco\nCancelar = Negro');
 
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width  = res;
-            tempCanvas.height = res;
-
-            tempCtx.fillStyle = fondoBlanco ? '#ffffff' : '#000000';
-            tempCtx.fillRect(0, 0, res, res);
-
+            const t = document.createElement('canvas');
+            const tc = t.getContext('2d');
+            t.width = res; t.height = res;
+            tc.fillStyle = fondoBlanco ? '#ffffff' : '#000000';
+            tc.fillRect(0, 0, res, res);
             const areaUtil = res - margin * 2;
             const scale = Math.min(areaUtil / canvas.width, areaUtil / canvas.height);
-            const sW = canvas.width  * scale;
-            const sH = canvas.height * scale;
-            const x  = (res - sW) / 2;
-            const y  = (res - sH) / 2;
-
-            tempCtx.imageSmoothingEnabled = true;
-            tempCtx.imageSmoothingQuality = 'high';
-            tempCtx.drawImage(canvas, x, y, sW, sH);
-
-            canvas.width  = res;
-            canvas.height = res;
+            const sW = canvas.width * scale, sH = canvas.height * scale;
+            const x = (res - sW) / 2, y = (res - sH) / 2;
+            tc.imageSmoothingEnabled = true;
+            tc.imageSmoothingQuality = 'high';
+            tc.drawImage(canvas, x, y, sW, sH);
+            canvas.width = res; canvas.height = res;
             ctx.clearRect(0, 0, res, res);
-            ctx.drawImage(tempCanvas, 0, 0);
-
-            originalImage       = tempCanvas;
+            ctx.drawImage(t, 0, 0);
+            originalImage = t;
             originalAspectRatio = 1;
-            originalImageData   = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
+            originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             inWidth.setValue(res);
             inHeight.setValue(res);
-            infoStatus.setText(`Centrado: ${res}×${res}px · margen ${margin}px · fondo ${fondoBlanco ? 'blanco' : 'negro'}`);
+            infoStatus.setText(`Centrado: ${res}×${res}px · margen ${margin}px`);
         });
 
         btnGray.element.addEventListener('click', () => {
@@ -1095,11 +1186,8 @@
         });
 
         let curvesEditor = null;
-        let curvesUI = null;
-
         btnCurves.element.addEventListener('click', () => {
             if (!originalImage) return alert('Primero carga una imagen.');
-
             if (!curvesEditor) {
                 curvesEditor = new CanvasCurves(canvas, {
                     onApply: (img) => {
@@ -1110,14 +1198,8 @@
                     onGrayscale: (on) => infoStatus.setText(on ? 'Vista previa gris ON' : 'Vista previa gris OFF')
                 });
             }
-
             curvesEditor.begin();
-
-            if (!curvesUI) {
-                curvesUI = curvesEditor.mountUI(sidebar);
-            }
-
-            curvesUI.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            curvesEditor.mountUI(sidebar);
             infoStatus.setText('Editor de curvas activo');
         });
 
@@ -1165,12 +1247,8 @@
         }
 
         function resetFilters() {
-            currentSaturation = 100;
-            currentBrightness = 100;
-            currentHue = 0;
-            currentContrast = 100;
-            currentBlur = 0;
-
+            currentSaturation = 100; currentBrightness = 100; currentHue = 0;
+            currentContrast = 100; currentBlur = 0;
             slSaturation.setValue(100);
             slBrightness.setValue(100);
             slHue.setValue(0);
@@ -1178,29 +1256,25 @@
             slBlur.setValue(0);
             slBias.setValue(10);
             slStrength.setValue(50);
-
             if (originalImageData) ctx.putImageData(originalImageData, 0, 0);
             else applyFiltersToCanvas();
         }
 
         btnPaintHunyuan.element.addEventListener('click', () => {
-            let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            ctx.putImageData(colorinihunyuan(imgData), 0, 0);
+            let d = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            ctx.putImageData(colorinihunyuan(d), 0, 0);
         });
-
         btn3dMesh.element.addEventListener('click', () => {
-            let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            ctx.putImageData(colorpasocolor3dmesh(imgData), 0, 0);
+            let d = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            ctx.putImageData(colorpasocolor3dmesh(d), 0, 0);
         });
-
         btnMeshPaint.element.addEventListener('click', () => {
-            let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            ctx.putImageData(meshpaintcolor27112025731(imgData), 0, 0);
+            let d = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            ctx.putImageData(meshpaintcolor27112025731(d), 0, 0);
         });
-
         btnNoFunciona.element.addEventListener('click', () => {
-            let imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            ctx.putImageData(meshpasonofunciona(imgData), 0, 0);
+            let d = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            ctx.putImageData(meshpasonofunciona(d), 0, 0);
         });
 
         btnCreateNormal.element.addEventListener('click', () => {
@@ -1221,36 +1295,28 @@
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const data = imageData.data;
             const newData = new Uint8ClampedArray(data.length);
-
             const bias = parseFloat(slBias.getValue()) / 100.0;
             const strength = parseFloat(slStrength.getValue()) / 10.0;
             const invertR = chkInvert.getValue() ? -1.0 : 1.0;
             const invertG = chkInvert.getValue() ? -1.0 : 1.0;
             const useRed = chkRed.getValue();
             const useGreen = chkGreen.getValue();
-
             for (let y = 0; y < canvas.height; y++) {
                 for (let x = 0; x < canvas.width; x++) {
                     const index = (y * canvas.width + x) * 4;
-
                     const d1 = getRed(data, x + 1, y, canvas.width, canvas.height) / 255.0;
                     const d2 = getRed(data, x - 1, y, canvas.width, canvas.height) / 255.0;
                     const d3 = getRed(data, x, y + 1, canvas.width, canvas.height) / 255.0;
                     const d4 = getRed(data, x, y - 1, canvas.width, canvas.height) / 255.0;
-
                     let dx = (d2 - d1) * strength * invertR;
                     let dy = (d4 - d3) * strength * invertG;
                     const dz = 1.0 / Math.max(bias, 0.01);
-
-                    const len = Math.sqrt(dx * dx + dy * dy + dz * dz);
-                    const nx = dx / len;
-                    const ny = dy / len;
-                    const nz = dz / len;
-
-                    newData[index] = useRed ? Math.floor(Math.max(0, Math.min(255, (nx * 0.5 + 0.5) * 255))) : data[index];
-                    newData[index + 1] = useGreen ? Math.floor(Math.max(0, Math.min(255, (ny * 0.5 + 0.5) * 255))) : data[index + 1];
-                    newData[index + 2] = Math.floor(Math.max(0, Math.min(255, (nz * 0.5 + 0.5) * 255)));
-                    newData[index + 3] = 255;
+                    const len = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                    const nx = dx/len, ny = dy/len, nz = dz/len;
+                    newData[index] = useRed ? Math.floor(Math.max(0, Math.min(255, (nx*0.5+0.5)*255))) : data[index];
+                    newData[index+1] = useGreen ? Math.floor(Math.max(0, Math.min(255, (ny*0.5+0.5)*255))) : data[index+1];
+                    newData[index+2] = Math.floor(Math.max(0, Math.min(255, (nz*0.5+0.5)*255)));
+                    newData[index+3] = 255;
                 }
             }
             ctx.putImageData(new ImageData(newData, canvas.width, canvas.height), 0, 0);
@@ -1261,134 +1327,136 @@
             return data[(y * width + x) * 4];
         }
 
-        const saturationGio = (tex_color, ec5) => {
-            const valLim = x => Math.max(0.0, Math.min(1.0, x));
-            const maxx = Math.max(tex_color.r, tex_color.g, tex_color.b);
-            if (tex_color.r !== maxx) tex_color.r += (maxx - tex_color.r) * ec5;
-            if (tex_color.g !== maxx) tex_color.g += (maxx - tex_color.g) * ec5;
-            if (tex_color.b !== maxx) tex_color.b += (maxx - tex_color.b) * ec5;
-            tex_color.r = valLim(tex_color.r);
-            tex_color.g = valLim(tex_color.g);
-            tex_color.b = valLim(tex_color.b);
-            return tex_color;
+        const saturationGio = (c, ec5) => {
+            const v = x => Math.max(0, Math.min(1, x));
+            const m = Math.max(c.r, c.g, c.b);
+            if (c.r !== m) c.r += (m - c.r) * ec5;
+            if (c.g !== m) c.g += (m - c.g) * ec5;
+            if (c.b !== m) c.b += (m - c.b) * ec5;
+            c.r = v(c.r); c.g = v(c.g); c.b = v(c.b);
+            return c;
         };
-
-        const mixerHtmlPasaColor = (rgbax, rgba2 = { r: 0.5, g: 0.45, b: 0.36 }, porcent, bool = true) => {
-            let maxx0 = Math.max(rgbax.r, rgbax.g, rgbax.b);
-            let clmd = 1.0 - porcent;
-            rgbax.r = rgbax.r * clmd + rgba2.r * porcent;
-            rgbax.g = rgbax.g * clmd + rgba2.g * porcent;
-            rgbax.b = rgbax.b * clmd + rgba2.b * porcent;
+        const colorDivide = c => Math.min(c.r, c.g, c.b) / (Math.max(c.r, c.g, c.b) + 1e-6);
+        const simpleLinealFuncion = (x1, y1, x2, y2, val) => {
+            const dx = (x2 - x1) + 1e-5;
+            const m = (y2 - y1) / dx;
+            return m * val + (y2 - m * x2);
+        };
+        const limit = (n, min = 0, max = 1) => Math.max(min, Math.min(max, n));
+        const operacionMatematica = (rgba, val, op) => {
+            const v = x => Math.max(0, Math.min(1, x));
+            if (op === '*') { rgba.r = v(rgba.r*val); rgba.g = v(rgba.g*val); rgba.b = v(rgba.b*val); }
+            if (op === '+') { rgba.r = v(rgba.r+val); rgba.g = v(rgba.g+val); rgba.b = v(rgba.b+val); }
+            return rgba;
+        };
+        const mixerHtmlPasaColor = (rgbax, rgba2 = { r: 0.5, g: 0.45, b: 0.36 }, p, bool = true) => {
+            const m0 = Math.max(rgbax.r, rgbax.g, rgbax.b);
+            const clmd = 1 - p;
+            rgbax.r = rgbax.r*clmd + rgba2.r*p;
+            rgbax.g = rgbax.g*clmd + rgba2.g*p;
+            rgbax.b = rgbax.b*clmd + rgba2.b*p;
             if (bool) {
-                let max2 = Math.max(rgbax.r, rgbax.g, rgbax.b);
-                operacionMatematica(rgbax, maxx0 / (max2 + 0.00001), "*");
+                const m2 = Math.max(rgbax.r, rgbax.g, rgbax.b);
+                operacionMatematica(rgbax, m0 / (m2 + 1e-5), '*');
             }
             return rgbax;
         };
 
-        const colorDivide = c => (Math.min(c.r, c.g, c.b)) / (Math.max(c.r, c.g, c.b) + 0.000001);
-        const simpleLinealFuncion = (x1, y1, x2, y2, val) => {
-            let dx = (x2 - x1) + 0.00001;
-            let m = (y2 - y1) / dx;
-            return m * val + (y2 - m * x2);
-        };
-        const limit = (num, min = 0.0, max = 1.0) => Math.max(min, Math.min(max, num));
-
-        const operacionMatematica = (rgba, val, operacion) => {
-            const v = x => Math.max(0, Math.min(1, x));
-            if (operacion == "*") { rgba.r = v(rgba.r * val); rgba.g = v(rgba.g * val); rgba.b = v(rgba.b * val); }
-            if (operacion == "+") { rgba.r = v(rgba.r + val); rgba.g = v(rgba.g + val); rgba.b = v(rgba.b + val); }
-            return rgba;
-        };
-
         const colorinihunyuan = (imageData) => {
-            let data = imageData.data;
-            let rgba = { r: 0, g: 0, b: 0 }, rgba2 = { r: 0, g: 0, b: 0 };
+            const data = imageData.data;
+            const rgba = { r: 0, g: 0, b: 0 };
+            const rgba2 = { r: 0, g: 0, b: 0 };
             let count = 0;
             for (let i = 0; i < data.length; i += 4) {
-                let r = data[i] / 255, g = data[i + 1] / 255, b = data[i + 2] / 255;
-                let m = Math.max(r, g, b);
+                const r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+                const m = Math.max(r, g, b);
                 if (m > 0.3 && m < 0.7) { rgba2.r += r; rgba2.g += g; rgba2.b += b; count++; }
             }
             if (count > 0) { rgba2.r /= count; rgba2.g /= count; rgba2.b /= count; }
             for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255; rgba.g = data[i + 1] / 255; rgba.b = data[i + 2] / 255;
+                rgba.r = data[i]/255; rgba.g = data[i+1]/255; rgba.b = data[i+2]/255;
                 let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                operacionMatematica(rgba, (1 - limit(maxpx * 2)) * 0.1, "+");
-                operacionMatematica(rgba, simpleLinealFuncion(1, 0.5, 0, 1.2, maxpx), "*");
-                let dv = colorDivide(rgba);
-                rgba = mixerHtmlPasaColor(rgba, rgba2, limit(simpleLinealFuncion(1, 1, 0.4, 0, dv)), true);
-                data[i] = rgba.r * 255; data[i + 1] = rgba.g * 255; data[i + 2] = rgba.b * 255;
+                operacionMatematica(rgba, (1 - limit(maxpx*2)) * 0.1, '+');
+                operacionMatematica(rgba, simpleLinealFuncion(1, 0.5, 0, 1.2, maxpx), '*');
+                const dv = colorDivide(rgba);
+                const mixed = mixerHtmlPasaColor(rgba, rgba2, limit(simpleLinealFuncion(1, 1, 0.4, 0, dv)), true);
+                data[i] = mixed.r*255; data[i+1] = mixed.g*255; data[i+2] = mixed.b*255;
             }
             return imageData;
         };
 
         const meshpasonofunciona = (imageData) => {
-            let data = imageData.data;
-            let rgba = { r: 0, g: 0, b: 0 };
-            let paso2 = confirm("mesh creator cancelar paint");
-            let sum = parseFloat(prompt("suma", "0.1")) || 0.1;
+            const data = imageData.data;
+            const rgba = { r: 0, g: 0, b: 0 };
+            const paso2 = confirm("mesh creator cancelar paint");
+            const sum = parseFloat(prompt("suma", "0.1")) || 0.1;
             for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255; rgba.g = data[i + 1] / 255; rgba.b = data[i + 2] / 255;
-                let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
+                rgba.r = data[i]/255; rgba.g = data[i+1]/255; rgba.b = data[i+2]/255;
+                const maxpx = Math.max(rgba.r, rgba.g, rgba.b);
                 if (!paso2) {
-                    operacionMatematica(rgba, simpleLinealFuncion(1, -0.3, 0, sum, maxpx), "+");
+                    operacionMatematica(rgba, simpleLinealFuncion(1, -0.3, 0, sum, maxpx), '+');
                     for (let i2 = 0; i2 < 2; i2++) saturationGio(rgba, 0.5 - colorDivide(rgba));
                 } else {
-                    operacionMatematica(rgba, simpleLinealFuncion(1, 0.67, 0, 1.5, limit(maxpx * 2, 0, 1)), "*");
-                    operacionMatematica(rgba, (1 - maxpx) * (0.1 + sum) * maxpx, "+");
+                    operacionMatematica(rgba, simpleLinealFuncion(1, 0.67, 0, 1.5, limit(maxpx*2, 0, 1)), '*');
+                    operacionMatematica(rgba, (1 - maxpx) * (0.1 + sum) * maxpx, '+');
                     for (let i2 = 0; i2 < 2; i2++) saturationGio(rgba, 0.5 - colorDivide(rgba));
                 }
-                data[i] = rgba.r * 255; data[i + 1] = rgba.g * 255; data[i + 2] = rgba.b * 255;
+                data[i] = rgba.r*255; data[i+1] = rgba.g*255; data[i+2] = rgba.b*255;
             }
             return imageData;
         };
 
         const meshpaintcolor27112025731 = (imageData) => {
-            let data = imageData.data;
-            let rgba = { r: 0, g: 0, b: 0 };
-            let vuelta = confirm("¿No es para blender?");
+            const data = imageData.data;
+            const rgba = { r: 0, g: 0, b: 0 };
+            const vuelta = confirm("¿No es para blender?");
             for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255; rgba.g = data[i + 1] / 255; rgba.b = data[i + 2] / 255;
+                rgba.r = data[i]/255; rgba.g = data[i+1]/255; rgba.b = data[i+2]/255;
                 let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
                 if (vuelta) {
-                    operacionMatematica(rgba, simpleLinealFuncion(1, 0, 0, 0.2, maxpx), "+");
+                    operacionMatematica(rgba, simpleLinealFuncion(1, 0, 0, 0.2, maxpx), '+');
                     saturationGio(rgba, 0.5 - colorDivide(rgba));
                     maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                    if (maxpx > 0.67) operacionMatematica(rgba, 0.67 / (maxpx + 0.000001), "*");
+                    if (maxpx > 0.67) operacionMatematica(rgba, 0.67 / (maxpx + 1e-6), '*');
                     saturationGio(rgba, -colorDivide(rgba) * 0.3);
                 } else {
-                    operacionMatematica(rgba, (1 - maxpx) * 0.2 * maxpx, "+");
+                    operacionMatematica(rgba, (1 - maxpx) * 0.2 * maxpx, '+');
                     maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                    operacionMatematica(rgba, (1 - maxpx) * 0.2 * maxpx, "+");
+                    operacionMatematica(rgba, (1 - maxpx) * 0.2 * maxpx, '+');
                     maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                    operacionMatematica(rgba, (maxpx) * 0.2 * -maxpx, "+");
+                    operacionMatematica(rgba, maxpx * 0.2 * -maxpx, '+');
                 }
-                data[i] = rgba.r * 255; data[i + 1] = rgba.g * 255; data[i + 2] = rgba.b * 255;
+                data[i] = rgba.r*255; data[i+1] = rgba.g*255; data[i+2] = rgba.b*255;
             }
             return imageData;
         };
 
         const colorpasocolor3dmesh = (imageData) => {
-            let data = imageData.data;
-            let rgba = { r: 0, g: 0, b: 0 };
-            let mul = confirm("¿Multiplicar (sum)?");
+            const data = imageData.data;
+            const rgba = { r: 0, g: 0, b: 0 };
+            const mul = confirm("¿Multiplicar (sum)?");
             for (let i = 0; i < data.length; i += 4) {
-                rgba.r = data[i] / 255; rgba.g = data[i + 1] / 255; rgba.b = data[i + 2] / 255;
+                rgba.r = data[i]/255; rgba.g = data[i+1]/255; rgba.b = data[i+2]/255;
                 let maxpx = Math.max(rgba.r, rgba.g, rgba.b);
                 if (mul) {
-                    operacionMatematica(rgba, simpleLinealFuncion(1, 0.7, 0, 0.09, maxpx) / (maxpx + 0.000001), "*");
+                    operacionMatematica(rgba, simpleLinealFuncion(1, 0.7, 0, 0.09, maxpx) / (maxpx + 1e-6), '*');
                 } else {
-                    operacionMatematica(rgba, 0.05, "+");
+                    operacionMatematica(rgba, 0.05, '+');
                     maxpx = Math.max(rgba.r, rgba.g, rgba.b);
-                    if (maxpx > 0.5) operacionMatematica(rgba, 0.5 / (maxpx + 0.00001), "*");
+                    if (maxpx > 0.5) operacionMatematica(rgba, 0.5 / (maxpx + 1e-5), '*');
                     saturationGio(rgba, 0.3 - colorDivide(rgba));
                     saturationGio(rgba, 0.3 - colorDivide(rgba));
                 }
-                data[i] = rgba.r * 255; data[i + 1] = rgba.g * 255; data[i + 2] = rgba.b * 255;
+                data[i] = rgba.r*255; data[i+1] = rgba.g*255; data[i+2] = rgba.b*255;
             }
             return imageData;
         };
+
+        const folderInput = document.getElementById('folderInput');
+        const batch = new BatchFolder(folderInput, {
+            onStatus: (msg) => { try { infoStatus.setText(msg); } catch (e) {} }
+        });
+        batch.mountUI(sidebar);
     </script>
 </body>
 
