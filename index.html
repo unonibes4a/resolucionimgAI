@@ -6,12 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Editor de Imágenes Avanzado - 2 Columnas</title>
 
-   <script src="https://unonibes4a.github.io/pintaresta/a.js"></script>
+    <script src="https://unonibes4a.github.io/pintaresta/a.js"></script>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             background-color: #14161a;
@@ -25,7 +23,6 @@
             display: flex;
         }
 
-        /* Layout de dos columnas */
         .app-container {
             display: flex;
             width: 100%;
@@ -33,7 +30,6 @@
             position: relative;
         }
 
-        /* Botón Hamburguesa */
         .hamburger-btn {
             position: absolute;
             top: 14px;
@@ -58,28 +54,23 @@
             border-color: #2196F3;
         }
 
-        /* Columna 1: Menú Lateral (300px) */
         .sidebar {
             width: 300px;
             min-width: 300px;
             height: 100%;
-            background: #181a1f;
-            border-right: 1px solid #282b33;
+            background: #49494957;
+            border-right: 1px solid #3d3d3dbd;
             overflow-y: auto;
             overflow-x: hidden;
-            padding: 60px 12px 20px 12px; /* espacio arriba para el botón */
+            padding: 60px 12px 20px 12px;
             display: flex;
             flex-direction: column;
             gap: 12px;
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Clase para colapsar la barra lateral */
-        .sidebar.collapsed {
-            margin-left: -300px;
-        }
+        .sidebar.collapsed { margin-left: -300px; }
 
-        /* Columna 2: Canvas Centrado */
         .main-workspace {
             flex: 1;
             height: 100%;
@@ -89,7 +80,7 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
-            background-color: #0e1013;
+            background-color: #000000b4;
             position: relative;
         }
 
@@ -104,13 +95,13 @@
         }
 
         .drop-area {
-            border: 2px dashed #3c424d;
+            border: 2px dashed #555557;
             border-radius: 8px;
             padding: 12px 20px;
             text-align: center;
             font-size: 13px;
             color: #8c93a0;
-            background-color: #15171b;
+            background-color: #2020208a;
             transition: all 0.2s ease;
             width: 100%;
             max-width: 600px;
@@ -119,8 +110,8 @@
         }
 
         .drop-area:hover, .drop-area.highlight {
-            background-color: #20242b;
-            border-color: #2196F3;
+            background-color: #424242bb;
+            border-color: #2195f3ab;
             color: #fff;
         }
 
@@ -131,10 +122,10 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+     
             border-radius: 6px;
-            border: 1px solid #282b33;
-            background: #08090a;
+            border: 1px solid #30303079;
+            background: #3a3a3a42;
         }
 
         canvas {
@@ -145,45 +136,665 @@
             object-fit: contain;
         }
 
-        /* Estilo de Scrollbar fina para el menú */
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .sidebar::-webkit-scrollbar-thumb {
-            background: #2b313a;
-            border-radius: 3px;
-        }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #2b313a; border-radius: 3px; }
     </style>
 </head>
 
 <body>
 
     <div class="app-container">
-        <!-- Botón Hamburguesa -->
         <button id="btnToggleSidebar" class="hamburger-btn" title="Mostrar/Ocultar Menú">☰</button>
 
-        <!-- Columna 1: Menú Lateral de Herramientas -->
-        <aside class="sidebar" id="sidebar">
-            <!-- Los paneles UISmartPanel se montan aquí dinámicamente -->
-        </aside>
+        <aside class="sidebar" id="sidebar"></aside>
 
-        <!-- Columna 2: Espacio de Trabajo con Canvas Centrado -->
         <main class="main-workspace">
             <div class="workspace-content">
-                <div class="drop-area" id="dropArea">
-                    📁 Clic para abrir, arrastra o pega (<b>Ctrl + V</b>)
+                <div class="drop-area" id="dropArea" onclick="document.getElementById('hiddenFileInput').click()">
+                    Clic para abrir, arrastra o pega 
                 </div>
+                <input type="file" id="hiddenFileInput" accept="image/*" style="display:none">
                 <div class="canvas-container">
-                    <canvas id="myCanvas" width="500" height="500"></canvas>
+                    <canvas id="myCanvas" width="1024" height="1024"></canvas>
                 </div>
             </div>
         </main>
     </div>
 
-    <script type="module">
-        import { removeBackground } from 'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.6.0/+esm';
+    <script>
+        class CanvasCurves {
+            constructor(canvas, opts = {}) {
+                if (!canvas || canvas.tagName !== 'CANVAS') throw new Error('CanvasCurves: <canvas> requerido');
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d', { willReadFrequently: true });
 
-        // 1. Configuración de tema UI
+                this.onPreview   = opts.onPreview   || null;
+                this.onApply     = opts.onApply     || null;
+                this.onReset     = opts.onReset     || null;
+                this.onGrayscale = opts.onGrayscale || null;
+
+                this.includeAlpha = !!opts.includeAlpha;
+
+                this.colors = Object.assign({
+                    rgb: '#e6e6e6',
+                    r:   '#ff5555',
+                    g:   '#55ff55',
+                    b:   '#5599ff',
+                    a:   '#ffcc55'
+                }, opts.colors || {});
+
+                this._initCurves();
+                this.active = 'rgb';
+                this.grayscale = false;
+                this.snapshot = null;
+
+                this._ui = null;
+                this._ec = null;
+                this._ecx = null;
+                this._dragIdx = -1;
+                this._hoverIdx = -1;
+                this._infoEl = null;
+
+                this._cw = 260;
+                this._ch = 252;
+                this._padL = 24;
+                this._padT = 6;
+                this._padB = 16;
+                this._padR = 6;
+                this._pw = this._cw - this._padL - this._padR;
+                this._ph = this._ch - this._padT - this._padB;
+
+                this._boundMove = this._onMouseMove.bind(this);
+                this._boundUp   = this._onMouseUp.bind(this);
+            }
+
+            begin() {
+                this.snapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                return this;
+            }
+
+            reset() {
+                this._initCurves();
+                this.grayscale = false;
+                this._render();
+                this._drawEditor();
+                this._updateInfo(null, null, null);
+                if (this.onReset) this.onReset();
+                return this;
+            }
+
+            setGrayscale(v) {
+                this.grayscale = !!v;
+                this._render();
+                this._drawEditor();
+                if (this.onGrayscale) this.onGrayscale(this.grayscale);
+                return this;
+            }
+
+            toggleGrayscale() { return this.setGrayscale(!this.grayscale); }
+
+            setChannel(ch) {
+                if (!this.curves[ch]) return this;
+                this.active = ch;
+                this._drawEditor();
+                return this;
+            }
+
+            addPoint(x, y, ch) {
+                ch = ch || this.active;
+                const pts = this.curves[ch];
+                x = Math.max(0, Math.min(255, Math.round(x)));
+                y = Math.max(0, Math.min(255, Math.round(y)));
+                for (const p of pts) if (Math.abs(p.x - x) < 4) return this;
+                pts.push({ x, y });
+                pts.sort((a, b) => a.x - b.x);
+                this._render();
+                this._drawEditor();
+                return this;
+            }
+
+            movePoint(idx, x, y, ch) {
+                ch = ch || this.active;
+                const pts = this.curves[ch];
+                if (idx < 0 || idx >= pts.length) return this;
+
+                if (idx === 0) {
+                    pts[0].x = 0;
+                    pts[0].y = Math.max(0, Math.min(255, Math.round(y)));
+                } else if (idx === pts.length - 1) {
+                    pts[idx].x = 255;
+                    pts[idx].y = Math.max(0, Math.min(255, Math.round(y)));
+                } else {
+                    const minX = pts[idx - 1].x + 2;
+                    const maxX = pts[idx + 1].x - 2;
+                    pts[idx].x = Math.max(minX, Math.min(maxX, Math.round(x)));
+                    pts[idx].y = Math.max(0, Math.min(255, Math.round(y)));
+                }
+                this._render();
+                this._drawEditor();
+                return this;
+            }
+
+            removePoint(idx, ch) {
+                ch = ch || this.active;
+                const pts = this.curves[ch];
+                if (pts.length <= 2 || idx <= 0 || idx >= pts.length - 1) return this;
+                pts.splice(idx, 1);
+                this._render();
+                this._drawEditor();
+                this._updateInfo(null, null, null);
+                return this;
+            }
+
+            apply() {
+                this.snapshot = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+                this._initCurves();
+                this.grayscale = false;
+                this._drawEditor();
+                this._updateInfo(null, null, null);
+                if (this.onApply) this.onApply(this.snapshot);
+                return this.snapshot;
+            }
+
+            static toGrayscale(canvas, weights) {
+                weights = weights || { r: 0.299, g: 0.587, b: 0.114 };
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+                const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const d = img.data;
+                for (let i = 0; i < d.length; i += 4) {
+                    const g = (weights.r * d[i] + weights.g * d[i + 1] + weights.b * d[i + 2]) | 0;
+                    d[i] = d[i + 1] = d[i + 2] = g;
+                }
+                ctx.putImageData(img, 0, 0);
+                return img;
+            }
+
+            _initCurves() {
+                this.curves = {
+                    rgb: this._identityCurve(),
+                    r:   this._identityCurve(),
+                    g:   this._identityCurve(),
+                    b:   this._identityCurve()
+                };
+                if (this.includeAlpha) this.curves.a = this._identityCurve();
+            }
+
+            _identityCurve() { return [{ x: 0, y: 0 }, { x: 255, y: 255 }]; }
+
+            _buildLUT(points) {
+                const lut = new Uint8Array(256);
+                const n = points.length;
+
+                if (n === 0) { for (let i = 0; i < 256; i++) lut[i] = i; return lut; }
+                if (n === 1) { for (let i = 0; i < 256; i++) lut[i] = points[0].y; return lut; }
+                if (n === 2 && points[0].x === 0 && points[0].y === 0 &&
+                              points[1].x === 255 && points[1].y === 255) {
+                    for (let i = 0; i < 256; i++) lut[i] = i;
+                    return lut;
+                }
+
+                const xs = new Float64Array(n);
+                const ys = new Float64Array(n);
+                for (let i = 0; i < n; i++) { xs[i] = points[i].x; ys[i] = points[i].y; }
+
+                const dx = new Float64Array(n - 1);
+                const ms = new Float64Array(n - 1);
+                for (let i = 0; i < n - 1; i++) {
+                    dx[i] = xs[i + 1] - xs[i];
+                    ms[i] = dx[i] === 0 ? 0 : (ys[i + 1] - ys[i]) / dx[i];
+                }
+
+                const c1 = new Float64Array(n);
+                c1[0] = ms[0];
+                c1[n - 1] = ms[n - 2];
+                for (let i = 1; i < n - 1; i++) {
+                    if (ms[i - 1] * ms[i] <= 0) {
+                        c1[i] = 0;
+                    } else {
+                        const w1 = 2 * dx[i] + dx[i - 1];
+                        const w2 = dx[i] + 2 * dx[i - 1];
+                        c1[i] = (w1 + w2) / (w1 / ms[i - 1] + w2 / ms[i]);
+                    }
+                }
+
+                let seg = 0;
+                for (let x = 0; x < 256; x++) {
+                    if (x <= xs[0])     { lut[x] = ys[0] | 0; continue; }
+                    if (x >= xs[n - 1]) { lut[x] = ys[n - 1] | 0; continue; }
+                    while (seg < n - 2 && x > xs[seg + 1]) seg++;
+
+                    const t  = (x - xs[seg]) / dx[seg];
+                    const t2 = t * t;
+                    const t3 = t2 * t;
+                    const h00 =  2 * t3 - 3 * t2 + 1;
+                    const h10 =      t3 - 2 * t2 + t;
+                    const h01 = -2 * t3 + 3 * t2;
+                    const h11 =      t3 -     t2;
+                    const y = h00 * ys[seg] + h10 * dx[seg] * c1[seg]
+                            + h01 * ys[seg + 1] + h11 * dx[seg] * c1[seg + 1];
+                    lut[x] = y < 0 ? 0 : y > 255 ? 255 : (y + 0.5) | 0;
+                }
+                return lut;
+            }
+
+            _render() {
+                if (!this.snapshot) this.begin();
+                const w = this.canvas.width;
+                const h = this.canvas.height;
+                const src = this.snapshot.data;
+                const out = new Uint8ClampedArray(src.length);
+
+                const lutM = this._buildLUT(this.curves.rgb);
+                const lutR = this._buildLUT(this.curves.r);
+                const lutG = this._buildLUT(this.curves.g);
+                const lutB = this._buildLUT(this.curves.b);
+                const lutA = this.includeAlpha ? this._buildLUT(this.curves.a) : null;
+
+                const gray = this.grayscale;
+
+                for (let i = 0; i < src.length; i += 4) {
+                    let r = src[i], g = src[i + 1], b = src[i + 2], a = src[i + 3];
+                    if (gray) {
+                        const y = (0.299 * r + 0.587 * g + 0.114 * b) | 0;
+                        r = g = b = y;
+                    }
+                    out[i]     = lutR[lutM[r]];
+                    out[i + 1] = lutG[lutM[g]];
+                    out[i + 2] = lutB[lutM[b]];
+                    out[i + 3] = lutA ? lutA[a] : a;
+                }
+
+                const imgData = new ImageData(out, w, h);
+                this.ctx.putImageData(imgData, 0, 0);
+                if (this.onPreview) this.onPreview(imgData);
+            }
+
+            mountUI(container) {
+                if (this._ui) return this._ui;
+
+                const root = document.createElement('div');
+                root.style.cssText =
+                    'background:#1c1f26;border:1px solid #2c313c;border-radius:8px;' +
+                    'padding:12px;width:280px;color:#d1d5db;box-sizing:border-box;' +
+                    'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:12px;';
+
+                const header = document.createElement('div');
+                header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;';
+
+                const title = document.createElement('div');
+                title.textContent = 'Curvas';
+                title.style.cssText = 'font-weight:600;font-size:13px;color:#fff;';
+
+                const info = document.createElement('div');
+                info.textContent = 'X: —   Y: —';
+                info.style.cssText =
+                    'font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;' +
+                    'font-size:11px;color:#9aa3b2;background:#101318;padding:3px 7px;' +
+                    'border-radius:4px;border:1px solid #2c313c;letter-spacing:0.3px;' +
+                    'min-width:110px;text-align:center;';
+                this._infoEl = info;
+
+                header.appendChild(title);
+                header.appendChild(info);
+                root.appendChild(header);
+
+                const chRow = document.createElement('div');
+                chRow.style.cssText = 'display:flex;gap:4px;margin-bottom:10px;';
+                const channels = this.includeAlpha ? ['rgb','r','g','b','a'] : ['rgb','r','g','b'];
+                const chBtns = {};
+                channels.forEach(ch => {
+                    const btn = document.createElement('button');
+                    btn.textContent = ch.toUpperCase();
+                    btn.style.cssText =
+                        'flex:1;padding:5px 0;border:1px solid #2c313c;border-radius:4px;' +
+                        'background:#232830;color:#9aa3b2;font-size:10px;font-weight:600;' +
+                        'cursor:pointer;letter-spacing:0.5px;';
+                    btn.addEventListener('click', () => {
+                        this.setChannel(ch);
+                        updateChannelUI();
+                        this._updateInfo(null, null, null);
+                    });
+                    chRow.appendChild(btn);
+                    chBtns[ch] = btn;
+                });
+                root.appendChild(chRow);
+
+                const updateChannelUI = () => {
+                    channels.forEach(ch => {
+                        const b = chBtns[ch];
+                        const on = ch === this.active;
+                        b.style.background  = on ? this.colors[ch] : '#232830';
+                        b.style.color       = on ? '#111' : '#9aa3b2';
+                        b.style.borderColor = on ? this.colors[ch] : '#2c313c';
+                    });
+                };
+                updateChannelUI();
+
+                const ec = document.createElement('canvas');
+                ec.width = this._cw;
+                ec.height = this._ch;
+                ec.style.cssText =
+                    'display:block;width:100%;height:auto;border-radius:6px;' +
+                    'background:#101318;border:1px solid #2c313c;cursor:crosshair;' +
+                    'touch-action:none;user-select:none;';
+                root.appendChild(ec);
+                this._ec = ec;
+                this._ecx = ec.getContext('2d');
+
+                ec.addEventListener('mousedown', this._onMouseDown.bind(this));
+                ec.addEventListener('mousemove', this._onEditorHover.bind(this));
+                ec.addEventListener('mouseleave', () => {
+                    this._hoverIdx = -1;
+                    this._drawEditor();
+                    if (this._dragIdx < 0) this._updateInfo(null, null, null);
+                });
+                ec.addEventListener('contextmenu', e => e.preventDefault());
+
+                const btnRow = document.createElement('div');
+                btnRow.style.cssText = 'display:flex;gap:6px;margin-top:10px;';
+
+                const btnGray = document.createElement('button');
+                btnGray.textContent = 'Gris';
+                btnGray.style.cssText = this._btnStyle();
+                btnGray.addEventListener('click', () => { this.toggleGrayscale(); updateGrayUI(); });
+
+                const updateGrayUI = () => {
+                    const on = this.grayscale;
+                    btnGray.style.background  = on ? '#3b82f6' : '#232830';
+                    btnGray.style.color       = on ? '#fff' : '#d1d5db';
+                    btnGray.style.borderColor = on ? '#3b82f6' : '#2c313c';
+                };
+                updateGrayUI();
+
+                const btnReset = document.createElement('button');
+                btnReset.textContent = 'Reset';
+                btnReset.style.cssText = this._btnStyle();
+                btnReset.addEventListener('click', () => { this.reset(); updateChannelUI(); updateGrayUI(); });
+
+                const btnApply = document.createElement('button');
+                btnApply.textContent = 'Aplicar';
+                btnApply.style.cssText = this._btnStyle('#3b82f6', '#fff');
+                btnApply.addEventListener('click', () => { this.apply(); updateChannelUI(); updateGrayUI(); });
+
+                btnRow.appendChild(btnGray);
+                btnRow.appendChild(btnReset);
+                btnRow.appendChild(btnApply);
+                root.appendChild(btnRow);
+
+                const hint = document.createElement('div');
+                hint.textContent = 'Click: añadir · Arrastrar: mover · Click derecho: borrar';
+                hint.style.cssText = 'margin-top:8px;font-size:10px;color:#6b7280;text-align:center;';
+                root.appendChild(hint);
+
+                this._ui = root;
+                if (container) container.appendChild(root);
+                this._drawEditor();
+                this._updateInfo(null, null, null);
+                return root;
+            }
+
+            _btnStyle(bg, color) {
+                return 'flex:1;padding:6px 0;border:1px solid #2c313c;border-radius:4px;' +
+                       'background:' + (bg || '#232830') + ';color:' + (color || '#d1d5db') + ';' +
+                       'font-size:11px;font-weight:600;cursor:pointer;';
+            }
+
+            _updateInfo(x, y, idx) {
+                if (!this._infoEl) return;
+                if (x === null || y === null || idx === null || idx === undefined) {
+                    this._infoEl.textContent = 'X: —   Y: —';
+                    return;
+                }
+                const nx = (x / 255).toFixed(3);
+                const ny = (y / 255).toFixed(3);
+                this._infoEl.textContent = `X: ${nx}   Y: ${ny}`;
+            }
+
+            _drawEditor() {
+                if (!this._ec) return;
+                const cx = this._ecx;
+                const W = this._cw;
+                const H = this._ch;
+                const PL = this._padL;
+                const PT = this._padT;
+                const PB = this._padB;
+                const PR = this._padR;
+                const PW = this._pw;
+                const PH = this._ph;
+
+                cx.clearRect(0, 0, W, H);
+                cx.fillStyle = '#101318';
+                cx.fillRect(0, 0, W, H);
+
+                cx.fillStyle = '#0a0d12';
+                cx.fillRect(PL, PT, PW, PH);
+
+                cx.strokeStyle = '#1e232c';
+                cx.lineWidth = 1;
+                for (let i = 1; i < 4; i++) {
+                    const x = PL + (i / 4) * PW;
+                    const y = PT + (i / 4) * PH;
+                    cx.beginPath();
+                    cx.moveTo(x + 0.5, PT); cx.lineTo(x + 0.5, PT + PH);
+                    cx.moveTo(PL, y + 0.5); cx.lineTo(PL + PW, y + 0.5);
+                    cx.stroke();
+                }
+
+                cx.strokeStyle = '#2c313c';
+                cx.setLineDash([3, 3]);
+                cx.beginPath();
+                cx.moveTo(PL, PT + PH);
+                cx.lineTo(PL + PW, PT);
+                cx.stroke();
+                cx.setLineDash([]);
+
+                cx.strokeStyle = '#2c313c';
+                cx.strokeRect(PL + 0.5, PT + 0.5, PW - 1, PH - 1);
+
+                const toX = x => PL + (x / 255) * PW;
+                const toY = y => PT + PH - (y / 255) * PH;
+
+                const labels = ['0', '0.25', '0.5', '0.75', '1'];
+                cx.font = '8px -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif';
+                cx.fillStyle = '#6b7280';
+
+                cx.textAlign = 'center';
+                cx.textBaseline = 'top';
+                for (let i = 0; i < 5; i++) {
+                    const x = PL + (i / 4) * PW;
+                    cx.fillText(labels[i], x, PT + PH + 4);
+                }
+
+                cx.textAlign = 'right';
+                cx.textBaseline = 'middle';
+                for (let i = 0; i < 5; i++) {
+                    const y = PT + PH - (i / 4) * PH;
+                    cx.fillText(labels[i], PL - 4, y);
+                }
+
+                cx.strokeStyle = '#3a4150';
+                cx.lineWidth = 1;
+                for (let i = 0; i < 5; i++) {
+                    const x = PL + (i / 4) * PW;
+                    const y = PT + PH - (i / 4) * PH;
+                    cx.beginPath();
+                    cx.moveTo(x + 0.5, PT + PH - 2); cx.lineTo(x + 0.5, PT + PH);
+                    cx.moveTo(PL, y + 0.5); cx.lineTo(PL + 2, y + 0.5);
+                    cx.stroke();
+                }
+
+                const pts = this.curves[this.active];
+                const lut = this._buildLUT(pts);
+
+                ['r', 'g', 'b'].forEach(ch => {
+                    if (ch === this.active) return;
+                    const c = this.curves[ch];
+                    if (c.length === 2 && c[0].y === 0 && c[1].y === 255) return;
+                    const l = this._buildLUT(c);
+                    cx.strokeStyle = this.colors[ch] + '55';
+                    cx.lineWidth = 1;
+                    cx.beginPath();
+                    for (let x = 0; x < 256; x++) {
+                        const sx = toX(x);
+                        const sy = toY(l[x]);
+                        if (x === 0) cx.moveTo(sx, sy);
+                        else cx.lineTo(sx, sy);
+                    }
+                    cx.stroke();
+                });
+
+                cx.strokeStyle = this.colors[this.active];
+                cx.lineWidth = 1.8;
+                cx.beginPath();
+                for (let x = 0; x < 256; x++) {
+                    const sx = toX(x);
+                    const sy = toY(lut[x]);
+                    if (x === 0) cx.moveTo(sx, sy);
+                    else cx.lineTo(sx, sy);
+                }
+                cx.stroke();
+
+                if (this._dragIdx >= 0 && this._dragIdx < pts.length) {
+                    const p = pts[this._dragIdx];
+                    const sx = toX(p.x);
+                    const sy = toY(p.y);
+                    cx.strokeStyle = this.colors[this.active] + '88';
+                    cx.setLineDash([3, 3]);
+                    cx.lineWidth = 1;
+                    cx.beginPath();
+                    cx.moveTo(sx, PT + PH); cx.lineTo(sx, sy);
+                    cx.moveTo(PL, sy);      cx.lineTo(sx, sy);
+                    cx.stroke();
+                    cx.setLineDash([]);
+                }
+
+                pts.forEach((p, i) => {
+                    const sx = toX(p.x);
+                    const sy = toY(p.y);
+                    const r = i === this._dragIdx ? 6 : i === this._hoverIdx ? 5.5 : 4.5;
+                    cx.beginPath();
+                    cx.arc(sx, sy, r, 0, Math.PI * 2);
+                    cx.fillStyle = this.colors[this.active];
+                    cx.fill();
+                    cx.strokeStyle = '#101318';
+                    cx.lineWidth = 2;
+                    cx.stroke();
+                });
+            }
+
+            _onMouseDown(e) {
+                e.preventDefault();
+
+                if (e.button === 2) {
+                    const idx = this._hitTest(e);
+                    if (idx > 0) this.removePoint(idx);
+                    return;
+                }
+
+                const idx = this._hitTest(e);
+                if (idx >= 0) {
+                    this._dragIdx = idx;
+                    const p = this.curves[this.active][idx];
+                    this._updateInfo(p.x, p.y, idx);
+                } else {
+                    const pos = this._eventPos(e);
+                    const v = this._screenToValue(pos.x, pos.y);
+                    const lut = this._buildLUT(this.curves[this.active]);
+                    this.addPoint(v.x, lut[Math.round(v.x)]);
+                    const after = this.curves[this.active];
+                    for (let i = 0; i < after.length; i++) {
+                        if (Math.abs(after[i].x - v.x) < 4) {
+                            this._dragIdx = i;
+                            this._updateInfo(after[i].x, after[i].y, i);
+                            break;
+                        }
+                    }
+                }
+
+                window.addEventListener('mousemove', this._boundMove);
+                window.addEventListener('mouseup', this._boundUp);
+                this._drawEditor();
+            }
+
+            _onMouseMove(e) {
+                if (this._dragIdx < 0) return;
+                const pos = this._eventPos(e);
+                const v = this._screenToValue(pos.x, pos.y);
+                this.movePoint(this._dragIdx, v.x, v.y);
+                const p = this.curves[this.active][this._dragIdx];
+                if (p) this._updateInfo(p.x, p.y, this._dragIdx);
+            }
+
+            _onMouseUp() {
+                this._dragIdx = -1;
+                window.removeEventListener('mousemove', this._boundMove);
+                window.removeEventListener('mouseup', this._boundUp);
+                this._drawEditor();
+            }
+
+            _onEditorHover(e) {
+                const idx = this._hitTest(e);
+                if (idx !== this._hoverIdx) {
+                    this._hoverIdx = idx;
+                    this._drawEditor();
+                    if (idx >= 0) {
+                        const p = this.curves[this.active][idx];
+                        this._updateInfo(p.x, p.y, idx);
+                    } else if (this._dragIdx < 0) {
+                        this._updateInfo(null, null, null);
+                    }
+                }
+            }
+
+            _hitTest(e) {
+                const pos = this._eventPos(e);
+                const pts = this.curves[this.active];
+                const PL = this._padL;
+                const PT = this._padT;
+                const PW = this._pw;
+                const PH = this._ph;
+                const toX = x => PL + (x / 255) * PW;
+                const toY = y => PT + PH - (y / 255) * PH;
+                for (let i = 0; i < pts.length; i++) {
+                    const dx = pos.x - toX(pts[i].x);
+                    const dy = pos.y - toY(pts[i].y);
+                    if (dx * dx + dy * dy < 100) return i;
+                }
+                return -1;
+            }
+
+            _eventPos(e) {
+                const r = this._ec.getBoundingClientRect();
+                const sx = this._cw / r.width;
+                const sy = this._ch / r.height;
+                return {
+                    x: (e.clientX - r.left) * sx,
+                    y: (e.clientY - r.top) * sy
+                };
+            }
+
+            _screenToValue(sx, sy) {
+                const x = ((sx - this._padL) / this._pw) * 255;
+                const y = (1 - (sy - this._padT) / this._ph) * 255;
+                return {
+                    x: Math.max(0, Math.min(255, x)),
+                    y: Math.max(0, Math.min(255, y))
+                };
+            }
+        }
+    </script>
+
+    <script type="module">
+        let removeBackground = async () => {
+            throw new Error('removeBackground no disponible');
+        };
+        try {
+            const mod = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.6.0/+esm');
+            removeBackground = mod.removeBackground;
+        } catch (e) {
+            console.warn('No se pudo cargar removeBackground:', e);
+        }
+
         if (window.UI && window.UI.Theme) {
             UI.Theme.inject();
             UI.Theme.set({
@@ -194,9 +805,6 @@
             });
         }
 
-        // =======================================================
-        // 2. TOGGLE MENÚ HAMBURGUESA
-        // =======================================================
         const sidebar = document.getElementById('sidebar');
         const btnToggleSidebar = document.getElementById('btnToggleSidebar');
 
@@ -204,14 +812,9 @@
             sidebar.classList.toggle('collapsed');
         });
 
-        // =======================================================
-        // 3. CREACIÓN DE PANELES (SIDEBAR)
-        // =======================================================
-
-        // --- PANEL 1: Dimensiones ---
         const panelDims = new UISmartPanel({ title: 'Dimensiones & Aspecto', floating: false });
-        const inWidth = new UIInputNumberInt({ value: 500, min: 1, max: 8192 });
-        const inHeight = new UIInputNumberInt({ value: 300, min: 1, max: 8192 });
+        const inWidth = new UIInputNumberInt({ value: 1024, min: 1, max: 8192 });
+        const inHeight = new UIInputNumberInt({ value: 1024, min: 1, max: 8192 });
         const chkAspect = new UICheckbox({ label: 'Mantener Aspecto', checked: true });
         const btnResize = new UIButton({ text: 'Redimensionar', variant: 'primary' });
 
@@ -220,11 +823,12 @@
         panelDims.addRow(chkAspect);
         panelDims.addRow(btnResize);
 
-        // --- PANEL 2: Acciones ---
         const panelActions = new UISmartPanel({ title: 'Acciones de Imagen', floating: false });
         const btnEnhance = new UIButton({ text: 'Mejorar Calidad' });
         const btnRemoveBg = new UIButton({ text: 'Remover Fondo' });
-        const btnCenter = new UIButton({ text: 'Centrar Imagen', variant: 'primary' });
+        const btnCenter = new UIButton({ text: 'Centrar Imagen' });
+        const btnGray = new UIButton({ text: 'Imagen a Gris' });
+        const btnCurves = new UIButton({ text: 'Curvas (GIMP)' });
         const btnCopy = new UIButton({ text: 'Copiar' });
         const btnPaste = new UIButton({ text: 'Pegar' });
         const btnPaintHunyuan = new UIButton({ text: 'Paint Hunyuan3D' });
@@ -235,6 +839,7 @@
 
         panelActions.addRow(btnEnhance, btnRemoveBg);
         panelActions.addRow(btnCenter);
+        panelActions.addRow(btnGray, btnCurves);
         panelActions.addRow(btnCopy, btnPaste);
         panelActions.addRow(btnPaintHunyuan);
         panelActions.addRow(btn3dMesh);
@@ -242,7 +847,6 @@
         panelActions.addRow(btnNoFunciona);
         panelActions.addRow(infoStatus);
 
-        // --- PANEL 3: Filtros Básicos ---
         const panelFilters = new UISmartPanel({ title: 'Filtros Básicos', floating: false });
         const slSaturation = new UIConfigurableSlider({ label: 'Sat', min: 0, max: 200, step: 1, value: 100 });
         const slBrightness = new UIConfigurableSlider({ label: 'Bri', min: 0, max: 200, step: 1, value: 100 });
@@ -256,7 +860,6 @@
         panelFilters.addRow(slContrast);
         panelFilters.addRow(slBlur);
 
-        // --- PANEL 4: Normal Map ---
         const panelNormalMap = new UISmartPanel({ title: 'Generador Normal Map', floating: false });
         const slBias = new UIConfigurableSlider({ label: 'Bias', min: 1, max: 100, step: 1, value: 100 });
         const slStrength = new UIConfigurableSlider({ label: 'Fuerza', min: 0, max: 100, step: 1, value: 50 });
@@ -270,7 +873,6 @@
         panelNormalMap.addRow(chkInvert, chkRed, chkGreen);
         panelNormalMap.addRow(btnCreateNormal);
 
-        // --- PANEL 5: Exportar & Control ---
         const panelExport = new UISmartPanel({ title: 'Finalizar & Descargar', floating: false });
         const btnApplyFilters = new UIButton({ text: 'Aplicar Filtros' });
         const btnResetFilters = new UIButton({ text: 'Resetear Filtros', variant: 'danger' });
@@ -279,7 +881,6 @@
         panelExport.addRow(btnApplyFilters, btnResetFilters);
         panelExport.addRow(btnDownload);
 
-        // Montar los paneles directamente dentro del Sidebar de 300px
         const panels = [panelDims, panelActions, panelFilters, panelNormalMap, panelExport];
         panels.forEach(panel => {
             if (panel.mount) {
@@ -289,9 +890,6 @@
             }
         });
 
-        // =======================================================
-        // 4. LÓGICA DE PROCESAMIENTO CANVAS Y FILTROS
-        // =======================================================
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
         const dropArea = document.getElementById('dropArea');
@@ -307,13 +905,8 @@
         let currentContrast = 100;
         let currentBlur = 0;
 
-        const hiddenFileInput = document.createElement('input');
-        hiddenFileInput.type = 'file';
-        hiddenFileInput.accept = 'image/*';
-        hiddenFileInput.style.display = 'none';
-        document.body.appendChild(hiddenFileInput);
+        const hiddenFileInput = document.getElementById('hiddenFileInput');
 
-        dropArea.addEventListener('click', () => hiddenFileInput.click());
         hiddenFileInput.addEventListener('change', (e) => {
             if (e.target.files && e.target.files[0]) {
                 currentFile = e.target.files[0];
@@ -449,73 +1042,83 @@
             }
         });
 
-        // =======================================================
-        // FUNCIONALIDAD: CENTRAR IMAGEN EN CANVAS CUADRADO
-        // =======================================================
         btnCenter.element.addEventListener('click', () => {
             if (!originalImage) return alert('Primero carga una imagen.');
 
-            // 1. Pedir resolución con prompt (por defecto 2048)
-            const promptRes = prompt('Resolución cuadrada (ancho y alto):', '2048');
-            if (promptRes === null) return;
-            const res = parseInt(promptRes) || 2048;
+            let res = parseInt(prompt('Resolución (ancho y alto en px):', '2048'));
+            if (!res || res < 1) res = 2048;
 
-            // 2. Pedir margen con prompt (por defecto 120 px)
-            const promptMargin = prompt('Margen en píxeles:', '120');
-            if (promptMargin === null) return;
-            const margin = Math.max(0, parseInt(promptMargin) || 120);
+            let margin = parseInt(prompt('Margen en px (borde):', '120'));
+            if (isNaN(margin) || margin < 0) margin = 120;
+            if (margin * 2 >= res) margin = Math.floor(res / 4);
 
-            // 3. Confirmar color de fondo: Aceptar = Blanco, Cancelar = Negro
-            const fondoBlanco = confirm('¿Fondo blanco? (Aceptar = Blanco, Cancelar = Negro)');
+            const fondoBlanco = confirm('¿Fondo BLANCO?\n\nAceptar = Blanco\nCancelar = Negro');
 
-            // 4. Crear canvas temporal
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = res;
+            tempCanvas.width  = res;
             tempCanvas.height = res;
 
-            // Rellenar fondo
             tempCtx.fillStyle = fondoBlanco ? '#ffffff' : '#000000';
             tempCtx.fillRect(0, 0, res, res);
 
-            // 5. Calcular tamaño manteniendo la relación de aspecto de la imagen
-            const maxDim = Math.max(1, res - (margin * 2));
-            const aspect = canvas.width / canvas.height;
-            let sW, sH;
-
-            if (aspect >= 1) {
-                sW = maxDim;
-                sH = maxDim / aspect;
-            } else {
-                sH = maxDim;
-                sW = maxDim * aspect;
-            }
-
-            // Centrar dentro del canvas temporal
-            const x = (res - sW) / 2;
-            const y = (res - sH) / 2;
+            const areaUtil = res - margin * 2;
+            const scale = Math.min(areaUtil / canvas.width, areaUtil / canvas.height);
+            const sW = canvas.width  * scale;
+            const sH = canvas.height * scale;
+            const x  = (res - sW) / 2;
+            const y  = (res - sH) / 2;
 
             tempCtx.imageSmoothingEnabled = true;
             tempCtx.imageSmoothingQuality = 'high';
             tempCtx.drawImage(canvas, x, y, sW, sH);
 
-            // 6. Pasar el resultado al canvas principal y sincronizar el estado
-            canvas.width = res;
+            canvas.width  = res;
             canvas.height = res;
             ctx.clearRect(0, 0, res, res);
             ctx.drawImage(tempCanvas, 0, 0);
 
+            originalImage       = tempCanvas;
+            originalAspectRatio = 1;
+            originalImageData   = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
             inWidth.setValue(res);
             inHeight.setValue(res);
-            originalAspectRatio = 1;
+            infoStatus.setText(`Centrado: ${res}×${res}px · margen ${margin}px · fondo ${fondoBlanco ? 'blanco' : 'negro'}`);
+        });
 
-            const newImg = new Image();
-            newImg.onload = () => {
-                originalImage = newImg;
-                originalImageData = ctx.getImageData(0, 0, res, res);
-                infoStatus.setText(`Centrado en ${res}x${res}px (Margen: ${margin}px)`);
-            };
-            newImg.src = tempCanvas.toDataURL('image/png');
+        btnGray.element.addEventListener('click', () => {
+            if (!originalImage) return alert('Primero carga una imagen.');
+            CanvasCurves.toGrayscale(canvas);
+            originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            infoStatus.setText('Imagen en gris');
+        });
+
+        let curvesEditor = null;
+        let curvesUI = null;
+
+        btnCurves.element.addEventListener('click', () => {
+            if (!originalImage) return alert('Primero carga una imagen.');
+
+            if (!curvesEditor) {
+                curvesEditor = new CanvasCurves(canvas, {
+                    onApply: (img) => {
+                        originalImageData = img;
+                        infoStatus.setText('Curvas aplicadas');
+                    },
+                    onReset: () => infoStatus.setText('Curvas reseteadas'),
+                    onGrayscale: (on) => infoStatus.setText(on ? 'Vista previa gris ON' : 'Vista previa gris OFF')
+                });
+            }
+
+            curvesEditor.begin();
+
+            if (!curvesUI) {
+                curvesUI = curvesEditor.mountUI(sidebar);
+            }
+
+            curvesUI.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            infoStatus.setText('Editor de curvas activo');
         });
 
         btnCopy.element.addEventListener('click', () => {
