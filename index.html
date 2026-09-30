@@ -47,7 +47,6 @@
             gap: 14px; max-width: 95%; max-height: 95%;
         }
         .drop-area {
-        
             text-align: center; font-size: 13px; color: #8c93a0;
             background-color: #3838383b; transition: all 0.2s ease;
             width: 100%; max-width: 600px; cursor: pointer; user-select: none;
@@ -55,11 +54,20 @@
         .drop-area:hover, .drop-area.highlight {
             background-color: #1b1b1b; border-color: #2195f31e; color: #fff;
         }
-        .canvas-container {
+       .canvas-container {
             max-width: 100%; max-height: 75vh; overflow: auto;
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            border-radius: 6px; border: 1px solid #282b33; background: #08090a;
+            border-radius: 6px; border: 1px solid #282b33;
+            /* Patrón de cuadritos de transparencia */
+            background-color: #14171f;
+            background-image: conic-gradient(
+                #232733 25%, 
+                #14171f 0 50%, 
+                #232733 0 75%, 
+                #14171f 0
+            );
+            background-size: 16px 16px;
         }
         canvas#myCanvas {
             display: block; max-width: 100%; max-height: 75vh;
@@ -960,6 +968,8 @@
         const btnEnhance = new UIButton({ text: 'Enhance Quality' });
         const btnRemoveBg = new UIButton({ text: 'Remove Background' });
         const btnCenter = new UIButton({ text: 'Center Image' });
+        const btnDlJpg = new UIButton({ text: 'Download JPG' });
+        const btnDlPng = new UIButton({ text: 'Download PNG' });
         const btnGray = new UIButton({ text: 'Image to Gray' });
         const btnCurves = new UIButton({ text: 'Curves (GIMP)' });
         const btnCopy = new UIButton({ text: 'Copy' });
@@ -972,6 +982,7 @@
 
         panelActions.addRow(btnEnhance, btnRemoveBg);
         panelActions.addRow(btnCenter);
+        panelActions.addRow(btnDlJpg, btnDlPng);
         panelActions.addRow(btnGray, btnCurves);
         panelActions.addRow(btnCopy, btnPaste);
         panelActions.addRow(btnPaintHunyuan);
@@ -1178,6 +1189,31 @@
             infoStatus.setText(`Centered: ${res}×${res}px · margin ${margin}px`);
         });
 
+        btnDlJpg.element.addEventListener('click', () => {
+            if (!originalImage && !originalImageData) return alert('Load an image first.');
+            const t = document.createElement('canvas');
+            t.width = canvas.width;
+            t.height = canvas.height;
+            const tc = t.getContext('2d');
+            tc.fillStyle = '#ffffff';
+            tc.fillRect(0, 0, t.width, t.height);
+            tc.drawImage(canvas, 0, 0);
+            const a = document.createElement('a');
+            a.download = 'image.jpg';
+            a.href = t.toDataURL('image/jpeg', 0.95);
+            a.click();
+            infoStatus.setText('Downloaded as JPG');
+        });
+
+        btnDlPng.element.addEventListener('click', () => {
+            if (!originalImage && !originalImageData) return alert('Load an image first.');
+            const a = document.createElement('a');
+            a.download = 'image.png';
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+            infoStatus.setText('Downloaded as PNG');
+        });
+
         btnGray.element.addEventListener('click', () => {
             if (!originalImage) return alert('Load an image first.');
             CanvasCurves.toGrayscale(canvas);
@@ -1346,7 +1382,7 @@
         const operacionMatematica = (rgba, val, op) => {
             const v = x => Math.max(0, Math.min(1, x));
             if (op === '*') { rgba.r = v(rgba.r*val); rgba.g = v(rgba.g*val); rgba.b = v(rgba.b*val); }
-            if (op === '+') { rgba.r = v(rgba.r+val); rgba.g = v(rgba.g+val); rgba.b = v(rgba.b+val); }
+            if (op === '+') { rgba.r = v(rgba.r+val); rgba.g = v(rgba.g+val); rgba.b = v(rgba.b*val); }
             return rgba;
         };
         const mixerHtmlPasaColor = (rgbax, rgba2 = { r: 0.5, g: 0.45, b: 0.36 }, p, bool = true) => {
