@@ -5,15 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Advanced Image Editor</title>
-
-    <script src="https://unonibes4a.github.io/pintaresta/a.js"></script>
+ 
+ <script src="https://unonibes4a.github.io/pintaresta/a.js"></script>  
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <style>
         * { box-sizing: border-box; }
         body {
-            background-color: #14161a;
-            color: #d1d5db;
+            background-color: #121212;
+            color: #e0e0e0;
             margin: 0; padding: 0;
             height: 100vh; width: 100vw;
             overflow: hidden;
@@ -23,48 +23,50 @@
         .app-container { display: flex; width: 100%; height: 100%; position: relative; }
         .hamburger-btn {
             position: absolute; top: 14px; left: 14px; z-index: 1000;
-            background: #20242b; border: 1px solid #3c424d; color: #fff;
+            background: #252526; border: 1px solid #3a3a3a; color: #e0e0e0;
             padding: 8px 12px; border-radius: 6px; cursor: pointer;
-            font-size: 18px; line-height: 1;
+            font-size: 16px; line-height: 1; transition: all 0.2s ease;
         }
-        .hamburger-btn:hover { background: #3b3b3b57; border-color: #2195f36e; }
+        .hamburger-btn:hover { background: #333333; border-color: #5c9ce6; color: #fff; }
         .sidebar {
-            width: 300px; min-width: 300px; height: 100%;
-            background: #3838387e; border-right: 1px solid #282b33;
+            width: 320px; min-width: 320px; height: 100%;
+            background: #1e1e1e; border-right: 1px solid #2c2c2c;
             overflow-y: auto; overflow-x: hidden;
-            padding: 60px 12px 20px 12px;
-            display: flex; flex-direction: column; gap: 12px;
+            padding: 60px 10px 20px 10px;
+            display: flex; flex-direction: column; gap: 8px;
             transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        .sidebar.collapsed { margin-left: -300px; }
+        .sidebar.collapsed { margin-left: -320px; }
         .main-workspace {
             flex: 1; height: 100%; overflow: auto;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; background-color: #1d1d1dd5; position: relative;
+            padding: 20px; background-color: #121212;
+            background-image: radial-gradient(circle at center, #1a1a1a 0%, #121212 100%);
+            position: relative;
         }
         .workspace-content {
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             gap: 14px; max-width: 95%; max-height: 95%;
         }
         .drop-area {
-            text-align: center; font-size: 13px; color: #8c93a0;
-            background-color: #3838383b; transition: all 0.2s ease;
-            width: 100%; max-width: 600px; cursor: pointer; user-select: none;
+            text-align: center; font-size: 12px; color: #8a8a8a;
+            background-color: #252525; border: 1px dashed #3a3a3a; border-radius: 6px;
+            padding: 10px 20px; width: 100%; max-width: 600px;
+            cursor: pointer; user-select: none; transition: all 0.2s ease;
         }
         .drop-area:hover, .drop-area.highlight {
-            background-color: #1b1b1b; border-color: #2195f31e; color: #fff;
+            background-color: #333333; border-color: #5c9ce6; color: #fff;
         }
-       .canvas-container {
+        .canvas-container {
             max-width: 100%; max-height: 75vh; overflow: auto;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            border-radius: 6px; border: 1px solid #282b33;
-            /* Patrón de cuadritos de transparencia */
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+            border-radius: 6px; border: 1px solid #2c2c2c;
             background-color: #14171f;
             background-image: conic-gradient(
-                #232733 25%, 
+                #1e212b 25%, 
                 #14171f 0 50%, 
-                #232733 0 75%, 
+                #1e212b 0 75%, 
                 #14171f 0
             );
             background-size: 16px 16px;
@@ -75,14 +77,15 @@
         }
         .batch-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, 100px);
-            gap: 6px; max-height: 320px; overflow-y: auto;
-            padding: 6px; background: #101318;
-            border: 1px solid #2c313c; border-radius: 6px;
+            grid-template-columns: repeat(auto-fill, 86px);
+            gap: 6px; max-height: 260px; overflow-y: auto;
+            padding: 6px; background: #121212;
+            border: 1px solid #2c2c2c; border-radius: 6px;
+            width: 100%;
         }
         .batch-cell {
-            width: 100px; height: 100px;
-            background: #1d1d1d81; border: 1px solid #2c313c;
+            width: 86px; height: 86px;
+            background: #1e1e1e; border: 1px solid #3a3a3a;
             border-radius: 4px; overflow: hidden; position: relative;
         }
         .batch-cell img {
@@ -90,12 +93,13 @@
         }
         .batch-cell .name {
             position: absolute; bottom: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.7); color: #d1d5db;
+            background: rgba(0,0,0,0.75); color: #e0e0e0;
             font-size: 9px; padding: 2px 4px;
             text-overflow: ellipsis; overflow: hidden; white-space: nowrap;
         }
         .sidebar::-webkit-scrollbar { width: 6px; }
-        .sidebar::-webkit-scrollbar-thumb { background: #3b3b3b57; border-radius: 3px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #3a3a3a; border-radius: 3px; }
+        .sidebar::-webkit-scrollbar-thumb:hover { background: #555555; }
     </style>
 </head>
 
@@ -108,7 +112,7 @@
         <main class="main-workspace">
             <div class="workspace-content">
                 <div class="drop-area" id="dropArea" onclick="document.getElementById('hiddenFileInput').click()">
-                      Click or paste
+                    Click or paste image here
                 </div>
                 <input type="file" id="hiddenFileInput" accept="image/*" style="display:none">
                 <input type="file" id="folderInput" webkitdirectory directory multiple accept="image/*" style="display:none">
@@ -134,7 +138,7 @@
                 this.includeAlpha = !!opts.includeAlpha;
 
                 this.colors = Object.assign({
-                    rgb: '#e6e6e6', r: '#ff5555', g: '#55ff55', b: '#5599ff', a: '#ffcc55'
+                    rgb: '#e0e0e0', r: '#ff6b6b', g: '#51cf66', b: '#5c9ce6', a: '#fcc419'
                 }, opts.colors || {});
 
                 this._initCurves();
@@ -142,15 +146,15 @@
                 this.grayscale = false;
                 this.snapshot = null;
 
-                this._panel = null;
+                this._item = null;
                 this._ec = null;
                 this._ecx = null;
                 this._dragIdx = -1;
                 this._hoverIdx = -1;
                 this._infoLabel = null;
 
-                this._cw = 260;
-                this._ch = 252;
+                this._cw = 270;
+                this._ch = 240;
                 this._padL = 24;
                 this._padT = 6;
                 this._padB = 16;
@@ -344,17 +348,16 @@
                 if (this.onPreview) this.onPreview(imgData);
             }
 
-            mountUI(parentContainer) {
-                if (this._panel) return this._panel;
-                const panel = new UISmartPanel({ title: 'Curves', floating: false });
+            mountUI(accordion) {
+                if (this._item) return this._item;
+                const item = accordion.addItem({ title: 'Curves (GIMP)', open: true });
 
                 const infoLabel = new UILabel({ text: 'X: —   Y: —' });
                 infoLabel.element.style.cssText =
-                    'font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;' +
-                    'font-size:11px;color:#9aa3b2;text-align:right;flex:1;';
+                    'font-family:monospace;font-size:11px;color:#8a8a8a;text-align:right;flex:1;';
                 this._infoLabel = infoLabel;
 
-                panel.addRow(1, new UILabel({ text: 'Value:' }), infoLabel);
+                item.addRow(1, new UILabel({ text: 'Value:' }), infoLabel);
 
                 const chRow = new UIRow({ align: 0 });
                 const channels = this.includeAlpha ? ['rgb','r','g','b','a'] : ['rgb','r','g','b'];
@@ -364,14 +367,16 @@
                         const b = chBtns[ch];
                         if (!b || !b.element) return;
                         const on = ch === this.active;
-                        b.element.style.background = on ? this.colors[ch] : '#232830';
-                        b.element.style.color = on ? '#111' : '#9aa3b2';
-                        b.element.style.borderColor = on ? this.colors[ch] : '#2c313c';
+                        b.element.style.background = on ? this.colors[ch] : 'transparent';
+                        b.element.style.color = on ? '#121212' : '#8a8a8a';
+                        b.element.style.borderColor = on ? this.colors[ch] : '#3a3a3a';
+                        b.element.style.fontWeight = on ? '600' : '500';
                     });
                 };
                 channels.forEach(ch => {
                     const b = new UIButton({ text: ch.toUpperCase() });
                     b.element.style.flex = '1';
+                    b.element.style.padding = '0 4px';
                     b.element.addEventListener('click', () => {
                         this.setChannel(ch);
                         updateChannelUI();
@@ -380,7 +385,7 @@
                     chRow.append(b);
                     chBtns[ch] = b;
                 });
-                panel.body.appendChild(chRow.element);
+                item.body.appendChild(chRow.element);
                 updateChannelUI();
 
                 const ec = document.createElement('canvas');
@@ -388,9 +393,9 @@
                 ec.height = this._ch;
                 ec.style.cssText =
                     'display:block;width:100%;height:auto;border-radius:6px;' +
-                    'background:#101318;border:1px solid #2c313c;cursor:crosshair;' +
-                    'touch-action:none;user-select:none;';
-                panel.body.appendChild(ec);
+                    'background:#121212;border:1px solid #2c2c2c;cursor:crosshair;' +
+                    'touch-action:none;user-select:none;margin:4px 0;';
+                item.body.appendChild(ec);
                 this._ec = ec;
                 this._ecx = ec.getContext('2d');
 
@@ -409,18 +414,17 @@
 
                 btnGray.element.addEventListener('click', () => {
                     this.toggleGrayscale();
-                    btnGray.element.style.background = this.grayscale ? '#3b82f6' : '';
-                    btnGray.element.style.color = this.grayscale ? '#fff' : '';
+                    btnGray.element.style.background = this.grayscale ? 'var(--accent)' : 'transparent';
+                    btnGray.element.style.color = this.grayscale ? '#fff' : 'var(--text-secondary)';
                 });
                 btnReset.element.addEventListener('click', () => this.reset());
                 btnApply.element.addEventListener('click', () => this.apply());
 
-                panel.addRow(btnGray, btnReset, btnApply);
-                panel.mount(parentContainer);
-                this._panel = panel;
+                item.addRow(btnGray, btnReset, btnApply);
+                this._item = item;
                 this._drawEditor();
                 this._updateInfo(null, null, null);
-                return panel;
+                return item;
             }
 
             _updateInfo(x, y, idx) {
@@ -442,10 +446,10 @@
                 const PW = this._pw, PH = this._ph;
 
                 cx.clearRect(0, 0, W, H);
-                cx.fillStyle = '#101318'; cx.fillRect(0, 0, W, H);
-                cx.fillStyle = '#0a0d12'; cx.fillRect(PL, PT, PW, PH);
+                cx.fillStyle = '#121212'; cx.fillRect(0, 0, W, H);
+                cx.fillStyle = '#181818'; cx.fillRect(PL, PT, PW, PH);
 
-                cx.strokeStyle = '#1e232c'; cx.lineWidth = 1;
+                cx.strokeStyle = '#252526'; cx.lineWidth = 1;
                 for (let i = 1; i < 4; i++) {
                     const x = PL + (i / 4) * PW;
                     const y = PT + (i / 4) * PH;
@@ -455,7 +459,7 @@
                     cx.stroke();
                 }
 
-                cx.strokeStyle = '#2c313c'; cx.setLineDash([3, 3]);
+                cx.strokeStyle = '#3a3a3a'; cx.setLineDash([3, 3]);
                 cx.beginPath();
                 cx.moveTo(PL, PT + PH); cx.lineTo(PL + PW, PT);
                 cx.stroke();
@@ -466,8 +470,8 @@
                 const toY = y => PT + PH - (y / 255) * PH;
 
                 const labels = ['0', '0.25', '0.5', '0.75', '1'];
-                cx.font = '8px -apple-system,sans-serif';
-                cx.fillStyle = '#6b7280';
+                cx.font = '9px monospace';
+                cx.fillStyle = '#8a8a8a';
                 cx.textAlign = 'center'; cx.textBaseline = 'top';
                 for (let i = 0; i < 5; i++) {
                     const x = PL + (i / 4) * PW;
@@ -487,7 +491,7 @@
                     const c = this.curves[ch];
                     if (c.length === 2 && c[0].y === 0 && c[1].y === 255) return;
                     const l = this._buildLUT(c);
-                    cx.strokeStyle = this.colors[ch] + '55'; cx.lineWidth = 1;
+                    cx.strokeStyle = this.colors[ch] + '44'; cx.lineWidth = 1;
                     cx.beginPath();
                     for (let x = 0; x < 256; x++) {
                         const sx = toX(x), sy = toY(l[x]);
@@ -522,7 +526,7 @@
                     cx.beginPath();
                     cx.arc(sx, sy, r, 0, Math.PI * 2);
                     cx.fillStyle = this.colors[this.active]; cx.fill();
-                    cx.strokeStyle = '#101318'; cx.lineWidth = 2; cx.stroke();
+                    cx.strokeStyle = '#1e1e1e'; cx.lineWidth = 2; cx.stroke();
                 });
             }
 
@@ -630,7 +634,7 @@
                     mirrorH: false, mirrorV: false
                 };
 
-                this._panel = null;
+                this._item = null;
                 this._gridEl = null;
                 this._statusLabel = null;
 
@@ -682,24 +686,24 @@
                 if (this.onStatus) this.onStatus(msg);
             }
 
-            mountUI(container) {
-                if (this._panel) return this._panel;
+            mountUI(accordion) {
+                if (this._item) return this._item;
 
-                const panel = new UISmartPanel({ title: 'Process Folder (ZIP)', floating: false });
+                const item = accordion.addItem({ title: 'Process Folder (ZIP)', open: false });
 
                 const statusLabel = new UILabel({ text: 'No images' });
-                statusLabel.element.style.cssText = 'font-size:10px;color:#6b7280;';
+                statusLabel.element.style.cssText = 'font-size:10px;color:#8a8a8a;';
                 this._statusLabel = statusLabel;
-                panel.addRow(statusLabel);
+                item.addRow(statusLabel);
 
-                const btnPick = new UIButton({ text: '  Select Folder', variant: 'primary' });
+                const btnPick = new UIButton({ text: 'Select Folder', variant: 'primary' });
                 btnPick.element.style.width = '100%';
                 btnPick.element.addEventListener('click', () => this.input.click());
-                panel.addRow(btnPick);
+                item.addRow(btnPick);
 
                 const grid = document.createElement('div');
                 grid.className = 'batch-grid';
-                panel.body.appendChild(grid);
+                item.body.appendChild(grid);
                 this._gridEl = grid;
                 this._renderGrid();
 
@@ -722,7 +726,7 @@
                         cb.element.style.flex = '1';
                         row.append(cb);
                     }
-                    panel.body.appendChild(row.element);
+                    item.body.appendChild(row.element);
                 }
 
                 const resRow = new UIRow({ align: 0 });
@@ -735,7 +739,7 @@
                 resInput.element.style.flex = '1';
                 resRow.append(new UILabel({ text: 'Resolution:' }));
                 resRow.append(resInput);
-                panel.body.appendChild(resRow.element);
+                item.body.appendChild(resRow.element);
 
                 const nameRow = new UIRow({ align: 0 });
                 const nameInput = new UIInputText({
@@ -746,7 +750,7 @@
                 nameInput.element.style.flex = '1';
                 nameRow.append(new UILabel({ text: 'Name:' }));
                 nameRow.append(nameInput);
-                panel.body.appendChild(nameRow.element);
+                item.body.appendChild(nameRow.element);
 
                 const numRow = new UIRow({ align: 0 });
                 const numInput = new UIInputNumberInt({
@@ -758,7 +762,7 @@
                 numInput.element.style.flex = '1';
                 numRow.append(new UILabel({ text: 'Start #:' }));
                 numRow.append(numInput);
-                panel.body.appendChild(numRow.element);
+                item.body.appendChild(numRow.element);
 
                 const fmtRow = new UIRow({ align: 0 });
                 const fmtDefs = [['jpg', 'JPG'], ['png', 'PNG'], ['webp', 'WEBP']];
@@ -771,12 +775,12 @@
                     cb.element.style.flex = '1';
                     fmtRow.append(cb);
                 });
-                panel.body.appendChild(fmtRow.element);
+                item.body.appendChild(fmtRow.element);
 
                 const btnDl = new UIButton({ text: '⬇ Download ZIP', variant: 'primary' });
                 btnDl.element.style.width = '100%';
                 btnDl.element.addEventListener('click', () => this.download());
-                panel.addRow(btnDl);
+                item.addRow(btnDl);
 
                 const btnClr = new UIButton({ text: 'Clear' });
                 btnClr.element.style.width = '100%';
@@ -786,11 +790,10 @@
                     this._setStatus('No images');
                     this.input.value = '';
                 });
-                panel.addRow(btnClr);
+                item.addRow(btnClr);
 
-                panel.mount(container);
-                this._panel = panel;
-                return panel;
+                this._item = item;
+                return item;
             }
 
             _renderGrid() {
@@ -799,7 +802,7 @@
                 if (this.items.length === 0) {
                     const empty = document.createElement('div');
                     empty.textContent = 'No images';
-                    empty.style.cssText = 'color:#4b5563;font-size:11px;padding:20px;text-align:center;grid-column:1/-1;';
+                    empty.style.cssText = 'color:#555555;font-size:11px;padding:20px;text-align:center;grid-column:1/-1;';
                     this._gridEl.appendChild(empty);
                     return;
                 }
@@ -926,8 +929,8 @@
             destroy() {
                 this.input.removeEventListener('change', this._boundChange);
                 this._disposeItems();
-                if (this._panel) this._panel.destroy();
-                this._panel = null;
+                if (this._item) this._item.destroy();
+                this._item = null;
             }
         }
     </script>
@@ -937,34 +940,44 @@
         try {
             const mod = await import('https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.6.0/+esm');
             removeBackground = mod.removeBackground;
-        } catch (e) {
-            console.warn('Could not load removeBackground:', e);
-        }
+        } catch (e) {}
 
         UI.Theme.inject();
         UI.Theme.set({
-            'panel-width': '100%',
-            'font-size-panel-title': '12px',
-            'font-size-label': '11px',
-            'font-size-btn': '11px'
+            'bg-base': '#121212',
+            'bg-panel': '#1e1e1e',
+            'bg-elevated': '#252526',
+            'bg-input': '#252525',
+            'bg-hover': '#333333',
+            'border-subtle': '#2c2c2c',
+            'border-strong': '#3a3a3a',
+            'text-primary': '#e0e0e0',
+            'text-secondary': '#8a8a8a',
+            'text-muted': '#555555',
+            'accent': '#5c9ce6',
+            'accent-alpha': 'rgba(92, 156, 230, 0.5)',
+            'accent-dim': 'rgba(92, 156, 230, 0.15)'
         });
 
         const sidebar = document.getElementById('sidebar');
         const btnToggleSidebar = document.getElementById('btnToggleSidebar');
         btnToggleSidebar.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
 
-        const panelDims = new UISmartPanel({ title: 'Dimensions & Aspect', floating: false });
+        const accordion = new UIAccordion({ exclusive: false });
+        accordion.mount(sidebar);
+
+        const itemDims = accordion.addItem({ title: 'Dimensions & Aspect', open: true });
         const inWidth = new UIInputNumberInt({ value: 1024, min: 1, max: 8192 });
         const inHeight = new UIInputNumberInt({ value: 1024, min: 1, max: 8192 });
         const chkAspect = new UICheckbox({ label: 'Keep Aspect', checked: true });
         const btnResize = new UIButton({ text: 'Resize', variant: 'primary' });
 
-        panelDims.addRow(new UILabel({ text: 'Width' }), inWidth);
-        panelDims.addRow(new UILabel({ text: 'Height' }), inHeight);
-        panelDims.addRow(chkAspect);
-        panelDims.addRow(btnResize);
+        itemDims.addRow(new UILabel({ text: 'Width' }), inWidth);
+        itemDims.addRow(new UILabel({ text: 'Height' }), inHeight);
+        itemDims.addRow(chkAspect);
+        itemDims.addRow(btnResize);
 
-        const panelActions = new UISmartPanel({ title: 'Image Actions', floating: false });
+        const itemActions = accordion.addItem({ title: 'Image Actions', open: true });
         const btnEnhance = new UIButton({ text: 'Enhance Quality' });
         const btnRemoveBg = new UIButton({ text: 'Remove Background' });
         const btnCenter = new UIButton({ text: 'Center Image' });
@@ -980,31 +993,31 @@
         const btnNoFunciona = new UIButton({ text: "Doesn't Work (Alt)" });
         const infoStatus = new UIInfo({ text: 'Ready to process' });
 
-        panelActions.addRow(btnEnhance, btnRemoveBg);
-        panelActions.addRow(btnCenter);
-        panelActions.addRow(btnDlJpg, btnDlPng);
-        panelActions.addRow(btnGray, btnCurves);
-        panelActions.addRow(btnCopy, btnPaste);
-        panelActions.addRow(btnPaintHunyuan);
-        panelActions.addRow(btn3dMesh);
-        panelActions.addRow(btnMeshPaint);
-        panelActions.addRow(btnNoFunciona);
-        panelActions.addRow(infoStatus);
+        itemActions.addRow(btnEnhance, btnRemoveBg);
+        itemActions.addRow(btnCenter);
+        itemActions.addRow(btnDlJpg, btnDlPng);
+        itemActions.addRow(btnGray, btnCurves);
+        itemActions.addRow(btnCopy, btnPaste);
+        itemActions.addRow(btnPaintHunyuan);
+        itemActions.addRow(btn3dMesh);
+        itemActions.addRow(btnMeshPaint);
+        itemActions.addRow(btnNoFunciona);
+        itemActions.addRow(infoStatus);
 
-        const panelFilters = new UISmartPanel({ title: 'Basic Filters', floating: false });
+        const itemFilters = accordion.addItem({ title: 'Basic Filters', open: false });
         const slSaturation = new UIConfigurableSlider({ label: 'Sat', min: 0, max: 200, step: 1, value: 100 });
         const slBrightness = new UIConfigurableSlider({ label: 'Bri', min: 0, max: 200, step: 1, value: 100 });
         const slHue = new UIConfigurableSlider({ label: 'Hue', min: 0, max: 360, step: 1, value: 0 });
         const slContrast = new UIConfigurableSlider({ label: 'Con', min: 0, max: 200, step: 1, value: 100 });
         const slBlur = new UIConfigurableSlider({ label: 'Blu', min: 0, max: 20, step: 1, value: 0 });
 
-        panelFilters.addRow(slSaturation);
-        panelFilters.addRow(slBrightness);
-        panelFilters.addRow(slHue);
-        panelFilters.addRow(slContrast);
-        panelFilters.addRow(slBlur);
+        itemFilters.addRow(slSaturation);
+        itemFilters.addRow(slBrightness);
+        itemFilters.addRow(slHue);
+        itemFilters.addRow(slContrast);
+        itemFilters.addRow(slBlur);
 
-        const panelNormalMap = new UISmartPanel({ title: 'Normal Map Generator', floating: false });
+        const itemNormalMap = accordion.addItem({ title: 'Normal Map Generator', open: false });
         const slBias = new UIConfigurableSlider({ label: 'Bias', min: 1, max: 100, step: 1, value: 100 });
         const slStrength = new UIConfigurableSlider({ label: 'Strength', min: 0, max: 100, step: 1, value: 50 });
         const chkInvert = new UICheckbox({ label: 'Invert', checked: false });
@@ -1012,20 +1025,18 @@
         const chkGreen = new UICheckbox({ label: 'G', checked: true });
         const btnCreateNormal = new UIButton({ text: 'Create Normal Map', variant: 'primary' });
 
-        panelNormalMap.addRow(slBias);
-        panelNormalMap.addRow(slStrength);
-        panelNormalMap.addRow(chkInvert, chkRed, chkGreen);
-        panelNormalMap.addRow(btnCreateNormal);
+        itemNormalMap.addRow(slBias);
+        itemNormalMap.addRow(slStrength);
+        itemNormalMap.addRow(chkInvert, chkRed, chkGreen);
+        itemNormalMap.addRow(btnCreateNormal);
 
-        const panelExport = new UISmartPanel({ title: 'Finish & Download', floating: false });
+        const itemExport = accordion.addItem({ title: 'Finish & Download', open: false });
         const btnApplyFilters = new UIButton({ text: 'Apply Filters' });
         const btnResetFilters = new UIButton({ text: 'Reset Filters', variant: 'danger' });
         const btnDownload = new UIButton({ text: 'Download Image', variant: 'primary' });
 
-        panelExport.addRow(btnApplyFilters, btnResetFilters);
-        panelExport.addRow(btnDownload);
-
-        [panelDims, panelActions, panelFilters, panelNormalMap, panelExport].forEach(p => p.mount(sidebar));
+        itemExport.addRow(btnApplyFilters, btnResetFilters);
+        itemExport.addRow(btnDownload);
 
         const canvas = document.getElementById('myCanvas');
         const ctx = canvas.getContext('2d', { willReadFrequently: true });
@@ -1222,6 +1233,7 @@
         });
 
         let curvesEditor = null;
+        let curvesItem = null;
         btnCurves.element.addEventListener('click', () => {
             if (!originalImage) return alert('Load an image first.');
             if (!curvesEditor) {
@@ -1233,9 +1245,10 @@
                     onReset: () => infoStatus.setText('Curves reset'),
                     onGrayscale: (on) => infoStatus.setText(on ? 'Gray preview ON' : 'Gray preview OFF')
                 });
+                curvesItem = curvesEditor.mountUI(accordion);
             }
             curvesEditor.begin();
-            curvesEditor.mountUI(sidebar);
+            curvesItem.open();
             infoStatus.setText('Curve editor active');
         });
 
@@ -1290,7 +1303,7 @@
             slHue.setValue(0);
             slContrast.setValue(100);
             slBlur.setValue(0);
-            slBias.setValue(10);
+            slBias.setValue(100);
             slStrength.setValue(50);
             if (originalImageData) ctx.putImageData(originalImageData, 0, 0);
             else applyFiltersToCanvas();
@@ -1492,7 +1505,7 @@
         const batch = new BatchFolder(folderInput, {
             onStatus: (msg) => { try { infoStatus.setText(msg); } catch (e) {} }
         });
-        batch.mountUI(sidebar);
+        batch.mountUI(accordion);
     </script>
 </body>
 
